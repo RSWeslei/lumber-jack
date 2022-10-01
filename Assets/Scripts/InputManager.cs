@@ -2,29 +2,40 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InputManager : MonoBehaviour
+namespace Managers
 {
-    private PlayerInputs playerInputs;
-    private PickupObjects pickupObjects;
-    public bool grab_input;
-    public bool leftMouse_input;
-    
-    private void Awake() {
-        pickupObjects = GetComponent<PickupObjects>();
-    }
-
-    private void OnEnable() {
-        playerInputs = new PlayerInputs();
-        if (playerInputs != null) {
-            playerInputs.PlayerActions.Grab.performed += i => {
-                grab_input = true;
-                pickupObjects.TryMoveObject();
-            };
-            playerInputs.PlayerActions.Grab.canceled += i => {
-                grab_input = false;
-                pickupObjects.DropObject();
-            };
+    public class InputManager : MonoBehaviour
+    {
+        [SerializeField] private PlayerInteraction playerInteraction;
+        private PlayerInputs playerInputs;
+        private PickupObjects pickupObjects;
+        public bool grab_input;
+        public bool interact_input;
+        
+        private void Awake() {
+            pickupObjects = GetComponent<PickupObjects>();
         }
-        playerInputs.Enable();
-    }  
+
+        private void OnEnable() {
+            playerInputs = new PlayerInputs();
+            if (playerInputs != null) {
+                playerInputs.PlayerActions.Grab.performed += i => {
+                    grab_input = true;
+                    pickupObjects.TryMoveObject();
+                };
+                playerInputs.PlayerActions.Grab.canceled += i => {
+                    grab_input = false;
+                    pickupObjects.DropObject();
+                };
+                playerInputs.PlayerActions.Interact.performed += i => {
+                    interact_input = true;
+                    playerInteraction.Interact();
+                };
+                playerInputs.PlayerActions.Interact.canceled += i => {
+                    interact_input = false;
+                };
+            }
+            playerInputs.Enable();
+        }  
+    }
 }
