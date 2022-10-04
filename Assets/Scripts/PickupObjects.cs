@@ -48,14 +48,10 @@ public class PickupObjects : MonoBehaviour
 
     private void CarryObject() {
         currentDist = Vector3.Distance(carryPosition.position, objectRigidbody.position);
-        currentSpeed = Mathf.SmoothStep(minSpeed, maxSpeed, currentDist / maxDistance);
-        currentSpeed *= Time.fixedDeltaTime;
-        Vector3 direction = carryPosition.position - objectRigidbody.position;
-        objectRigidbody.velocity = direction.normalized * currentSpeed;
-        // //Rotation
-        lookRot = Quaternion.LookRotation(cameraTransform.position - objectRigidbody.position);
-        lookRot = Quaternion.Slerp(cameraTransform.rotation, lookRot, rotationSpeed * Time.fixedDeltaTime);
-        objectRigidbody.MoveRotation(lookRot);
+        currentSpeed = Mathf.Lerp(minSpeed, maxSpeed, currentDist / maxDistance);
+        objectRigidbody.velocity = (carryPosition.position - objectRigidbody.position) * currentSpeed * Time.deltaTime;
+        lookRot = Quaternion.LookRotation(carryPosition.position - objectRigidbody.position);
+        objectRigidbody.MoveRotation(Quaternion.RotateTowards(objectRigidbody.rotation, lookRot, rotationSpeed * Time.deltaTime));
     }
 
     public void DropObject() {

@@ -26,7 +26,7 @@ public class PlayerInteraction : MonoBehaviour
     public void Interact () {
         RaycastHit hit;
         if (Physics.Raycast(transform.position, transform.forward, out hit, raycastDistance, intectableLayer)){
-            hit.collider.GetComponent<IPressable>()?.Press();
+            hit.collider.GetComponent<IInteractable>()?.Interact();
         }
     }
 }

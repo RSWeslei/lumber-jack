@@ -1,7 +1,7 @@
 public class CashierButtom : Buttom
 {
-    public override void Press() {
-        base.Press();
+    public override void Interact() {
+        base.Interact();
         GetComponentInParent<Cashier>()?.Buy();
     }
 }
