@@ -30,34 +30,37 @@ public class PickupObjects : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, raycastDistance, layerMask)) {
             objectRigidbody = hit.transform.GetComponent<Rigidbody>();
-            objectRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+            if (objectRigidbody == null) {
+                return;
+            }
+            objectRigidbody.useGravity = false;
+            objectRigidbody.freezeRotation = true;
             isDraggingObject = true;
         }
     }
 
-    [Header("ObjectFollow")]
-    [SerializeField] private float minSpeed = 0;
-    [SerializeField] private float maxSpeed = 300f;
-    [SerializeField] private float maxDistance = 10f;
-    private float currentSpeed = 0f;
-    private float currentDist = 0f;
-
-    [Header("Rotation")]
-    public float rotationSpeed = 100f;
-    Quaternion lookRot;
-
+    [SerializeField] private float distance;
+    [SerializeField] private float maxDistance = 1.5f;
+    [SerializeField] private float dragSpeed = 10f;
     private void CarryObject() {
-        currentDist = Vector3.Distance(carryPosition.position, objectRigidbody.position);
-        currentSpeed = Mathf.Lerp(minSpeed, maxSpeed, currentDist / maxDistance);
-        objectRigidbody.velocity = (carryPosition.position - objectRigidbody.position) * currentSpeed * Time.deltaTime;
-        lookRot = Quaternion.LookRotation(carryPosition.position - objectRigidbody.position);
-        objectRigidbody.MoveRotation(Quaternion.RotateTowards(objectRigidbody.rotation, lookRot, rotationSpeed * Time.deltaTime));
+        distance = Vector3.Distance(objectRigidbody.transform.position, carryPosition.position);
+        if (distance > maxDistance) {
+            DropObject();
+            return;
+        }
+        Vector3 directionToPoint = carryPosition.position - objectRigidbody.transform.position;
+        float distanceToPoint = directionToPoint.magnitude;
+
+        objectRigidbody.velocity = directionToPoint * dragSpeed * distanceToPoint; 
     }
 
     public void DropObject() {
+        if (objectRigidbody != null) {
+            objectRigidbody.useGravity = true;
+            objectRigidbody.freezeRotation = false;
+        }
         isDraggingObject = false;
-        objectRigidbody.constraints = RigidbodyConstraints.None;
         objectRigidbody = null;
-        currentDist = 0;
+        distance = 0f;
     }
 }
