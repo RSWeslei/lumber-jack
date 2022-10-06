@@ -6,7 +6,7 @@ namespace Managers
 {
     public class InputManager : MonoBehaviour
     {
-        [SerializeField] private PlayerInteraction playerInteraction;
+        private PlayerInteraction playerInteraction;
         private PlayerInputs playerInputs;
         private PickupObjects pickupObjects;
         public bool grab_input;
@@ -14,6 +14,7 @@ namespace Managers
         
         private void Awake() {
             pickupObjects = GetComponent<PickupObjects>();
+            playerInteraction = GetComponentInChildren<PlayerInteraction>();
         }
 
         private void OnEnable() {
@@ -21,11 +22,11 @@ namespace Managers
             if (playerInputs != null) {
                 playerInputs.PlayerActions.Grab.performed += i => {
                     grab_input = true;
-                    pickupObjects.TryMoveObject();
+                    pickupObjects?.TryMoveObject();
                 };
                 playerInputs.PlayerActions.Grab.canceled += i => {
                     grab_input = false;
-                    pickupObjects.DropObject();
+                    pickupObjects?.DropObject();
                 };
                 playerInputs.PlayerActions.Interact.performed += i => {
                     interact_input = true;

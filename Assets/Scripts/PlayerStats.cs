@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Managers;
 
-public class Player : MonoBehaviour
+public class PlayerStats : MonoBehaviour
 {
     [Header("Player Stats")]
     [SerializeField] private float life;

@@ -10,7 +10,7 @@ namespace Managers
         public static UIManager Instance { get; private set; }
 
         [Header("References")]
-        [SerializeField] private Player player;
+        [SerializeField] private PlayerStats playerStats;
         [Header("UI Elements")]
         [SerializeField] private TextMeshProUGUI moneyText;
         [SerializeField] private GameObject interactableUI;

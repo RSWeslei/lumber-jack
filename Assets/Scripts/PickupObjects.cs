@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PickupObjects : MonoBehaviour
 {
-    private PlayerManager playerManager;
     private Rigidbody objectRigidbody;
     public bool isDraggingObject=false;
     [SerializeField] private Transform carryPosition;
@@ -16,7 +15,6 @@ public class PickupObjects : MonoBehaviour
     private Transform cameraTransform;
 
     private void Awake() {
-        playerManager = GetComponent<PlayerManager>();
         cameraTransform = GetComponentInChildren<Camera>().transform;
     }
 

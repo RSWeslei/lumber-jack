@@ -6,7 +6,7 @@ public class Cashier : MonoBehaviour
 {
     [SerializeField] private List<Buyable> buyables;
     [SerializeField] private float totalCost = 0f;
-    [SerializeField] private Player player;
+    [SerializeField] private PlayerStats playerStats;
 
     private void OnTriggerEnter(Collider other) {
         if (other.CompareTag("Buyable")) {
@@ -34,8 +34,8 @@ public class Cashier : MonoBehaviour
         if (buyables.Count == 0) {
             return;
         }
-        if (player.Money >= totalCost) {
-            player.RemoveMoney(totalCost);
+        if (playerStats.Money >= totalCost) {
+            playerStats.RemoveMoney(totalCost);
             foreach (Buyable buyable in buyables) {
                 buyable.Buy();
             }
