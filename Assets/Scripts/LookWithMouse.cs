@@ -23,7 +23,6 @@ public class LookWithMouse : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-#if ENABLE_INPUT_SYSTEM
         float mouseX = 0, mouseY = 0;
 
         if (Mouse.current != null)
@@ -41,10 +40,6 @@ public class LookWithMouse : MonoBehaviour
 
         mouseX *= mouseSensitivity * Time.deltaTime;
         mouseY *= mouseSensitivity * Time.deltaTime;
-#else
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
-#endif
 
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);

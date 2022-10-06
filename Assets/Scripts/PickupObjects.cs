@@ -10,7 +10,7 @@ public class PickupObjects : MonoBehaviour
     // [SerializeField] private float moveForce = 10f;
 
     // Raycast
-    [SerializeField] private float raycastDistance = 1.5f;
+    [SerializeField] private float raycastDistance = 2f;
     [SerializeField] private LayerMask layerMask;
     private Transform cameraTransform;
 
@@ -33,6 +33,7 @@ public class PickupObjects : MonoBehaviour
             }
             objectRigidbody.useGravity = false;
             objectRigidbody.freezeRotation = true;
+            objectRigidbody.centerOfMass = hit.transform.position;
             isDraggingObject = true;
         }
     }
@@ -46,16 +47,15 @@ public class PickupObjects : MonoBehaviour
             DropObject();
             return;
         }
-        Vector3 directionToPoint = carryPosition.position - objectRigidbody.transform.position;
-        float distanceToPoint = directionToPoint.magnitude;
-
-        objectRigidbody.velocity = directionToPoint * dragSpeed * distanceToPoint; 
+        // pick up object with physics
+        objectRigidbody.velocity = (carryPosition.position - objectRigidbody.transform.position) * dragSpeed;
     }
 
     public void DropObject() {
         if (objectRigidbody != null) {
             objectRigidbody.useGravity = true;
             objectRigidbody.freezeRotation = false;
+            objectRigidbody.centerOfMass = Vector3.zero;
         }
         isDraggingObject = false;
         objectRigidbody = null;
