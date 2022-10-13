@@ -12,14 +12,20 @@ public class PlayerInteraction : MonoBehaviour
     private void Start() {
         intectableLayer = LayerMask.GetMask("Interactable");
     }
+    private RaycastHit oldHit;
 
     void Update()
     {
         RaycastHit hit;
         if (Physics.Raycast(transform.position, transform.forward, out hit, raycastDistance, intectableLayer)){
-            UIManager.Instance.ShowInteractableUI();
+            hit.transform.GetComponent<IDisplayable>()?.Display();
+            oldHit = hit;
         } else {
-            UIManager.Instance.HideInteractableUI();
+            if (oldHit.transform != null) {
+                oldHit.transform.GetComponent<IDisplayable>()?.Hide();
+                UIDisplays.Instance.HideKeyText();
+                oldHit = new RaycastHit();
+            }
         }
     }
 

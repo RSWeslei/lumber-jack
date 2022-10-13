@@ -13,7 +13,6 @@ namespace Managers
         [SerializeField] private PlayerStats playerStats;
         [Header("UI Elements")]
         [SerializeField] private TextMeshProUGUI moneyText;
-        [SerializeField] private GameObject interactableUI;
 
         private void Awake() {
             if (Instance == null) {
@@ -27,10 +26,9 @@ namespace Managers
             moneyText.text = money.ToString();
         }
 
-        public void ShowInteractableUI() { interactableUI.SetActive(true); }
-
-        public void HideInteractableUI() { interactableUI.SetActive(false); }
-        
+        public void ToggleElement(GameObject element, bool toggle) {
+            element.SetActive(toggle);
+        }
     }
 }
 

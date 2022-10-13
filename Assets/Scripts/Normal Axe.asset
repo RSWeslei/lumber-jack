@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: Normal Axe
   itemPrice: 200
-  itemSprite: {fileID: 0}
+  itemImage: {fileID: 0}
   itemPrefab: {fileID: 0}
+  itemDescription: 'A normal axe '

@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class Cashier : MonoBehaviour
 {
     [SerializeField] private List<Buyable> buyables;
     [SerializeField] private float totalCost = 0f;
     [SerializeField] private PlayerStats playerStats;
+    [SerializeField] private TextMeshPro totalCostText;
 
     private void OnTriggerEnter(Collider other) {
         if (other.CompareTag("Buyable")) {
@@ -15,6 +17,7 @@ public class Cashier : MonoBehaviour
                 return;
             }
             totalCost += buyable.BuyableItem.itemPrice;
+            totalCostText.text = totalCost.ToString("F2");
             buyables.Add(buyable);
         }
     }
@@ -26,6 +29,7 @@ public class Cashier : MonoBehaviour
                 return;
             }
             totalCost -= buyable.BuyableItem.itemPrice;
+            totalCostText.text = totalCost.ToString("F2");
             buyables.Remove(buyable);
         }
     }
@@ -41,10 +45,10 @@ public class Cashier : MonoBehaviour
             }
             buyables = new List<Buyable>();
             totalCost = 0f;
+            totalCostText.text = "0.00";
             Debug.Log("Bought");
         } else {
             Debug.Log("Not enough money");
         }
-    }
-    
+    } 
 }
