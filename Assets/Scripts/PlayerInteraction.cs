@@ -18,7 +18,7 @@ public class PlayerInteraction : MonoBehaviour
     {
         RaycastHit hit;
         if (Physics.Raycast(transform.position, transform.forward, out hit, raycastDistance, intectableLayer)){
-            hit.transform.GetComponent<IDisplayable>()?.Display();
+            hit.collider.GetComponent<IDisplayable>()?.Display();
             oldHit = hit;
         } else {
             if (oldHit.transform != null) {
