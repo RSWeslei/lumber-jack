@@ -22,11 +22,11 @@ namespace Managers
             if (playerInputs != null) {
                 playerInputs.PlayerActions.Grab.performed += i => {
                     grab_input = true;
-                    pickupObjects?.TryMoveObject();
+                    pickupObjects.enabled = true;
                 };
                 playerInputs.PlayerActions.Grab.canceled += i => {
                     grab_input = false;
-                    pickupObjects?.DropObject();
+                    pickupObjects?.Drop();
                 };
                 playerInputs.PlayerActions.Interact.performed += i => {
                     interact_input = true;

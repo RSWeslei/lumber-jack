@@ -4,18 +4,30 @@ using UnityEngine;
 
 public class PickupObjects : MonoBehaviour
 {
+    [Header("Pickup Settings")]
     private Rigidbody objectRigidbody;
-    public bool isDraggingObject=false;
+    public bool isDraggingObject = false;
     [SerializeField] private Transform carryPosition;
-    // [SerializeField] private float moveForce = 10f;
 
-    // Raycast
+    [Header("Raycast")]
     [SerializeField] private float raycastDistance = 2f;
     [SerializeField] private LayerMask layerMask;
     private Transform cameraTransform;
 
+    [Header("ObjectFollow")]
+    [SerializeField] private float minSpeed = 0f;
+    [SerializeField] private float maxSpeed = 300f;
+    [SerializeField] private float maxDistance = 1.5f;
+    [SerializeField] private float currentSpeed = 0f;
+    [SerializeField] private float currentDistance = 0f;
+
+    [Header("Rotation")]
+    public float rotationSpeed = 100f;
+    Quaternion lookRot;
+
     private void Awake() {
         cameraTransform = GetComponentInChildren<Camera>().transform;
+        this.enabled = false;
     }
 
     private void Update() {
@@ -24,7 +36,11 @@ public class PickupObjects : MonoBehaviour
         }
     }
 
-    public void TryMoveObject() { 
+    private void OnEnable() {
+        PickUp();
+    }
+
+    public void PickUp() { 
         RaycastHit hit;
         if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, raycastDistance, layerMask)) {
             objectRigidbody = hit.transform.GetComponent<Rigidbody>();
@@ -33,32 +49,31 @@ public class PickupObjects : MonoBehaviour
             }
             objectRigidbody.useGravity = false;
             objectRigidbody.freezeRotation = true;
-            objectRigidbody.centerOfMass = hit.transform.position;
             isDraggingObject = true;
+            objectRigidbody.transform.SetParent(carryPosition);
+            
         }
     }
-
-    [SerializeField] private float distance;
-    [SerializeField] private float maxDistance = 1.5f;
-    [SerializeField] private float dragSpeed = 10f;
+    private FixedJoint fixedJoint;
     private void CarryObject() {
-        distance = Vector3.Distance(objectRigidbody.transform.position, carryPosition.position);
-        if (distance > maxDistance) {
-            DropObject();
+        currentDistance = Vector3.Distance(objectRigidbody.transform.position, carryPosition.position);
+        if (currentDistance > maxDistance) {
+            Drop();
             return;
         }
-        // pick up object with physics
-        objectRigidbody.velocity = (carryPosition.position - objectRigidbody.transform.position) * dragSpeed;
+        fixedJoint = gameObject.AddComponent<FixedJoint>();
+        fixedJoint.connectedBody = objectRigidbody;
     }
 
-    public void DropObject() {
+    public void Drop() {
         if (objectRigidbody != null) {
             objectRigidbody.useGravity = true;
             objectRigidbody.freezeRotation = false;
-            objectRigidbody.centerOfMass = Vector3.zero;
+            objectRigidbody.transform.SetParent(null);
         }
         isDraggingObject = false;
         objectRigidbody = null;
-        distance = 0f;
+        currentDistance = 0f;
+        this.enabled = false;
     }
 }
