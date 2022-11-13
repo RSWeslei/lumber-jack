@@ -6,6 +6,7 @@ public class PickupObjects : MonoBehaviour
 {
     [Header("Pickup Settings")]
     private Rigidbody objectRigidbody;
+    private Transform objectTransform;
     public bool isDraggingObject = false;
     [SerializeField] private Transform carryPosition;
 
@@ -15,15 +16,13 @@ public class PickupObjects : MonoBehaviour
     private Transform cameraTransform;
 
     [Header("ObjectFollow")]
-    [SerializeField] private float minSpeed = 0f;
-    [SerializeField] private float maxSpeed = 300f;
     [SerializeField] private float maxDistance = 1.5f;
-    [SerializeField] private float currentSpeed = 0f;
+    [SerializeField] private float moveSpeed = 20f;
     [SerializeField] private float currentDistance = 0f;
 
     [Header("Rotation")]
     public float rotationSpeed = 100f;
-    Quaternion lookRot;
+    private Quaternion originalRotation;
 
     private void Awake() {
         cameraTransform = GetComponentInChildren<Camera>().transform;
@@ -47,22 +46,19 @@ public class PickupObjects : MonoBehaviour
             if (objectRigidbody == null) {
                 return;
             }
+            objectTransform = hit.transform;
+            originalRotation = objectTransform.rotation;
             objectRigidbody.useGravity = false;
             objectRigidbody.freezeRotation = true;
             isDraggingObject = true;
-            objectRigidbody.transform.SetParent(carryPosition);
-            
         }
     }
-    private FixedJoint fixedJoint;
     private void CarryObject() {
         currentDistance = Vector3.Distance(objectRigidbody.transform.position, carryPosition.position);
         if (currentDistance > maxDistance) {
             Drop();
             return;
         }
-        fixedJoint = gameObject.AddComponent<FixedJoint>();
-        fixedJoint.connectedBody = objectRigidbody;
     }
 
     public void Drop() {

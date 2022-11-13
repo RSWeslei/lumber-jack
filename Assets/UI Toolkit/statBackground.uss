@@ -1,0 +1,9 @@
+.background {
+    background-color: rgb(99, 99, 99);
+}
+
+.statText {
+    justify-content: flex-start;
+    align-items: center;
+    -unity-text-align: upper-left;
+}
