@@ -17,7 +17,7 @@ public class PickupObjects : MonoBehaviour
 
     [Header("ObjectFollow")]
     [SerializeField] private float maxDistance = 1.5f;
-    [SerializeField] private float moveSpeed = 20f;
+    // [SerializeField] private float moveSpeed = 20f;
     [SerializeField] private float currentDistance = 0f;
 
     [Header("Rotation")]

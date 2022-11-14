@@ -15,7 +15,7 @@ namespace Vehicle
         }
 
         public DoorSide doorSide;
-        [SerializeField] private bool isOpen = false;
+        // [SerializeField] private bool isOpen = false;
         private VehicleController vehicleController;
 
         private void Awake() {

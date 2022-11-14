@@ -18,6 +18,9 @@ public class PlayerInteraction : MonoBehaviour
     {
         RaycastHit hit;
         if (Physics.Raycast(transform.position, transform.forward, out hit, raycastDistance, intectableLayer)){
+            if (oldHit.collider) {
+                return;
+            }
             hit.collider.GetComponent<IDisplayable>()?.Display();
             oldHit = hit;
         } else {

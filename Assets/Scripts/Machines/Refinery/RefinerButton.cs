@@ -17,11 +17,11 @@ namespace Refiner
 
         public void Display() {
             UIDisplays.Instance.ShowKeyText("Press E to change value");
-            GetComponent<MeshRenderer>().material.color = Color.green;
+            // GetComponent<MeshRenderer>().material.color = Color.green;
         }
 
         public void Hide() {
-            GetComponent<MeshRenderer>().material.color = Color.red;
+            // GetComponent<MeshRenderer>().material.color = Color.red;
             return;
         }
 
