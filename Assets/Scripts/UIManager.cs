@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
+using UnityEngine.UIElements;
 
 namespace Managers 
 {
@@ -12,7 +12,7 @@ namespace Managers
         [Header("References")]
         [SerializeField] private PlayerStats playerStats;
         [Header("UI Elements")]
-        [SerializeField] private TextMeshProUGUI moneyText;
+        private Label moneyText;
 
         private void Awake() {
             if (Instance == null) {
@@ -20,6 +20,8 @@ namespace Managers
             } else {
                 Destroy(gameObject);
             }
+            var root = GetComponent<UIDocument>().rootVisualElement;
+            moneyText = root.Q<Label>("player-money");
         }
 
         public void UpdateMoneyText(float money) {

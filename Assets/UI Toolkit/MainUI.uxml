@@ -1,8 +1,22 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/UI%20Toolkit/statBackground.uss?fileID=7433441132597879392&amp;guid=c5ec885036e6d984bae7a5d4b3752971&amp;type=3#statBackground" />
+    <Style src="project://database/Assets/UI%20Toolkit/hotbar.uss?fileID=7433441132597879392&amp;guid=0b0d19d3902c3744e8c2ff99f5fc03e9&amp;type=3#hotbar" />
     <ui:VisualElement name="statsContainer" style="height: 53px;">
         <ui:VisualElement name="statBackground" class="background" style="height: 20px; width: 100px; left: auto; top: auto; margin-left: 10px; margin-top: 10px;">
-            <ui:Label text="1000" display-tooltip-when-elided="true" name="Money" class="statText" style="opacity: 1; width: 100px; color: rgba(255, 255, 255, 255); font-size: 15px; -unity-text-align: middle-left;" />
+            <ui:Label text="$ 1000" display-tooltip-when-elided="true" name="player-money" class="statText" style="opacity: 1; width: 100px; color: rgb(255, 255, 255); font-size: 15px; -unity-text-align: middle-left;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="hotbarContainer" style="height: 415px; justify-content: flex-end; transform-origin: center; flex-grow: 1;">
+        <ui:VisualElement name="slotParent" class="slotParent" style="align-items: stretch; flex-wrap: nowrap; justify-content: center; flex-direction: row; margin-left: 20px; margin-right: 20px; margin-top: 20px; margin-bottom: 20px;">
+            <ui:VisualElement class="slot" />
+            <ui:VisualElement class="slot" />
+            <ui:VisualElement class="slot" />
+            <ui:VisualElement class="slot" />
+            <ui:VisualElement class="slot" />
+            <ui:VisualElement class="slot" />
+            <ui:VisualElement class="slot" />
+            <ui:VisualElement class="slot" />
+            <ui:VisualElement class="slot" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
