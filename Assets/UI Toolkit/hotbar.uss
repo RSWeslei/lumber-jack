@@ -22,12 +22,22 @@
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
     background-color: rgba(221, 221, 221, 0.4);
-    border-left-color: rgba(255, 255, 255, 255);
-    border-right-color: rgba(255, 255, 255, 255);
-    border-top-color: rgba(255, 255, 255, 255);
-    border-bottom-color: rgba(255, 255, 255, 255);
+    border-left-color: rgb(255, 255, 255);
+    border-right-color: rgb(255, 255, 255);
+    border-top-color: rgb(255, 255, 255);
+    border-bottom-color: rgb(255, 255, 255);
     border-left-width: 1px;
     border-right-width: 1px;
     border-top-width: 1px;
     border-bottom-width: 1px;
+}
+
+.slotIcon {
+    padding: 3px;
+    flex-shrink: 0;
+    flex-grow: 1;
+}
+
+.selected {
+    background-color: rgba(255, 124, 125, 0.53);
 }

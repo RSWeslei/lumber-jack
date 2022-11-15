@@ -7,5 +7,4 @@ using UnityEngine.UI;
 public class SOBuyable : Item
 {
     public int buyPrice;
-    public Image itemImage;
 }

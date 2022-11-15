@@ -14,6 +14,12 @@ namespace Managers
         public bool grab_input;
         public bool interact_input;
 
+        [Header("UI")]
+        private GUIInputs guiInputs;
+        private float hotbarNumberInput;
+        public Vector2 hotbarScrollInput;
+        [SerializeField] private Hotbar hotbar;
+
         private void Awake() {
             pickupObjects = GetComponent<PickupObjects>();
             playerInteraction = GetComponentInChildren<PlayerInteraction>();
@@ -21,6 +27,7 @@ namespace Managers
 
         private void OnEnable() {
             HandlePlayerInputs();
+            HandleGUIInputs();
         }
 
         private void HandlePlayerInputs (){
@@ -43,6 +50,22 @@ namespace Managers
                 };
             }
             playerInputs.Enable();
+        }
+
+        private void HandleGUIInputs() {
+            guiInputs = new GUIInputs();
+            if (guiInputs != null) 
+            {
+                guiInputs.PlayerUI.HotbarMouseScroll.performed += i => {
+                    hotbarScrollInput = i.ReadValue<Vector2>().normalized;
+                    hotbar.SelectSlotScroll(hotbarScrollInput.y);
+                };
+                guiInputs.PlayerUI.HotbarNumbers.performed += i => {
+                    hotbarNumberInput = i.ReadValue<float>();
+                    hotbar.SelectSlot((int)(hotbarNumberInput-1));
+                };
+            }
+            guiInputs.Enable();
         }
     }
 }
