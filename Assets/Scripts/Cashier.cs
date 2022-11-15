@@ -16,7 +16,7 @@ public class Cashier : MonoBehaviour
             if (buyable == null || buyable.IsBought) {
                 return;
             }
-            totalCost += buyable.BuyableItem.itemPrice;
+            totalCost += buyable.BuyableItem.buyPrice;
             totalCostText.text = totalCost.ToString("F2");
             buyables.Add(buyable);
         }
@@ -28,7 +28,7 @@ public class Cashier : MonoBehaviour
             if (buyable == null || buyable.IsBought) {
                 return;
             }
-            totalCost -= buyable.BuyableItem.itemPrice;
+            totalCost -= buyable.BuyableItem.buyPrice;
             totalCostText.text = totalCost.ToString("F2");
             buyables.Remove(buyable);
         }

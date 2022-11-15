@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1f813bcaeafab142806dd9c50cd494b, type: 3}
+  m_Name: WoodBox
+  m_EditorClassIdentifier: 
+  icon: {fileID: 2800000, guid: 3042b019b052942a1baf7aa49d7ca6bb, type: 3}
+  itemName: ' Wood Box'
+  itemPrefab: {fileID: 5129442236857904303, guid: e37d55d9adae8724c9dcf1dff5b67578,
+    type: 3}
+  description: A wood box

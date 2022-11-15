@@ -26,8 +26,8 @@ public class UIDisplays : MonoBehaviour
 
     public void DisplayBuyableInfo(SOBuyable buyable) {
         buyableInfo[0].text = buyable.itemName;
-        buyableInfo[1].text = "$ " + buyable.itemPrice.ToString("F2");
-        buyableInfo[2].text = buyable.itemDescription;
+        buyableInfo[1].text = "$ " + buyable.buyPrice.ToString("F2");
+        buyableInfo[2].text = buyable.description;
         // buyableInfo[3].text = buyable.category.ToString();
         buyableImage = buyable.itemImage;
         UIManager.Instance.ToggleElement(buyableParent.gameObject, true);

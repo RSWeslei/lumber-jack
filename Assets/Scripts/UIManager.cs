@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Managers 
+namespace Managers
 {
     public class UIManager : MonoBehaviour
-    {   
+    {
         public static UIManager Instance { get; private set; }
 
         [Header("References")]
@@ -14,21 +14,27 @@ namespace Managers
         [Header("UI Elements")]
         private Label moneyText;
 
-        private void Awake() {
-            if (Instance == null) {
+        private void Awake()
+        {
+            if (Instance == null)
+            {
                 Instance = this;
-            } else {
+            }
+            else
+            {
                 Destroy(gameObject);
             }
             var root = GetComponent<UIDocument>().rootVisualElement;
             moneyText = root.Q<Label>("player-money");
         }
 
-        public void UpdateMoneyText(float money) {
+        public void UpdateMoneyText(float money)
+        {
             moneyText.text = money.ToString();
         }
 
-        public void ToggleElement(GameObject element, bool toggle) {
+        public void ToggleElement(GameObject element, bool toggle)
+        {
             element.SetActive(toggle);
         }
     }

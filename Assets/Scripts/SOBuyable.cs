@@ -3,13 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[CreateAssetMenu(fileName = "New Buyable", menuName = "Buyable")]
-public class SOBuyable : ScriptableObject
+[CreateAssetMenu(fileName = "New Buyable", menuName = "Inventory/Buyable")]
+public class SOBuyable : Item
 {
-    public string itemName;
-    public int itemPrice;
+    public int buyPrice;
     public Image itemImage;
-    public GameObject itemPrefab;
-    [TextArea]
-    public string itemDescription;
 }
