@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   icon: {fileID: 2800000, guid: f09eae8c0ea04254b90c5386a034a225, type: 3}
   itemName: Normal Axe
-  itemPrefab: {fileID: 919132149155446097, guid: 0550e098356843e4bafa03579e61da39,
+  itemPrefab: {fileID: 6983746667048129795, guid: 8dbb2450ee5b4124daf672295959c342,
     type: 3}
   description: o que ta acontecendo
   buyPrice: 100

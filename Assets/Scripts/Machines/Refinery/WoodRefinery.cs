@@ -7,15 +7,15 @@ namespace Refiner
     public class WoodRefinery : MonoBehaviour
     {
         private ManageRefiner manageRefiner;
-        private Transform instanciatePos;
+        [SerializeField] private Transform instanciatePos;
         [SerializeField] private GameObject rawWood;
 
         private void Awake() {
             manageRefiner = GetComponent<ManageRefiner>();
-            instanciatePos = GetComponent<BoxCollider>().transform;
         }
 
-        private void OnTriggerEnter(Collider other) {
+        private void OnTriggerEnter(Collider other) 
+        {
             if (other.gameObject.tag == "Wood") {
                 Wood wood = other.gameObject.GetComponent<Wood>();
                 if (wood == null) {
@@ -24,33 +24,38 @@ namespace Refiner
                 if (wood.isRefined) {
                     return;
                 }
-                float mass = other.GetComponent<Rigidbody>().mass;
-                float lenght = other.GetComponent<Collider>().bounds.size.x;
-                float width = other.GetComponent<Collider>().bounds.size.z;
-                float height = other.GetComponent<Collider>().bounds.size.y;
-                float volume = lenght * width * height;
-                float density = mass / volume;
-                float woodValue = density * 10;
-                Debug.Log("Wood value: " + woodValue);
+                RefineWood(wood.WoodSO, other.transform.localScale);
                 Destroy(other.gameObject);
-                RefinerWood(new float[] {woodValue, mass, volume, density, lenght, width, height});
             }
         }
 
-        private void RefinerWood(float[] woodData) {
-            float sizeX = float.Parse(manageRefiner.screenTextX.text);
-            float sizeY = float.Parse(manageRefiner.screenTextY.text);
+        private void RefineWood(WoodSO woodSO, Vector3 rawWoodSize) 
+        {
+            GameObject newWood = Instantiate(rawWood, instanciatePos.position, Quaternion.identity) as GameObject;
+            Wood wood = newWood.GetComponent<Wood>();
+            wood.transform.localScale = RecalculateWoodSize(rawWoodSize);
+            wood.isRefined = true;
+            wood.GenerateWood(woodSO);
+        }
 
-            float woodValue = woodData[0];
-            float woodMass = woodData[1];
-            float woodVolume = woodData[2];
-            float woodDensity = woodData[3];
-            float woodLenght = woodData[4];
-            float woodWidth = woodData[5];
-            float woodHeight = woodData[6];
+        private Vector3 RecalculateWoodSize(Vector3 woodSize) 
+        {
+            Vector3 previewSize = manageRefiner.woodPreview.transform.localScale;
+            Vector3 newSize = new Vector3();
+            float biggerAxis = Mathf.Max(woodSize.x, woodSize.y, woodSize.z);
+            float lenght=0;
+            if (biggerAxis == woodSize.x) {
+                lenght = (woodSize.y - previewSize.y) + (woodSize.z - previewSize.z) + woodSize.x;
+            } else if (biggerAxis == woodSize.y) {
+                lenght = (woodSize.x - previewSize.y) + (woodSize.z - previewSize.z) + woodSize.y;
+            } else {
+                lenght = (woodSize.x - previewSize.y) + (woodSize.y - previewSize.z) + woodSize.z;
+            }
 
-            Wood newWood = Instantiate(rawWood, instanciatePos.position, Quaternion.identity).GetComponent<Wood>();
-            newWood.isRefined = true;
+            newSize.z = lenght;
+            newSize.x = previewSize.z;
+            newSize.y = previewSize.y;
+            return newSize;
         }
     }
 }

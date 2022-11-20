@@ -10,6 +10,7 @@ public class Hotbar : MonoBehaviour
     public List<Slot> slots = new List<Slot>();
     public Item testItem;
     private int previousSlot = 0;
+    private bool sameSlot = false;
 
     private void Awake() {
        CreateSlots();
@@ -30,12 +31,18 @@ public class Hotbar : MonoBehaviour
     }
 
     public void SelectSlot(int slotNumber) {
-        if (slotNumber == previousSlot) return;
+        if (slotNumber == previousSlot && !sameSlot) {
+            hand.UnloadItemAndDestroy();
+            sameSlot = true;
+            slots[previousSlot].RemoveFromClassList("selected");
+            return;
+        }
         
-        slots[slotNumber].AddToClassList("selected");
         slots[previousSlot].RemoveFromClassList("selected");
+        slots[slotNumber].AddToClassList("selected");
         hand.LoadItem(slots[slotNumber].Item); // Carrega o item no slot selecionado
         previousSlot = slotNumber;
+        sameSlot = false;
     }
 
     public void SelectSlotScroll(float scroll) {

@@ -8,11 +8,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float moveSpeed = 5f;
     private Vector3 velocity;
     private float gravity = -9.81f;
-    private Vector2 move;
     private float jumpHeight = 3f;
 
     private CharacterController controller;
-    private InputManager inputManager;
     [SerializeField] private Transform ground;
 
     [SerializeField] float groundDistance = 0.4f;
@@ -21,7 +19,6 @@ public class PlayerController : MonoBehaviour
 
     private void Awake() {
         controller = GetComponent<CharacterController>();
-        inputManager = GetComponent<InputManager>();
     }
 
     private void Update() {
@@ -31,13 +28,13 @@ public class PlayerController : MonoBehaviour
     }
 
     private void PlayerMovement() {
-        move = inputManager.playerInputs.PlayerMovement.Movement.ReadValue<Vector2>();
-        Vector3 movement = (move.y * transform.forward) + (move.x * transform.right);
+        Vector2 move_input = InputManager.Instance.movement_input;
+        Vector3 movement = (move_input.y * transform.forward) + (move_input.x * transform.right);
         controller.Move(movement * moveSpeed * Time.deltaTime);
     }
 
     private void Jump() {
-        if (inputManager.playerInputs.PlayerMovement.Jump.triggered && isGrounded) {
+        if (InputManager.Instance.jump_input && isGrounded) {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
     }
@@ -54,10 +51,10 @@ public class PlayerController : MonoBehaviour
     }
 
     private void OnEnable() {
-        inputManager.playerInputs.Enable();
+        InputManager.Instance.playerInputs.Enable();
     } 
 
     private void OnDisable() {
-        inputManager.playerInputs.Disable();
+        InputManager.Instance.playerInputs.Disable();
     }
 }

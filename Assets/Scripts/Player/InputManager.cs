@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Vehicle;
 
 namespace Managers
 {
@@ -13,24 +12,55 @@ namespace Managers
         private PickupObjects pickupObjects;
         public bool grab_input;
         public bool interact_input;
+        public Vector2 movement_input;
+        public bool jump_input;
+
+        [Header("Player Wield")]
+        public WieldManager wieldManager;
 
         [Header("UI")]
         private GUIInputs guiInputs;
         private float hotbarNumberInput;
-        public Vector2 hotbarScrollInput;
+        private Vector2 hotbarScrollInput;
         [SerializeField] private Hotbar hotbar;
+        public static InputManager Instance;
 
         private void Awake() {
             pickupObjects = GetComponent<PickupObjects>();
             playerInteraction = GetComponentInChildren<PlayerInteraction>();
+            Instance = this;
         }
 
         private void OnEnable() {
             HandlePlayerInputs();
             HandleGUIInputs();
+            HandleWieldInputs();
+            HandlePlayerMovement();
         }
 
-        private void HandlePlayerInputs (){
+        private void HandleWieldInputs() {
+            if (playerInputs != null) {
+                playerInputs.PlayerActions.LeftMouse.performed += ctx => {
+                    wieldManager.WieldRight();
+                };
+            }
+        }
+
+        private void HandlePlayerMovement() {
+            if (playerInputs != null) {
+                playerInputs.PlayerMovement.Movement.performed += ctx => {
+                    movement_input = playerInputs.PlayerMovement.Movement.ReadValue<Vector2>();
+                };
+                playerInputs.PlayerMovement.Jump.performed += ctx => {
+                    jump_input = true;
+                };
+                playerInputs.PlayerMovement.Jump.canceled += ctx => {
+                    jump_input = false;
+                };
+            }
+        }
+
+        private void HandlePlayerInputs() {
             playerInputs = new PlayerInputs();
             if (playerInputs != null) {
                 playerInputs.PlayerActions.Grab.performed += i => {

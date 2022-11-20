@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Managers;
 
 public class EquippedItemSway : MonoBehaviour
 {
-    private float amount = 0.05f;
-    private float maxAmount = 0.3f;
+    private float amount = 0.04f;
+    private float maxAmount = 0.2f;
     private float smoothAmount = 3f;
 
     private Vector3 defaultPos;
@@ -15,8 +16,8 @@ public class EquippedItemSway : MonoBehaviour
     }
 
     private void Update() {
-        float movementX = -Input.GetAxis("Mouse X") * amount;
-        float movementY = -Input.GetAxis("Mouse Y") * amount;
+        float movementX = -InputManager.Instance.movement_input.x * amount;
+        float movementY = -InputManager.Instance.movement_input.y * amount;
 
         movementX = Mathf.Clamp(movementX, -maxAmount, maxAmount);
         movementY = Mathf.Clamp(movementY, -maxAmount, maxAmount);

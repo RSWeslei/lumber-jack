@@ -5,6 +5,7 @@ using UnityEngine;
 public class Hand : MonoBehaviour
 {
     private GameObject currentEquippedItem;
+    [SerializeField] private bool isLeftHand;
 
     public void LoadItem(Item item) {
         UnloadItemAndDestroy();
@@ -22,6 +23,13 @@ public class Hand : MonoBehaviour
         itemObject.AddComponent<EquippedItemSway>();
 
         currentEquippedItem = itemObject;
+    }
+
+    public bool IsItemEquiped => currentEquippedItem != null;
+
+    public Animator GetWieldedAnimator() {
+        if (!IsItemEquiped) return null;
+        return currentEquippedItem.GetComponent<Animator>() ?? null;
     }
 
     public void UnloadItem()
