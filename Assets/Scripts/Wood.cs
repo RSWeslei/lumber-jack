@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+[ExecuteInEditMode]
 public class Wood : MonoBehaviour
 {
     public bool isRefined = false;
-    public float woodValue = 0;
+    [SerializeField] public float woodValue = 0;
     [SerializeField] private WoodSO woodSO;
 
     public WoodSO WoodSO  {
