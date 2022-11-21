@@ -1,32 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using TMPro;
 
 namespace Refiner 
 {
     public class RefinerButton : Buttom, IDisplayable
     {
-        [SerializeField] private bool isLeft = false;
-        [SerializeField] private bool isX = false;
-        private WoodRefinery
-        
-         refiner;
-        private TextMeshPro screenText;
+        [SerializeField] private bool _isLeft = false;
+        [SerializeField] private bool _isX = false;
+        private WoodRefinery _refiner;
+        private TextMeshPro _screenText;
 
-        private void Start() {
-            refiner = GetComponentInParent<WoodRefinery
-            
-            >();
-            screenText = isX ? refiner.screenTextX : refiner.screenTextY;
+        private void Start() 
+        {
+            _refiner = GetComponentInParent<WoodRefinery>();
+            _screenText = _isX ? _refiner.screenTextX : _refiner.screenTextY;
         }
 
-        public void Display() {
+        public void Display() 
+        {
             UIDisplays.Instance.ShowKeyText("Press E to change value");
             // GetComponent<MeshRenderer>().material.color = Color.green;
         }
 
-        public void Hide() {
+        public void Hide() 
+        {
             // GetComponent<MeshRenderer>().material.color = Color.red;
             return;
         }
@@ -38,13 +37,13 @@ namespace Refiner
         }
 
         private void TweakPreview() {
-            float value = float.Parse(screenText.text);
-            float newValue = isLeft ? value - refiner.changeAmount : value + refiner.changeAmount;
-            if (newValue < refiner.minAmount || newValue > refiner.maxAmount) {
+            float value = float.Parse(_screenText.text);
+            float newValue = _isLeft ? value - _refiner.changeAmount : value + _refiner.changeAmount;
+            if (newValue < _refiner.minAmount || newValue > _refiner.maxAmount) {
                 return;
             }
-            screenText.text = newValue.ToString();
-            refiner.ChangeWoodSize(isLeft, isX);
+            _screenText.text = newValue.ToString();
+            _refiner.ChangeWoodSize(_isLeft, _isX);
         }
     }
 }

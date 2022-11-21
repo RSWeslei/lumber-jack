@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class AnimationManager : MonoBehaviour
 {
-    [SerializeField] private Animator rightHandAnimator;
+    [SerializeField] private Animator _rightHandAnimator;
 
-    public void PlayRightHandAnimation(string animationName) {
-        rightHandAnimator.Play(animationName);
+    public void PlayRightHandAnimation(string animationName) 
+    {
+        _rightHandAnimator.Play(animationName);
     }
 }

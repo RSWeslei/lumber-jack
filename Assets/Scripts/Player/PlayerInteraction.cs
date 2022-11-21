@@ -17,14 +17,16 @@ public class PlayerInteraction : MonoBehaviour
     void Update()
     {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward, out hit, raycastDistance, intectableLayer)){
+        if (Physics.Raycast(transform.position, transform.forward, out hit, raycastDistance, intectableLayer))
+        {
             if (oldHit.collider) {
                 return;
             }
             hit.collider.GetComponent<IDisplayable>()?.Display();
             oldHit = hit;
         } else {
-            if (oldHit.transform != null) {
+            if (oldHit.transform != null)
+             {
                 oldHit.transform.GetComponent<IDisplayable>()?.Hide();
                 UIDisplays.Instance.HideKeyText();
                 oldHit = new RaycastHit();
@@ -32,9 +34,11 @@ public class PlayerInteraction : MonoBehaviour
         }
     }
 
-    public void Interact () {
+    public void Interact () 
+    {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward, out hit, raycastDistance, intectableLayer)){
+        if (Physics.Raycast(transform.position, transform.forward, out hit, raycastDistance, intectableLayer))
+        {
             hit.collider.GetComponent<IInteractable>()?.Interact();
         }
     }

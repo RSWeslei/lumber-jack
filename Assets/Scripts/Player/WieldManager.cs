@@ -4,16 +4,17 @@ using UnityEngine;
 
 public class WieldManager : MonoBehaviour
 {
-    [SerializeField] private Hand leftHand;
-    [SerializeField] private Hand rightHand;
-
-    [SerializeField] private AnimationManager animationManager;
+    [SerializeField] private Hand _leftHand;
+    [SerializeField] private Hand _rightHand;
+    [SerializeField] private AnimationManager _animationManager;
     
-    public void WieldRight() {
-        // animationManager.PlayRightHandAnimation("Use");
-        Animator animator = rightHand.GetWieldedAnimator();
-        // MUDAR PARA ANIMAR COM O PERSONAGEM, NAO COM A MÃO
-        if (animator != null) {
+    public void WieldRight()
+    {
+        // _animationManager.PlayRightHandAnimation("Use");
+        Animator animator = _rightHand.GetWieldedAnimator();
+        // MUDAR PARA ANIMAR COM O PERSONAGEM, NAO COM A Mï¿½O
+        if (animator != null) 
+        {
             animator.Play("Use");
         }
     }

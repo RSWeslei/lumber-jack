@@ -5,19 +5,21 @@ using UnityEngine.UIElements;
 
 public class Hotbar : MonoBehaviour
 {
-    [SerializeField] private Hand hand;
     public VisualElement m_hotbar;
     public List<Slot> slots = new List<Slot>();
     public Item testItem;
-    private int previousSlot = 0;
-    private bool sameSlot = false;
+    [SerializeField] private Hand _hand;
+    private int _previousSlot = 0;
+    private bool _sameSlot = false;
 
-    private void Awake() {
+    private void Awake()
+    {
        CreateSlots();
        SelectSlot(0);
     }
 
-    private void CreateSlots() {
+    private void CreateSlots()
+    {
         var root = GetComponent<UIDocument>().rootVisualElement; // Pega o root do UI Document
         m_hotbar = root.Q<VisualElement>("hotbar"); // Pega o elemento visual com o nome "hotbar"
 
@@ -30,33 +32,35 @@ public class Hotbar : MonoBehaviour
         SelectSlot(1);
     }
 
-    public void SelectSlot(int slotNumber) {
-        if (slotNumber == previousSlot && !sameSlot) {
-            hand.UnloadItemAndDestroy();
-            sameSlot = true;
-            slots[previousSlot].RemoveFromClassList("selected");
+    public void SelectSlot(int slotNumber)
+    {
+        if (slotNumber == _previousSlot && !_sameSlot)
+        {
+            _hand.UnloadItemAndDestroy();
+            _sameSlot = true;
+            slots[_previousSlot].RemoveFromClassList("selected");
             return;
         }
         
-        slots[previousSlot].RemoveFromClassList("selected");
+        slots[_previousSlot].RemoveFromClassList("selected");
         slots[slotNumber].AddToClassList("selected");
-        hand.LoadItem(slots[slotNumber].Item); // Carrega o item no slot selecionado
-        previousSlot = slotNumber;
-        sameSlot = false;
+        _hand.LoadItem(slots[slotNumber].Item); // Carrega o item no slot selecionado
+        _previousSlot = slotNumber;
+        _sameSlot = false;
     }
 
     public void SelectSlotScroll(float scroll) {
         if (scroll > 0) {
-            if (previousSlot == slots.Count-1) {
+            if (_previousSlot == slots.Count-1) {
                 SelectSlot(0);
             } else {
-                SelectSlot(previousSlot+1);
+                SelectSlot(_previousSlot+1);
             }
         } else if (scroll < 0) {
-            if (previousSlot == 0) {
+            if (_previousSlot == 0) {
                 SelectSlot(slots.Count-1);
             } else {
-                SelectSlot(previousSlot-1);
+                SelectSlot(_previousSlot-1);
             }
         }
     }

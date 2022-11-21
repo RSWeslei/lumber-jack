@@ -4,13 +4,15 @@ using UnityEngine;
 
 public class Hand : MonoBehaviour
 {
-    private GameObject currentEquippedItem;
-    [SerializeField] private bool isLeftHand;
+    [SerializeField] private bool _isLeftHand;
+    private GameObject _currentEquippedItemGO;
 
-    public void LoadItem(Item item) {
+    public void LoadItem(Item item) 
+    {
         UnloadItemAndDestroy();
 
-        if (item?.itemPrefab == null) {
+        if (item?.itemPrefab == null) 
+        {
             UnloadItem();
             return;
         }
@@ -22,27 +24,28 @@ public class Hand : MonoBehaviour
 
         itemObject.AddComponent<EquippedItemSway>();
 
-        currentEquippedItem = itemObject;
+        _currentEquippedItemGO = itemObject;
     }
 
-    public bool IsItemEquiped => currentEquippedItem != null;
+    public bool IsItemEquiped => _currentEquippedItemGO != null;
 
-    public Animator GetWieldedAnimator() {
+    public Animator GetWieldedAnimator() 
+    {
         if (!IsItemEquiped) return null;
-        return currentEquippedItem.GetComponent<Animator>() ?? null;
+        return _currentEquippedItemGO.GetComponent<Animator>() ?? null;
     }
 
     public void UnloadItem()
     {
-        if (currentEquippedItem != null){
-            currentEquippedItem.SetActive(false);
+        if (_currentEquippedItemGO != null){
+            _currentEquippedItemGO.SetActive(false);
         }
     }
 
     public void UnloadItemAndDestroy()
     {
-        if (currentEquippedItem != null){
-            Destroy(currentEquippedItem);
+        if (_currentEquippedItemGO != null){
+            Destroy(_currentEquippedItemGO);
         }
     }
 }

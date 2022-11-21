@@ -8,29 +8,30 @@ namespace Refiner
     public class WoodRefinery : MonoBehaviour
     {
         [Header("Properties")]
-        [SerializeField] private float loseAmount = 0.1f;
         public float changeAmount = 0.2f;
         public float maxAmount = 3f;
         public float minAmount = 1f;
+        [SerializeField] private float loseAmount = 0.1f;
 
-        [SerializeField] private Transform instanciatePos;
-        [SerializeField] private GameObject rawWood;
+        [SerializeField] private Transform _instanciatePosition;
+        [SerializeField] private GameObject _rawWoodGO;
         [SerializeField] public TextMeshPro screenTextX;
         [SerializeField] public TextMeshPro screenTextY;
-        [SerializeField] public GameObject woodPreview;
+        [SerializeField] public GameObject woodPreviewGO;
         
+        private float _woodChangeAmountY = 0;
+        private float _woodChangeAmountZ = 0;
+        private Vector3 _size;
 
-        private float woodChangeAmountY = 0;
-        private float woodChangeAmountZ = 0;
-        private Vector3 size;
-
-        private void Awake() {
+        private void Awake() 
+        {
             CalculateChangeAmount();
         }
 
         private void OnTriggerEnter(Collider other) 
         {
-            if (other.gameObject.tag == "Wood") {
+            if (other.gameObject.tag == "Wood") 
+            {
                 Wood wood = other.gameObject.GetComponent<Wood>();
                 if (wood == null) {
                     return;
@@ -45,7 +46,7 @@ namespace Refiner
 
         private void RefineWood(WoodSO woodSO, Vector3 rawWoodSize) 
         {
-            GameObject newWood = Instantiate(rawWood, instanciatePos.position, Quaternion.identity) as GameObject;
+            GameObject newWood = Instantiate(_rawWoodGO, _instanciatePosition.position, Quaternion.identity) as GameObject;
             Wood wood = newWood.GetComponent<Wood>();
             wood.transform.localScale = RecalculateWoodSize(rawWoodSize);
             wood.isRefined = true;
@@ -54,7 +55,7 @@ namespace Refiner
 
         private Vector3 RecalculateWoodSize(Vector3 woodSize) 
         {
-            Vector3 previewSize = woodPreview.transform.localScale;
+            Vector3 previewSize = woodPreviewGO.transform.localScale;
             Vector3 newSize = new Vector3();
             float biggerAxis = Mathf.Max(woodSize.x, woodSize.y, woodSize.z);
             float volume = woodSize.x * woodSize.y * woodSize.z;
@@ -67,23 +68,25 @@ namespace Refiner
             return newSize;
         }
 
-        public void ChangeWoodSize(bool isLeft, bool isX) {
+        public void ChangeWoodSize(bool isLeft, bool isX) 
+        {
             if (isX) {
-                size.z += isLeft ? -woodChangeAmountZ : woodChangeAmountZ;
+                _size.z += isLeft ? -_woodChangeAmountZ : _woodChangeAmountZ;
             } else {
-                size.y += isLeft ? -woodChangeAmountY : woodChangeAmountY;
+                _size.y += isLeft ? -_woodChangeAmountY : _woodChangeAmountY;
             }
-            woodPreview.transform.localScale = size;
+            woodPreviewGO.transform.localScale = _size;
         }
 
-        private void CalculateChangeAmount() {
+        private void CalculateChangeAmount() 
+        {
             int count = 0;
             for (float i = minAmount; i < maxAmount; i+=changeAmount) {
                 count++;
             }
-            size = woodPreview.transform.localScale;
-            woodChangeAmountY = changeAmount / count;
-            woodChangeAmountZ = changeAmount / count;
+            _size = woodPreviewGO.transform.localScale;
+            _woodChangeAmountY = changeAmount / count;
+            _woodChangeAmountZ = changeAmount / count;
         }
     }
 }

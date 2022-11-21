@@ -5,56 +5,61 @@ using Managers;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed = 5f;
-    private Vector3 velocity;
-    private float gravity = -9.81f;
-    private float jumpHeight = 3f;
+    [SerializeField] private Transform _ground;
+    [SerializeField] private LayerMask _groundMask;
+    [SerializeField] private float _moveSpeed = 5f;
+    [SerializeField] private float _groundDistance = 0.4f;
+    private CharacterController _characterController;
+    private Vector3 _velocity;
+    private bool _isGrounded;
+    private float _gravity = -9.81f;
+    private float _jumpHeight = 3f;
 
-    private CharacterController controller;
-    [SerializeField] private Transform ground;
-
-    [SerializeField] float groundDistance = 0.4f;
-    [SerializeField] private LayerMask groundMask;
-    private bool isGrounded;
-
-    private void Awake() {
-        controller = GetComponent<CharacterController>();
+    private void Awake() 
+    {
+        _characterController = GetComponent<CharacterController>();
     }
 
-    private void Update() {
+    private void Update() 
+    {
         Grav();
         PlayerMovement();
         Jump();
     }
 
-    private void PlayerMovement() {
+    private void PlayerMovement() 
+    {
         Vector2 move_input = InputManager.Instance.movement_input;
         Vector3 movement = (move_input.y * transform.forward) + (move_input.x * transform.right);
-        controller.Move(movement * moveSpeed * Time.deltaTime);
+        _characterController.Move(movement * _moveSpeed * Time.deltaTime);
     }
 
-    private void Jump() {
-        if (InputManager.Instance.jump_input && isGrounded) {
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+    private void Jump() 
+    {
+        if (InputManager.Instance.jump_input && _isGrounded) {
+            _velocity.y = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
         }
     }
 
-    private void Grav() {
-        isGrounded = Physics.CheckSphere(ground.position, groundDistance, groundMask);
+    private void Grav() 
+    {
+        _isGrounded = Physics.CheckSphere(_ground.position, _groundDistance, _groundMask);
 
-        if (isGrounded && velocity.y < 0) {
-            velocity.y = -2f;
+        if (_isGrounded && _velocity.y < 0) 
+        {
+            _velocity.y = -2f;
         }
-
-        velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
+        _velocity.y += _gravity * Time.deltaTime;
+        _characterController.Move(_velocity * Time.deltaTime);
     }
 
-    private void OnEnable() {
+    private void OnEnable() 
+    {
         InputManager.Instance.playerInputs.Enable();
     } 
 
-    private void OnDisable() {
+    private void OnDisable() 
+    {
         InputManager.Instance.playerInputs.Disable();
     }
 }

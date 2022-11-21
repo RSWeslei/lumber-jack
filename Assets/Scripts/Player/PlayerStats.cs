@@ -6,23 +6,26 @@ using Managers;
 public class PlayerStats : MonoBehaviour
 {
     [Header("Player Stats")]
-    [SerializeField] private float life;
-    [SerializeField] private float maxLife;
-    [SerializeField] private float money=1000f;
+    [SerializeField] private float _life;
+    [SerializeField] private float _maxLife;
+    [SerializeField] private float _money=1000f;
 
-    private void Start() {
-        UIManager.Instance.UpdateMoneyText(money);
+    private void Start() 
+    {
+        UIManager.Instance.UpdateMoneyText(_money);
     }
     
-    public void AddMoney(float amount) {
-        money += amount;
-        UIManager.Instance.UpdateMoneyText(money);
+    public void AddMoney(float amount) 
+    {
+        _money += amount;
+        UIManager.Instance.UpdateMoneyText(_money);
     }
 
-    public void RemoveMoney(float amount) {
-        money -= amount;
-        UIManager.Instance.UpdateMoneyText(money);
+    public void RemoveMoney(float amount) 
+    {
+        _money -= amount;
+        UIManager.Instance.UpdateMoneyText(_money);
     }
 
-    public float Money => money;
+    public float Money => _money;
 }
