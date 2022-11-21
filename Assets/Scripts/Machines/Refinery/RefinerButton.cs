@@ -9,10 +9,16 @@ namespace Refiner
     {
         [SerializeField] private bool isLeft = false;
         [SerializeField] private bool isX = false;
-        private ManageRefiner refiner;
+        private WoodRefinery
+        
+         refiner;
+        private TextMeshPro screenText;
 
         private void Start() {
-            refiner = GetComponentInParent<ManageRefiner>();
+            refiner = GetComponentInParent<WoodRefinery
+            
+            >();
+            screenText = isX ? refiner.screenTextX : refiner.screenTextY;
         }
 
         public void Display() {
@@ -28,7 +34,10 @@ namespace Refiner
         public override void Interact()
         {
             base.Interact();
-            TextMeshPro screenText = isX ? refiner.screenTextX : refiner.screenTextY;
+            TweakPreview();
+        }
+
+        private void TweakPreview() {
             float value = float.Parse(screenText.text);
             float newValue = isLeft ? value - refiner.changeAmount : value + refiner.changeAmount;
             if (newValue < refiner.minAmount || newValue > refiner.maxAmount) {

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.32680136, g: 0.27378982, b: 0.5955874, a: 1}
+  m_IndirectSpecularColor: {r: 0.56074464, g: 0.55539954, b: 0.7471938, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2049,7 +2049,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 699724524}
-  - component: {fileID: 699724525}
   - component: {fileID: 699724527}
   - component: {fileID: 699724526}
   m_Layer: 0
@@ -2084,24 +2083,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &699724525
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 699724523}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c047e96c655a6df408155f03a7c68c9d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  screenTextX: {fileID: 891952317}
-  screenTextY: {fileID: 1615141107}
-  woodPreview: {fileID: 1254487549}
-  changeAmount: 0.2
-  maxAmount: 3
-  minAmount: 1
 --- !u!65 &699724526
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2127,8 +2108,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e60275bbd6c72a4fad58063e15c288f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  loseAmount: 0.1
+  changeAmount: 0.2
+  maxAmount: 3
+  minAmount: 1
   instanciatePos: {fileID: 58631481}
   rawWood: {fileID: 5231422374201941628, guid: 1b799db8f6dd64e4483bffbffcaf427b, type: 3}
+  screenTextX: {fileID: 891952317}
+  screenTextY: {fileID: 1615141107}
+  woodPreview: {fileID: 1254487549}
 --- !u!1 &757529519
 GameObject:
   m_ObjectHideFlags: 0
@@ -3156,7 +3144,7 @@ Transform:
   m_GameObject: {fileID: 932301571}
   m_LocalRotation: {x: -0, y: 0.019215431, z: -0, w: 0.99981534}
   m_LocalPosition: {x: 0.035, y: -0.76, z: -1.834}
-  m_LocalScale: {x: 0.15, y: 0.1, z: 0.61561424}
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 699724524}
@@ -3802,7 +3790,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad4910dd1c44e2b41a18f3ddb1c833c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isLeft: 1
+  isLeft: 0
   isX: 1
 --- !u!95 &1056998836
 Animator:
@@ -3858,12 +3846,12 @@ PrefabInstance:
     - target: {fileID: 5231422374201941627, guid: 1b799db8f6dd64e4483bffbffcaf427b,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.5937686
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 5231422374201941627, guid: 1b799db8f6dd64e4483bffbffcaf427b,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.42868277
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5231422374201941627, guid: 1b799db8f6dd64e4483bffbffcaf427b,
         type: 3}
@@ -3878,7 +3866,7 @@ PrefabInstance:
     - target: {fileID: 5231422374201941627, guid: 1b799db8f6dd64e4483bffbffcaf427b,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 10.753
+      value: 9.268
       objectReference: {fileID: 0}
     - target: {fileID: 5231422374201941627, guid: 1b799db8f6dd64e4483bffbffcaf427b,
         type: 3}
@@ -5745,7 +5733,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad4910dd1c44e2b41a18f3ddb1c833c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isLeft: 1
+  isLeft: 0
   isX: 0
 --- !u!95 &1741954563
 Animator:

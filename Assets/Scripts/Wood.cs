@@ -12,21 +12,19 @@ public class Wood : MonoBehaviour
         get { return woodSO; }
         set { woodSO = value; }
     }
-
-    private void Start() {
+    void Start(){
         CalculateValue();
     }
-
+    
     public void CalculateValue() 
     {
-        Collider collider = GetComponent<Collider>();
-        float lenght = collider.bounds.size.x;
-        float width = collider.bounds.size.z;
-        float height = collider.bounds.size.y;
+        float lenght = transform.localScale.x;
+        float width = transform.localScale.z;
+        float height = transform.localScale.y;
         
-        float volume = (lenght * width * height) * 100;
+        float volume = (lenght * width * height);
         float price = isRefined ? woodSO.refinedPrice : woodSO.rawPrice;
-        woodValue = Mathf.Floor(volume * price);
+        woodValue = Mathf.Floor(volume * price * 100);
     }
 
     public void GenerateWood(WoodSO woodSO) {
