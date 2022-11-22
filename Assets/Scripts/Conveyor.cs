@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Conveyor : MonoBehaviour
 {
-    [SerializeField] private float speed = 0.2f;
+    [SerializeField] private float _speed = 0.2f;
     private Rigidbody rb;
     void Start()
     {
@@ -14,7 +14,7 @@ public class Conveyor : MonoBehaviour
     void FixedUpdate()
     {
         Vector3 pos = rb.position;
-        rb.position += Vector3.back * speed * Time.fixedDeltaTime;
+        rb.position += Vector3.back * _speed * Time.fixedDeltaTime;
         rb.MovePosition(pos);
     }
 }

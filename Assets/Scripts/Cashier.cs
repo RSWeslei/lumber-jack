@@ -5,47 +5,54 @@ using TMPro;
 
 public class Cashier : MonoBehaviour
 {
-    [SerializeField] private List<Buyable> buyables;
-    [SerializeField] private float totalCost = 0f;
-    [SerializeField] private PlayerStats playerStats;
-    [SerializeField] private TextMeshPro totalCostText;
+    [SerializeField] private List<Buyable> _buyables;
+    [SerializeField] private float _totalCost = 0f;
+    [SerializeField] private PlayerStats _playerStats;
+    [SerializeField] private TextMeshPro _totalCostText;
 
-    private void OnTriggerEnter(Collider other) {
-        if (other.CompareTag("Buyable")) {
+    private void OnTriggerEnter(Collider other) 
+    {
+        if (other.CompareTag("Buyable")) 
+        {
             Buyable buyable = other.GetComponent<Buyable>();
             if (buyable == null || buyable.IsBought) {
                 return;
             }
-            totalCost += buyable.BuyableItem.buyPrice;
-            totalCostText.text = totalCost.ToString("F2");
-            buyables.Add(buyable);
+            _totalCost += buyable.BuyableItem.buyPrice;
+            _totalCostText.text = _totalCost.ToString("F2");
+            _buyables.Add(buyable);
         }
     }
 
-    private void OnTriggerExit(Collider other) {
-        if (other.CompareTag("Buyable")) {
+    private void OnTriggerExit(Collider other) 
+    {
+        if (other.CompareTag("Buyable")) 
+        {
             Buyable buyable = other.GetComponent<Buyable>();
             if (buyable == null || buyable.IsBought) {
                 return;
             }
-            totalCost -= buyable.BuyableItem.buyPrice;
-            totalCostText.text = totalCost.ToString("F2");
-            buyables.Remove(buyable);
+            _totalCost -= buyable.BuyableItem.buyPrice;
+            _totalCostText.text = _totalCost.ToString("F2");
+            _buyables.Remove(buyable);
         }
     }
 
-    public void Buy () {
-        if (buyables.Count == 0) {
+    public void Buy () 
+    {
+        if (_buyables.Count == 0) {
             return;
         }
-        if (playerStats.Money >= totalCost) {
-            playerStats.RemoveMoney(totalCost);
-            foreach (Buyable buyable in buyables) {
+        if (_playerStats.Money >= _totalCost) 
+        {
+            _playerStats.RemoveMoney(_totalCost);
+            foreach (Buyable buyable in _buyables)
+             {
                 buyable.Buy();
             }
-            buyables = new List<Buyable>();
-            totalCost = 0f;
-            totalCostText.text = "0.00";
+            _buyables = new List<Buyable>();
+            _totalCost = 0f;
+            _totalCostText.text = "0.00";
             Debug.Log("Bought");
         } else {
             Debug.Log("Not enough money");

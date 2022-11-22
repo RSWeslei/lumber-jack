@@ -6,34 +6,34 @@ using UnityEngine.UIElements;
 
 public class Slot : VisualElement
 {
-    private Image icon;
+    private Image _icon;
     public string slotName;
-    private Item item;
+    private Item _item;
 
-    public Item Item { get => item; }
+    public Item Item { get => _item; }
 
     public Slot() // Construtor
     {
         // Cria uma nova imagem e adiciona no slot da hotbar
-        icon = new Image(); 
-        icon.name = "icon"; // Nome do elemento
-        icon.AddToClassList("slotIcon"); // Adiciona uma classe CSS ao icone
+        _icon = new Image(); 
+        _icon.name = "icon"; // Nome do elemento
+        _icon.AddToClassList("slotIcon"); // Adiciona uma classe CSS ao icone
         AddToClassList("slot"); // Adiciona uma classe CSS ao slot
         this.slotName = "Slot " + this.name; // Muda o nome do slot
         RegisterCallback<ClickEvent>(evt => { 
             Debug.Log(slotName);
         });
-        Add(icon);
+        Add(_icon);
     }
 
     public void AddItem(Item item) {
-        icon.image = item.icon;
-        this.item = item;
+        _icon.image = item.icon;
+        this._item = item;
     }
 
     public void RemoveItem() {
-        icon.image = null;
-        this.item = null;
+        _icon.image = null;
+        this._item = null;
     }
     
     #region UXML

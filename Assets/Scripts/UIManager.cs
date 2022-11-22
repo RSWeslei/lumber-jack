@@ -10,9 +10,9 @@ namespace Managers
         public static UIManager Instance { get; private set; }
 
         [Header("References")]
-        [SerializeField] private PlayerStats playerStats;
+        [SerializeField] private PlayerStats _playerStats;
         [Header("UI Elements")]
-        private Label moneyText;
+        private Label _moneyText;
 
         private void Awake()
         {
@@ -25,12 +25,12 @@ namespace Managers
                 Destroy(gameObject);
             }
             var root = GetComponent<UIDocument>().rootVisualElement;
-            moneyText = root.Q<Label>("player-money");
+            _moneyText = root.Q<Label>("player-money");
         }
 
         public void UpdateMoneyText(float money)
         {
-            moneyText.text = money.ToString();
+            _moneyText.text = money.ToString();
         }
 
         public void ToggleElement(GameObject element, bool toggle)

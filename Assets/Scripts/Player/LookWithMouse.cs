@@ -23,7 +23,7 @@ public class LookWithMouse : MonoBehaviour
         _xRotation -= mouseY;
         _xRotation = Mathf.Clamp(_xRotation, -90f, 90f);
 
-        transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        transform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f);
 
         playerBody.Rotate(Vector3.up * mouseX);
     }

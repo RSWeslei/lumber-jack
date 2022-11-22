@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class Buttom : MonoBehaviour, IInteractable
 {
-    public virtual void Interact(){
+    public virtual void Interact()
+    {
         // Do animation
         // Do sound
     }

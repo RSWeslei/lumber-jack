@@ -45,7 +45,7 @@ public class PickupObjects : MonoBehaviour
     public void PickUp() 
     { 
         RaycastHit hit;
-        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, _raycastDistance, _layerMask)) 
+        if (Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out hit, _raycastDistance, _layerMask)) 
         {
             _objectRigidbody = hit.transform.GetComponent<Rigidbody>();
             if (_objectRigidbody == null) {

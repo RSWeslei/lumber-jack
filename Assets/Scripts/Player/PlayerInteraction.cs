@@ -6,18 +6,18 @@ using Managers;
 
 public class PlayerInteraction : MonoBehaviour
 {
-    private LayerMask intectableLayer;
-    [SerializeField] private float raycastDistance = 2f;
+    private LayerMask _intectableLayer;
+    [SerializeField] private float _raycastDistance = 2f;
 
     private void Start() {
-        intectableLayer = LayerMask.GetMask("Interactable");
+        _intectableLayer = LayerMask.GetMask("Interactable");
     }
     private RaycastHit oldHit;
 
     void Update()
     {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward, out hit, raycastDistance, intectableLayer))
+        if (Physics.Raycast(transform.position, transform.forward, out hit, _raycastDistance, _intectableLayer))
         {
             if (oldHit.collider) {
                 return;
@@ -37,7 +37,7 @@ public class PlayerInteraction : MonoBehaviour
     public void Interact () 
     {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward, out hit, raycastDistance, intectableLayer))
+        if (Physics.Raycast(transform.position, transform.forward, out hit, _raycastDistance, _intectableLayer))
         {
             hit.collider.GetComponent<IInteractable>()?.Interact();
         }

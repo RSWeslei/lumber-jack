@@ -4,13 +4,13 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class Wood : MonoBehaviour
 {
-    public bool isRefined = false;
     [SerializeField] public float woodValue = 0;
-    [SerializeField] private WoodSO woodSO;
+    public bool isRefined = false;
+    [SerializeField] private WoodSO _woodSO;
 
     public WoodSO WoodSO  {
-        get { return woodSO; }
-        set { woodSO = value; }
+        get { return _woodSO; }
+        set { _woodSO = value; }
     }
     void Start(){
         CalculateValue();
@@ -23,12 +23,12 @@ public class Wood : MonoBehaviour
         float height = transform.localScale.y;
         
         float volume = (lenght * width * height);
-        float price = isRefined ? woodSO.refinedPrice : woodSO.rawPrice;
+        float price = isRefined ? _woodSO.refinedPrice : _woodSO.rawPrice;
         woodValue = Mathf.Floor(volume * price * 100);
     }
 
     public void GenerateWood(WoodSO woodSO) {
-        this.woodSO = woodSO;
+        this._woodSO = woodSO;
         CalculateValue();
     }
 }

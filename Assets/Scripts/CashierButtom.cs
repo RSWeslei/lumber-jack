@@ -1,6 +1,7 @@
 public class CashierButtom : Buttom, IDisplayable
 {
-    public void Display() {
+    public void Display() 
+    {
         UIDisplays.Instance.ShowKeyText("Press E to buy");
     }
 
@@ -8,7 +9,8 @@ public class CashierButtom : Buttom, IDisplayable
         return;
     }
 
-    public override void Interact() {
+    public override void Interact() 
+    {
         base.Interact();
         GetComponentInParent<Cashier>()?.Buy();
     }

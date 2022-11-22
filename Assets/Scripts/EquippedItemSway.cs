@@ -5,24 +5,25 @@ using Managers;
 
 public class EquippedItemSway : MonoBehaviour
 {
-    private float amount = 0.04f;
-    private float maxAmount = 0.2f;
-    private float smoothAmount = 3f;
+    private float _amount = 0.04f;
+    private float _maxAmount = 0.2f;
+    private float _smoothAmount = 3f;
+    private Vector3 _defaultPos;
 
-    private Vector3 defaultPos;
-
-    private void Start() {
-        defaultPos = transform.localPosition;
+    private void Start()
+     {
+        _defaultPos = transform.localPosition;
     }
 
-    private void Update() {
-        float movementX = -InputManager.Instance.movement_input.x * amount;
-        float movementY = -InputManager.Instance.movement_input.y * amount;
+    private void Update() 
+    {
+        float movementX = -InputManager.Instance.movement_input.x * _amount;
+        float movementY = -InputManager.Instance.movement_input.y * _amount;
 
-        movementX = Mathf.Clamp(movementX, -maxAmount, maxAmount);
-        movementY = Mathf.Clamp(movementY, -maxAmount, maxAmount);
+        movementX = Mathf.Clamp(movementX, -_maxAmount, _maxAmount);
+        movementY = Mathf.Clamp(movementY, -_maxAmount, _maxAmount);
 
         Vector3 finalPosition = new Vector3(movementX, movementY, 0);
-        transform.localPosition = Vector3.Lerp(transform.localPosition, finalPosition + defaultPos, Time.deltaTime * smoothAmount);
+        transform.localPosition = Vector3.Lerp(transform.localPosition, finalPosition + _defaultPos, Time.deltaTime * _smoothAmount);
     }
 }

@@ -23,7 +23,8 @@ public class Hotbar : MonoBehaviour
         var root = GetComponent<UIDocument>().rootVisualElement; // Pega o root do UI Document
         m_hotbar = root.Q<VisualElement>("hotbar"); // Pega o elemento visual com o nome "hotbar"
 
-        for (int i = 0; i < m_hotbar.childCount; i++) {
+        for (int i = 0; i < m_hotbar.childCount; i++) 
+        {
             slots.Add(m_hotbar[i] as Slot);
         }
 
