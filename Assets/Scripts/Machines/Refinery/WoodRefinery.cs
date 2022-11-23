@@ -49,6 +49,7 @@ namespace Refiner
             GameObject newWood = Instantiate(_rawWoodGO, _instanciatePosition.position, Quaternion.identity) as GameObject;
             Wood wood = newWood.GetComponent<Wood>();
             wood.transform.localScale = RecalculateWoodSize(rawWoodSize);
+            GenerateWoodMesh(wood.transform.localScale, newWood);
             wood.isRefined = true;
             wood.GenerateWood(woodSO);
         }
@@ -66,6 +67,12 @@ namespace Refiner
             newSize.x = previewSize.z;
             newSize.y = previewSize.y;
             return newSize;
+        }
+
+        private void GenerateWoodMesh(Vector3 size, GameObject wood) 
+        {
+            MeshFilter meshFilter = wood.GetComponent<MeshFilter>();
+
         }
 
         public void ChangeWoodSize(bool isLeft, bool isX) 

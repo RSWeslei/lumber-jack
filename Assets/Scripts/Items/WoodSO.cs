@@ -9,5 +9,5 @@ public class WoodSO : ScriptableObject
     public float rawPrice;
     public float refinedPrice;
     public float hardness;
-
+    public Texture texture;
 }

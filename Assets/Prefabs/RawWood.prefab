@@ -64,7 +64,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: b2cd51e767a238b4ba20e4041895f6fe, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -127,6 +127,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 033e587058b75cb4881c77a1bbba035c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isRefined: 0
   woodValue: 0
-  woodSO: {fileID: 0}
+  isRefined: 0
+  _woodSO: {fileID: 0}
