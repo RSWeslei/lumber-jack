@@ -20,9 +20,9 @@ public class Buyable : MonoBehaviour, IDisplayable
     public void Display() 
     {
         if (_isBought) {
-            UIDisplays.Instance.ShowKeyText("Press E to open the box");
+            UIDisplays.Instance.ShowKeyInfo("Press E to open the box");
         } else {
-            UIDisplays.Instance.ShowKeyText("Press E to check");
+            UIDisplays.Instance.ShowKeyInfo("Press E to check");
             UIDisplays.Instance.DisplayBuyableInfo(_buyableSO);
         }
     }

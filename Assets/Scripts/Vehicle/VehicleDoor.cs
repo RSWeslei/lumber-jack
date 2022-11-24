@@ -42,7 +42,7 @@ namespace Vehicle
 
         public void Display()
         {
-            UIDisplays.Instance.ShowKeyText("Press E to enter the vehicle");
+            UIDisplays.Instance.ShowKeyInfo("Press E to enter the vehicle");
         }
 
         public void Hide()

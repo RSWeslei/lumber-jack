@@ -11,16 +11,21 @@ namespace Refiner
         [SerializeField] private bool _isX = false;
         private WoodRefinery _refiner;
         private TextMeshPro _screenText;
+        private string _text;
 
         private void Start() 
         {
             _refiner = GetComponentInParent<WoodRefinery>();
             _screenText = _isX ? _refiner.screenTextX : _refiner.screenTextY;
+            _text = (_isX && _isLeft) ? "Press E to decrease width" 
+            : (_isX && !_isLeft) ? "Press E to increase width" 
+            : (_isLeft) ? "Press E to decrease height" 
+            : "Press E to increase height";
         }
 
         public void Display() 
         {
-            UIDisplays.Instance.ShowKeyText("Press E to change value");
+            UIDisplays.Instance.ShowKeyInfo(_text);
             // GetComponent<MeshRenderer>().material.color = Color.green;
         }
 

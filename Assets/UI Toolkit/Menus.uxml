@@ -1,11 +1,14 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI%20Toolkit/menus.uss?fileID=7433441132597879392&amp;guid=9afad2193330c8246965993a59b9a2b7&amp;type=3#menus" />
     <ui:VisualElement name="Main" style="width: 100%; height: 100%; align-items: center; justify-content: center;">
-        <ui:VisualElement name="RefinaryParent" class="refineryParent" style="justify-content: center;">
+        <ui:VisualElement name="RefinaryParent" class="refineryParent" style="justify-content: center; display: none;">
             <ui:VisualElement name="WoodPreview" class="woodPreview" />
             <ui:VisualElement name="ButtonsParent" class="buttonsParent">
                 <ui:Button text="Button" display-tooltip-when-elided="true" name="Button" />
             </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="KeyInfoParent" class="keyInfoParent" style="justify-content: flex-start; align-items: stretch; display: none;">
+            <ui:Label text="Pressione &lt;key&gt; para" display-tooltip-when-elided="true" name="KeyInfo" style="-unity-text-align: middle-center;" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
