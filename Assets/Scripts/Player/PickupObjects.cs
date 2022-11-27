@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Managers;
 
 public class PickupObjects : MonoBehaviour
 {
@@ -13,7 +14,7 @@ public class PickupObjects : MonoBehaviour
     [Header("Raycast")]
     [SerializeField] private float _raycastDistance = 2f;
     [SerializeField] private LayerMask _layerMask;
-    private Transform _cameraTransform;
+    [SerializeField] private Transform _cameraTransform;
 
     [Header("ObjectFollow")]
     [SerializeField] private float _maxDistance = 1.5f;
@@ -22,12 +23,6 @@ public class PickupObjects : MonoBehaviour
     [Header("Rotation")]
     public float rotationSpeed = 100f;
     private Quaternion _originalRotation;
-
-    private void Awake() 
-    {
-        _cameraTransform = GetComponentInChildren<Camera>().transform;
-        this.enabled = false;
-    }
 
     private void Update() 
     {
@@ -39,11 +34,19 @@ public class PickupObjects : MonoBehaviour
 
     private void OnEnable() 
     {
-        PickUp();
+        InputManager.Instance.OnPickupObject += PickUp;
+        InputManager.Instance.OnDropObject += Drop;
+    }
+
+    private void OnDisable()
+    {
+        InputManager.Instance.OnPickupObject -= PickUp;
+        InputManager.Instance.OnDropObject -= Drop;
     }
 
     public void PickUp() 
     { 
+        Debug.Log("Pickup");
         RaycastHit hit;
         if (Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out hit, _raycastDistance, _layerMask)) 
         {
@@ -79,6 +82,5 @@ public class PickupObjects : MonoBehaviour
         isDraggingObject = false;
         _objectRigidbody = null;
         _currentDistance = 0f;
-        this.enabled = false;
     }
 }

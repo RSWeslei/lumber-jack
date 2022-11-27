@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace Managers
 {
@@ -8,28 +9,33 @@ namespace Managers
     {   
         [Header("Player")]
         public Vector2 movement_input;
+        public Vector2 look_input;
         public bool grab_input;
         public bool interact_input;
         public bool jump_input;
         public PlayerInputs playerInputs;
-        private PlayerInteraction _playerInteraction;
-        private PickupObjects _pickupObjects;
-
-        [Header("Player Wield")]
-        public WieldManager wieldManager;
 
         [Header("UI")]
         public static InputManager Instance;
-        [SerializeField] private Hotbar hotbar;
         private GUIInputs _guiInputs;
         private float _hotbarNumberInput;
-        private Vector2 _hotbarScrollInput;
+        private float _hotbarScrollInput;
+
+        public event Action<int> OnHotbarNumberInput;
+        public event Action<float> OnHotbarScrollInput;
+        public event Action OnPickupObject;
+        public event Action OnDropObject;
+        public event Action OnPlayerInteract;
+        public event Action OnPlayerAttack;
 
         private void Awake() 
         {
-            _pickupObjects = GetComponent<PickupObjects>();
-            _playerInteraction = GetComponentInChildren<PlayerInteraction>();
-            Instance = this;
+            if (Instance == null){
+                Instance = this;
+            }
+            else{
+                Destroy(gameObject);
+            }
         }
 
         private void OnEnable() 
@@ -45,7 +51,7 @@ namespace Managers
             if (playerInputs != null) 
             {
                 playerInputs.PlayerActions.LeftMouse.performed += ctx => {
-                    wieldManager.WieldRight();
+                    OnPlayerAttack?.Invoke();
                 };
             }
         }
@@ -54,14 +60,17 @@ namespace Managers
         {
             if (playerInputs != null) 
             {
-                playerInputs.PlayerMovement.Movement.performed += ctx => {
-                    movement_input = playerInputs.PlayerMovement.Movement.ReadValue<Vector2>();
+                playerInputs.PlayerMovement.Move.performed += ctx => {
+                    movement_input = playerInputs.PlayerMovement.Move.ReadValue<Vector2>();
                 };
                 playerInputs.PlayerMovement.Jump.performed += ctx => {
                     jump_input = true;
                 };
                 playerInputs.PlayerMovement.Jump.canceled += ctx => {
                     jump_input = false;
+                };
+                playerInputs.PlayerMovement.Look.performed += ctx => {
+                    look_input = playerInputs.PlayerMovement.Look.ReadValue<Vector2>();
                 };
             }
         }
@@ -73,15 +82,15 @@ namespace Managers
             {
                 playerInputs.PlayerActions.Grab.performed += i => {
                     grab_input = true;
-                    _pickupObjects.enabled = true;
+                    OnPickupObject?.Invoke();
                 };
                 playerInputs.PlayerActions.Grab.canceled += i => {
                     grab_input = false;
-                    _pickupObjects?.Drop();
+                    OnDropObject?.Invoke();
                 };
                 playerInputs.PlayerActions.Interact.performed += i => {
                     interact_input = true;
-                    _playerInteraction.Interact();
+                    OnPlayerInteract?.Invoke();
                 };
                 playerInputs.PlayerActions.Interact.canceled += i => {
                     interact_input = false;
@@ -96,12 +105,12 @@ namespace Managers
             if (_guiInputs != null) 
             {
                 _guiInputs.PlayerUI.HotbarMouseScroll.performed += i => {
-                    _hotbarScrollInput = i.ReadValue<Vector2>().normalized;
-                    hotbar.SelectSlotScroll(_hotbarScrollInput.y);
+                    _hotbarScrollInput = i.ReadValue<Vector2>().normalized.y;
+                    OnHotbarScrollInput?.Invoke(_hotbarScrollInput);
                 };
                 _guiInputs.PlayerUI.HotbarNumbers.performed += i => {
                     _hotbarNumberInput = i.ReadValue<float>();
-                    hotbar.SelectSlot((int)(_hotbarNumberInput-1));
+                    OnHotbarNumberInput?.Invoke((int)_hotbarNumberInput-1);
                 };
             }
             _guiInputs.Enable();

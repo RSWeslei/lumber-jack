@@ -12,7 +12,6 @@ namespace Vehicle
         public float maxSteeringAngle; // maximum steer angle the wheel can have
         [SerializeField] private PlayerController playerController;
         [SerializeField] private Camera vehicleCamera;
-        [SerializeField] private InputManager inputManager;
 
         [Header("Vehicle")]
         public VehicleInputs vehicleInputs;
