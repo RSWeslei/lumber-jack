@@ -46,6 +46,19 @@ public class Hotbar : MonoBehaviour
         // SelectSlot(1);
     }
 
+    public bool AddItem(Item item)
+    {
+        foreach (var slot in slots)
+        {
+            if (slot.Item == null)
+            {
+                slot.AddItem(item);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void SelectSlot(int slotNumber)
     {
         if (slotNumber == _previousSlot && !_sameSlot)

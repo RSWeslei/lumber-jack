@@ -5,5 +5,4 @@ using UnityEngine;
 public interface IDisplayable
 {
     void Display();
-    void Hide();
 }

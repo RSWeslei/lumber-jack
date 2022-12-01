@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 12129dd8e24f4d74c9a9704bc3e9e318, type: 3}
-  m_Name: Normal Axe
+  m_Name: StoneAxeBox
   m_EditorClassIdentifier: 
-  icon: {fileID: 2800000, guid: f09eae8c0ea04254b90c5386a034a225, type: 3}
-  itemName: Normal Axe
+  icon: {fileID: 2800000, guid: 6a237171e2346e3458db37eb0f90d42b, type: 3}
+  itemName: StoneAxeBox
   itemPrefab: {fileID: 6983746667048129795, guid: 8dbb2450ee5b4124daf672295959c342,
     type: 3}
   description: o que ta acontecendo

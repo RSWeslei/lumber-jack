@@ -7,12 +7,12 @@ using System;
 
 public class PlayerInteraction : MonoBehaviour
 {
-    private LayerMask intectableLayer;
+    private LayerMask interactableLayer;
     private RaycastHit oldHit;
     [SerializeField] private float raycastDistance = 2f;
 
     private void Awake() {
-        intectableLayer = LayerMask.GetMask("Interactable");
+        interactableLayer = LayerMask.GetMask("Interactable");
     }
 
     void OnEnable()
@@ -28,18 +28,14 @@ public class PlayerInteraction : MonoBehaviour
     void Update()
     {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward, out hit, raycastDistance, intectableLayer))
-        {
+        if (Physics.CapsuleCast(transform.position, transform.position + Vector3.up, 0.1f, transform.forward, out hit, raycastDistance, interactableLayer)) {
             if (oldHit.collider) {
                 return;
             }
             hit.collider.GetComponent<IDisplayable>()?.Display();
             oldHit = hit;
-        } 
-        else {
-            if (oldHit.collider)
+        } else {
             {
-                oldHit.collider.GetComponent<IDisplayable>()?.Hide();
                 UIDisplays.Instance.HideKeyInfo();
                 oldHit = new RaycastHit();
             }
@@ -49,7 +45,7 @@ public class PlayerInteraction : MonoBehaviour
     public void Interact () 
     {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward, out hit, raycastDistance, intectableLayer))
+        if (Physics.Raycast(transform.position, transform.forward, out hit, raycastDistance, interactableLayer))
         {
             hit.collider.GetComponent<IInteractable>()?.Interact();
         }

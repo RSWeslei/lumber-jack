@@ -1,12 +1,9 @@
+using Managers;
 public class CashierButtom : Buttom, IDisplayable
 {
     public void Display() 
     {
-        UIDisplays.Instance.ShowKeyInfo("Press E to buy");
-    }
-
-    public void Hide() {
-        return;
+        UIDisplays.Instance.ShowKeyInfo($"Press {InputManager.Instance.interactKey} to buy");
     }
 
     public override void Interact() 

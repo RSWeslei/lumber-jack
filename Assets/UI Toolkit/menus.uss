@@ -3,8 +3,8 @@
     width: 450px;
     height: 250px;
     justify-content: space-between;
-    align-items: stretch;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
     margin-left: 0;
     margin-right: 0;
     margin-top: 0;
@@ -13,18 +13,19 @@
     border-bottom-left-radius: 8px;
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
+    flex-wrap: nowrap;
+    flex-grow: 0;
+    flex-shrink: 1;
 }
 
 .woodPreview {
     width: 100px;
     height: 100px;
     background-image: url('project://database/Assets/oak-wooden-textured-design-background_53876-143033.jpg?fileID=2800000&guid=26ccc8eff3911b94491a982e148f6bb0&type=3#oak-wooden-textured-design-background_53876-143033');
-    margin-left: 50px;
-}
-
-.buttonsParent {
-    width: 175px;
-    height: 110px;
+    margin-left: 10px;
+    align-items: stretch;
+    justify-content: flex-start;
+    flex-direction: column;
 }
 
 .keyInfoParent {
@@ -33,7 +34,7 @@
     bottom: 1%;
     position: absolute;
     right: auto;
-    background-color: rgba(183, 183, 183, 255);
+    background-color: rgb(183, 183, 183);
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
     border-top-right-radius: 5px;

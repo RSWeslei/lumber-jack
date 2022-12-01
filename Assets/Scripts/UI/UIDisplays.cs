@@ -42,7 +42,7 @@ public class UIDisplays : MonoBehaviour
         m_keyInfoParent.style.display = DisplayStyle.None;
     }
 
-    public void DisplayBuyableInfo(SOBuyable buyable) 
+    public void DisplayBuyableInfo(BuyableSO buyable) 
     {
         _buyableInfoText[0].text = buyable.itemName;
         _buyableInfoText[1].text = "$ " + buyable.buyPrice.ToString("F2");

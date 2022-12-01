@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [CreateAssetMenu(fileName = "New Buyable", menuName = "Inventory/Buyable")]
-public class SOBuyable : Item
+public class BuyableSO : Item
 {
     public int buyPrice;
 }

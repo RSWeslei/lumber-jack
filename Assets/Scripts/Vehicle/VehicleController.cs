@@ -10,7 +10,7 @@ namespace Vehicle
         public List<AxleInfo> axleInfos; // the information about each individual axle
         public float maxMotorTorque; // maximum torque the motor can apply to wheel
         public float maxSteeringAngle; // maximum steer angle the wheel can have
-        [SerializeField] private PlayerController playerController;
+        [SerializeField] private Transform playerTransform;
         [SerializeField] private Camera vehicleCamera;
 
         [Header("Vehicle")]
@@ -92,7 +92,7 @@ namespace Vehicle
         }
 
         private void Enter () {
-            playerController.gameObject.SetActive(false);
+            playerTransform.gameObject.SetActive(false);
             vehicleCamera.gameObject.SetActive(true);
         }
 
