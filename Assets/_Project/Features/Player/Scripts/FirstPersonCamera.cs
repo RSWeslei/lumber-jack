@@ -1,0 +1,171 @@
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+// Camera em primeira pessoa: mouse cru (sem suavizacao/atraso), balanco da cabeca,
+// "afundada" ao aterrissar, leve inclinacao ao andar de lado e FOV maior ao correr.
+// Roda antes do PlayerMovement para o movimento usar a rotacao deste frame.
+[DefaultExecutionOrder(-10)]
+[RequireComponent(typeof(PlayerMovement))]
+public class FirstPersonCamera : MonoBehaviour
+{
+    [Tooltip("Pivo da cabeca (altura dos olhos); gira no eixo X")]
+    [SerializeField] private Transform _cameraRoot;
+    [Tooltip("Vazio = usa a Camera.main")]
+    [SerializeField] private Camera _camera;
+
+    [Header("Olhar")]
+    [SerializeField] private float _mouseSensitivity = 1f;
+    [SerializeField] private float _gamepadSensitivity = 1f;
+    [SerializeField] private float _pitchLimit = 89f;
+
+    [Header("Lente")]
+    [SerializeField] private float _baseFov = 70f;
+    [SerializeField] private float _sprintFovBoost = 8f;
+    [SerializeField] private float _fovSharpness = 8f;
+    [SerializeField] private float _nearClip = 0.05f;
+
+    [Header("Balanco da cabeca")]
+    [Tooltip("Passos por metro andado")]
+    [SerializeField] private float _bobFrequency = 0.55f;
+    [SerializeField] private float _bobVerticalAmplitude = 0.04f;
+    [SerializeField] private float _bobHorizontalAmplitude = 0.025f;
+    [SerializeField] private float _bobSharpness = 10f;
+
+    [Header("Aterrissagem")]
+    [Tooltip("Quanto a camera desce por m/s de queda")]
+    [SerializeField] private float _landingImpulse = 0.22f;
+    [SerializeField] private float _maxLandingImpulse = 2.2f;
+    [SerializeField] private float _springStiffness = 120f;
+    [SerializeField] private float _springDamping = 16f;
+
+    [Header("Inclinacao ao andar de lado")]
+    [SerializeField] private float _strafeTilt = 1.2f;
+    [SerializeField] private float _tiltSharpness = 8f;
+
+    private PlayerMovement _movement;
+    private float _pitch;
+    private float _bobPhase;
+    private float _bobWeight;
+    private float _landingOffset;
+    private float _landingVelocity;
+    private float _tilt;
+
+    private void Awake()
+    {
+        _movement = GetComponent<PlayerMovement>();
+        if (_camera == null) _camera = Camera.main;
+        _camera.nearClipPlane = _nearClip;
+        _camera.fieldOfView = _baseFov;
+        _pitch = NormalizeAngle(_cameraRoot.localEulerAngles.x);
+    }
+
+    private void OnEnable()
+    {
+        _movement.OnLanded += HandleLanded;
+        LockCursor();
+    }
+
+    private void OnDisable()
+    {
+        _movement.OnLanded -= HandleLanded;
+    }
+
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if (hasFocus && enabled) LockCursor();
+    }
+
+    private void Update()
+    {
+        Look();
+    }
+
+    private void LateUpdate()
+    {
+        float deltaTime = Time.deltaTime;
+        Vector3 bob = UpdateHeadBob(deltaTime);
+        UpdateLandingSpring(deltaTime);
+        UpdateTilt(deltaTime);
+        UpdateFov(deltaTime);
+
+        // A camera acompanha a cabeca exatamente, mais os efeitos
+        Transform cameraTransform = _camera.transform;
+        cameraTransform.SetPositionAndRotation(
+            _cameraRoot.position + _cameraRoot.rotation * bob + Vector3.up * _landingOffset,
+            _cameraRoot.rotation * Quaternion.Euler(0f, 0f, _tilt));
+    }
+
+    private void Look()
+    {
+        if (Cursor.lockState != CursorLockMode.Locked) return;
+
+        InputAction look = InputManager.Instance.playerInputs.PlayerMovement.Look;
+        Vector2 delta = look.ReadValue<Vector2>();
+
+        // Mouse ja vem em "pixels deste frame"; o analogico e uma velocidade, entao usa deltaTime
+        bool gamepad = look.activeControl != null && look.activeControl.device is Gamepad;
+        delta *= gamepad ? _gamepadSensitivity * Time.deltaTime : _mouseSensitivity;
+
+        _pitch = Mathf.Clamp(_pitch + delta.y, -_pitchLimit, _pitchLimit);
+        _cameraRoot.localRotation = Quaternion.Euler(_pitch, 0f, 0f);
+        transform.Rotate(Vector3.up * delta.x);
+    }
+
+    private Vector3 UpdateHeadBob(float deltaTime)
+    {
+        float speed = _movement.IsGrounded ? _movement.HorizontalSpeed : 0f;
+        float targetWeight = Mathf.Clamp01(speed / _movement.WalkSpeed);
+        _bobWeight = Mathf.Lerp(_bobWeight, targetWeight, Sharpness(_bobSharpness, deltaTime));
+
+        // A fase avanca com a distancia andada, entao correr da passos mais rapidos naturalmente
+        _bobPhase += speed * _bobFrequency * Mathf.PI * deltaTime;
+
+        return new Vector3(
+            Mathf.Sin(_bobPhase) * _bobHorizontalAmplitude,
+            Mathf.Sin(_bobPhase * 2f) * _bobVerticalAmplitude,
+            0f) * _bobWeight;
+    }
+
+    private void HandleLanded(float fallSpeed)
+    {
+        _landingVelocity -= Mathf.Min(fallSpeed * _landingImpulse, _maxLandingImpulse);
+    }
+
+    // Mola amortecida: afunda e volta suave depois da aterrissagem
+    private void UpdateLandingSpring(float deltaTime)
+    {
+        float acceleration = -_springStiffness * _landingOffset - _springDamping * _landingVelocity;
+        _landingVelocity += acceleration * deltaTime;
+        _landingOffset += _landingVelocity * deltaTime;
+    }
+
+    private void UpdateTilt(float deltaTime)
+    {
+        float target = -_movement.MoveInput.x * _strafeTilt;
+        _tilt = Mathf.Lerp(_tilt, target, Sharpness(_tiltSharpness, deltaTime));
+    }
+
+    private void UpdateFov(float deltaTime)
+    {
+        bool sprinting = _movement.IsSprinting && _movement.HorizontalSpeed > _movement.WalkSpeed + 0.5f;
+        float target = _baseFov + (sprinting ? _sprintFovBoost : 0f);
+        _camera.fieldOfView = Mathf.Lerp(_camera.fieldOfView, target, Sharpness(_fovSharpness, deltaTime));
+    }
+
+    private static void LockCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    // Suavizacao independente do framerate
+    private static float Sharpness(float sharpness, float deltaTime)
+    {
+        return 1f - Mathf.Exp(-sharpness * deltaTime);
+    }
+
+    private static float NormalizeAngle(float angle)
+    {
+        return angle > 180f ? angle - 360f : angle;
+    }
+}

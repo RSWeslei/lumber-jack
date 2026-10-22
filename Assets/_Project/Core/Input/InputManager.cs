@@ -76,6 +76,10 @@ public class InputManager : MonoBehaviour
             playerInputs.PlayerMovement.Move.performed += ctx => {
                 movement_input = playerInputs.PlayerMovement.Move.ReadValue<Vector2>();
             };
+            // Sem o canceled o valor ficava travado no ultimo input ao soltar as teclas
+            playerInputs.PlayerMovement.Move.canceled += ctx => {
+                movement_input = Vector2.zero;
+            };
             playerInputs.PlayerMovement.Jump.performed += ctx => {
                 jump_input = true;
             };
@@ -84,6 +88,9 @@ public class InputManager : MonoBehaviour
             };
             playerInputs.PlayerMovement.Look.performed += ctx => {
                 look_input = playerInputs.PlayerMovement.Look.ReadValue<Vector2>();
+            };
+            playerInputs.PlayerMovement.Look.canceled += ctx => {
+                look_input = Vector2.zero;
             };
         }
     }
