@@ -5,5 +5,6 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Tool", menuName = "Inventory/Tool")]
 public class ToolSO : Item
 {
-    
+    [Tooltip("Ferramenta corta madeira (machados)")]
+    public bool canCutWood;
 }

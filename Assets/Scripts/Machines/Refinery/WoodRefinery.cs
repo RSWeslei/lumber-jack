@@ -39,28 +39,26 @@ namespace Refiner
                 if (wood.isRefined) {
                     return;
                 }
-                RefineWood(wood.WoodSO, other.transform.localScale);
+                RefineWood(wood.WoodSO, wood.Volume);
                 Destroy(other.gameObject);
             }
         }
 
-        private void RefineWood(WoodSO woodSO, Vector3 rawWoodSize) 
+        private void RefineWood(WoodSO woodSO, float rawWoodVolume)
         {
             GameObject newWood = Instantiate(_rawWoodGO, _instanciatePosition.position, Quaternion.identity) as GameObject;
             Wood wood = newWood.GetComponent<Wood>();
-            wood.transform.localScale = RecalculateWoodSize(rawWoodSize);
+            wood.transform.localScale = RecalculateWoodSize(rawWoodVolume);
             GenerateWoodMesh(wood.transform.localScale, newWood);
             wood.isRefined = true;
             wood.GenerateWood(woodSO);
         }
 
-        private Vector3 RecalculateWoodSize(Vector3 woodSize) 
+        private Vector3 RecalculateWoodSize(float volume)
         {
             Vector3 previewSize = woodPreviewGO.transform.localScale;
             Vector3 newSize = new Vector3();
-            float biggerAxis = Mathf.Max(woodSize.x, woodSize.y, woodSize.z);
-            float volume = woodSize.x * woodSize.y * woodSize.z;
-            float lenght = lenght = volume / (previewSize.y * previewSize.z);
+            float lenght = volume / (previewSize.y * previewSize.z);
             lenght -= lenght * loseAmount;
             
             newSize.z = lenght;

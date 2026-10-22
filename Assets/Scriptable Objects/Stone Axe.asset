@@ -17,3 +17,4 @@ MonoBehaviour:
   itemPrefab: {fileID: 6983746667048129795, guid: 8dbb2450ee5b4124daf672295959c342,
     type: 3}
   description: 
+  canCutWood: 1

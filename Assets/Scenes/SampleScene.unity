@@ -7335,6 +7335,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1596630249}
+  - component: {fileID: 1596630250}
   m_Layer: 0
   m_Name: PlayerConfigs
   m_TagString: Untagged
@@ -10654,3 +10655,138 @@ WheelCollider:
     m_AsymptoteValue: 0.75
     m_Stiffness: 1
   m_Enabled: 1
+--- !u!114 &1596630250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1596630248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 021b47088e8fadb0d965ea53ca8c56d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WoodChopper
+  _hand: {fileID: 2139922103}
+  _previewMaterial: {fileID: 2100000, guid: bc44bb48381d43342acf9171bc6d89eb, type: 2}
+  _reach: 2.5
+  _maxTilt: 60
+  _tiltSpeed: 60
+  _windUpAngle: -60
+  _strikeAngle: 40
+--- !u!1001 &900000001
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 7130084653481170950, guid: dd20735f09801ee4c9aeae90285778f0, type: 3}
+      propertyPath: m_Name
+      value: Log
+      objectReference: {fileID: 0}
+    - target: {fileID: 6956035392017753688, guid: dd20735f09801ee4c9aeae90285778f0, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 9.43
+      objectReference: {fileID: 0}
+    - target: {fileID: 6956035392017753688, guid: dd20735f09801ee4c9aeae90285778f0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 6956035392017753688, guid: dd20735f09801ee4c9aeae90285778f0, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 17.5
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: dd20735f09801ee4c9aeae90285778f0, type: 3}
+--- !u!1001 &900000002
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 7130084653481170950, guid: dd20735f09801ee4c9aeae90285778f0, type: 3}
+      propertyPath: m_Name
+      value: Log (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6956035392017753688, guid: dd20735f09801ee4c9aeae90285778f0, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 9.43
+      objectReference: {fileID: 0}
+    - target: {fileID: 6956035392017753688, guid: dd20735f09801ee4c9aeae90285778f0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 6956035392017753688, guid: dd20735f09801ee4c9aeae90285778f0, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 18.4
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: dd20735f09801ee4c9aeae90285778f0, type: 3}
+--- !u!1001 &900000003
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 7130084653481170950, guid: dd20735f09801ee4c9aeae90285778f0, type: 3}
+      propertyPath: m_Name
+      value: Log (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6956035392017753688, guid: dd20735f09801ee4c9aeae90285778f0, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 9.43
+      objectReference: {fileID: 0}
+    - target: {fileID: 6956035392017753688, guid: dd20735f09801ee4c9aeae90285778f0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 6956035392017753688, guid: dd20735f09801ee4c9aeae90285778f0, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 19.3
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: dd20735f09801ee4c9aeae90285778f0, type: 3}
+--- !u!1001 &900000004
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 6983746667048129795, guid: 8dbb2450ee5b4124daf672295959c342, type: 3}
+      propertyPath: m_Name
+      value: Stone Axe
+      objectReference: {fileID: 0}
+    - target: {fileID: 7755357141410025401, guid: 8dbb2450ee5b4124daf672295959c342, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 8.0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7755357141410025401, guid: 8dbb2450ee5b4124daf672295959c342, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7755357141410025401, guid: 8dbb2450ee5b4124daf672295959c342, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 16.6
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8dbb2450ee5b4124daf672295959c342, type: 3}
