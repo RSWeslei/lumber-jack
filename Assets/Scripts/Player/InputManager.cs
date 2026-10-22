@@ -53,11 +53,10 @@ public class InputManager : MonoBehaviour
 
     private void Keys()
     {
-        interactKey = playerInputs.PlayerActions.Interact.bindings[0].effectivePath;
-        grabKey = playerInputs.PlayerActions.Grab.bindings[0].effectivePath;
-        jumpKey = playerInputs.PlayerMovement.Jump.bindings[0].effectivePath;
-        sprintKey = playerInputs.PlayerMovement.Sprint.bindings[0].effectivePath;
-        Debug.Log(interactKey);
+        interactKey = playerInputs.PlayerActions.Interact.bindings[0].effectivePath.Split('/')[1].ToUpper();
+        grabKey = playerInputs.PlayerActions.Grab.bindings[0].effectivePath.Split('/')[1].ToUpper();
+        jumpKey = playerInputs.PlayerMovement.Jump.bindings[0].effectivePath.Split('/')[1].ToUpper();
+        sprintKey = playerInputs.PlayerMovement.Sprint.bindings[0].effectivePath.Split('/')[1].ToUpper();
     }
 
     private void HandleWieldInputs() 

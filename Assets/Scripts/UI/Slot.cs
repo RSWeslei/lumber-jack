@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.Scripting;
 using UnityEngine.UIElements;
 
-public class Slot : VisualElement
+[UxmlElement] // Permite usar o Slot em arquivos UXML / UI Builder
+public partial class Slot : VisualElement
 {
     private Image _icon;
     public string slotName;
@@ -35,13 +36,6 @@ public class Slot : VisualElement
         _icon.image = null;
         this._item = null;
     }
-    
-    #region UXML
-    [Preserve]
-    public new class UxmlFactory : UxmlFactory<Slot, UxmlTraits> { }
-    [Preserve]
-    public new class UxmlTraits : VisualElement.UxmlTraits { }
-    #endregion
 }
 
 

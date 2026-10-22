@@ -23,6 +23,12 @@ public class Hand : MonoBehaviour
         itemObject.transform.localScale = Vector3.one;
 
         itemObject.AddComponent<EquippedItemSway>();
+        
+        Rigidbody itemRigidbody = itemObject.GetComponent<Rigidbody>();
+        if (itemRigidbody != null) 
+        {
+            itemRigidbody.isKinematic = true;
+        }
 
         _currentEquippedItemGO = itemObject;
     }
