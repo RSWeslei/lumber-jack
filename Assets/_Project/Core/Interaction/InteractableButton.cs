@@ -1,12 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class InteractableButton : MonoBehaviour, IInteractable
+namespace LumberJack.Core
 {
-    public virtual void Interact()
+    /// <summary>
+    /// Base para botoes fisicos do mundo (caixa, refinaria...). As subclasses chamam
+    /// base.Interact() para manter o feedback comum quando ele existir (animacao, som).
+    /// </summary>
+    public class InteractableButton : MonoBehaviour, IInteractable
     {
-        // Do animation
-        // Do sound
+        public virtual void Interact()
+        {
+        }
     }
 }

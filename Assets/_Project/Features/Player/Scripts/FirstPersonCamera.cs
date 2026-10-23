@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using LumberJack.Core;
 
 // Camera em primeira pessoa: mouse cru (sem suavizacao/atraso), balanco da cabeca,
 // "afundada" ao aterrissar, leve inclinacao ao andar de lado e FOV maior ao correr.
@@ -104,7 +105,7 @@ public class FirstPersonCamera : MonoBehaviour
     {
         if (Cursor.lockState != CursorLockMode.Locked) return;
 
-        InputAction look = InputManager.Instance.playerInputs.PlayerMovement.Look;
+        InputAction look = InputManager.Instance.PlayerInputs.PlayerMovement.Look;
         Vector2 delta = look.ReadValue<Vector2>();
 
         // Mouse ja vem em "pixels deste frame"; o analogico e uma velocidade, entao usa deltaTime

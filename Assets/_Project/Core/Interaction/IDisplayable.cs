@@ -1,8 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public interface IDisplayable
+namespace LumberJack.Core
 {
-    void Display();
+    /// <summary>
+    /// Algo que mostra uma dica na tela (ex.: "Press E to...") quando o jogador olha para ele.
+    /// </summary>
+    public interface IDisplayable
+    {
+        void Display();
+    }
 }

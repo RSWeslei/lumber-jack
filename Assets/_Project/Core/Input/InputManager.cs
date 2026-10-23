@@ -1,138 +1,126 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using System;
+using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class InputManager : MonoBehaviour
-{   
-    [Header("Player")]
-    public Vector2 movement_input;
-    public Vector2 look_input;
-    public bool grab_input;
-    public bool interact_input;
-    public bool jump_input;
-    public PlayerInputs playerInputs;
-
-    [Header("UI")]
-    public static InputManager Instance;
-    private GUIInputs _guiInputs;
-    private float _hotbarNumberInput;
-    private float _hotbarScrollInput;
-
-    [Header("Keys")]
-    public string interactKey;
-    public string grabKey;
-    public string jumpKey;
-    public string sprintKey;
-
-    public event Action<int> OnHotbarNumberInput;
-    public event Action<float> OnHotbarScrollInput;
-    public event Action OnPickupObject;
-    public event Action OnDropObject;
-    public event Action OnPlayerInteract;
-    public event Action OnPlayerAttack;
-
-    private void Awake() 
+namespace LumberJack.Core
+{
+    /// <summary>
+    /// Ponto central do input do jogador (a pe e hotbar). Valores continuos (mover, olhar)
+    /// sao lidos na hora; acoes pontuais viram eventos.
+    /// </summary>
+    // Roda antes dos outros scripts para o Instance e as acoes ja existirem no OnEnable deles
+    [DefaultExecutionOrder(-100)]
+    public class InputManager : MonoBehaviour
     {
-        if (Instance == null){
+        private GUIInputs _guiInputs;
+
+        public static InputManager Instance { get; private set; }
+
+        public PlayerInputs PlayerInputs { get; private set; }
+
+        public Vector2 MoveInput => PlayerInputs.PlayerMovement.Move.ReadValue<Vector2>();
+        public Vector2 LookInput => PlayerInputs.PlayerMovement.Look.ReadValue<Vector2>();
+        public bool IsJumpHeld => PlayerInputs.PlayerMovement.Jump.IsPressed();
+        public bool IsGrabHeld => PlayerInputs.PlayerActions.Grab.IsPressed();
+
+        // Nome da tecla para mostrar na UI ("E", "Left Shift"...)
+        public string InteractKeyLabel { get; private set; }
+        public string GrabKeyLabel { get; private set; }
+        public string JumpKeyLabel { get; private set; }
+        public string SprintKeyLabel { get; private set; }
+
+        public event Action AttackPressed;
+        public event Action InteractPressed;
+        public event Action GrabPressed;
+        public event Action GrabReleased;
+        /// <summary>Slot escolhido pelas teclas numericas (comeca em 0).</summary>
+        public event Action<int> HotbarSlotSelected;
+        /// <summary>+1 rolou para cima, -1 para baixo.</summary>
+        public event Action<float> HotbarScrolled;
+
+        private void Awake()
+        {
+            if (Instance != null && Instance != this)
+            {
+                // Remove so o componente duplicado, nao o objeto (que e o proprio player)
+                Destroy(this);
+                return;
+            }
+
             Instance = this;
+            PlayerInputs = new PlayerInputs();
+            _guiInputs = new GUIInputs();
+
+            InteractKeyLabel = GetKeyLabel(PlayerInputs.PlayerActions.Interact);
+            GrabKeyLabel = GetKeyLabel(PlayerInputs.PlayerActions.Grab);
+            JumpKeyLabel = GetKeyLabel(PlayerInputs.PlayerMovement.Jump);
+            SprintKeyLabel = GetKeyLabel(PlayerInputs.PlayerMovement.Sprint);
         }
-        else{
-            Destroy(gameObject);
-        }
-    }
 
-    private void OnEnable() 
-    {
-        HandlePlayerInputs();
-        HandleGUIInputs();
-        HandleWieldInputs();
-        HandlePlayerMovement();
-        Keys();
-    }
-
-    private void Keys()
-    {
-        interactKey = playerInputs.PlayerActions.Interact.bindings[0].effectivePath.Split('/')[1].ToUpper();
-        grabKey = playerInputs.PlayerActions.Grab.bindings[0].effectivePath.Split('/')[1].ToUpper();
-        jumpKey = playerInputs.PlayerMovement.Jump.bindings[0].effectivePath.Split('/')[1].ToUpper();
-        sprintKey = playerInputs.PlayerMovement.Sprint.bindings[0].effectivePath.Split('/')[1].ToUpper();
-    }
-
-    private void HandleWieldInputs() 
-    {
-        if (playerInputs != null) 
+        private void OnEnable()
         {
-            playerInputs.PlayerActions.LeftMouse.performed += ctx => {
-                OnPlayerAttack?.Invoke();
-            };
-        }
-    }
+            if (PlayerInputs == null) return;
 
-    private void HandlePlayerMovement()
-    {
-        if (playerInputs != null) 
-        {
-            playerInputs.PlayerMovement.Move.performed += ctx => {
-                movement_input = playerInputs.PlayerMovement.Move.ReadValue<Vector2>();
-            };
-            // Sem o canceled o valor ficava travado no ultimo input ao soltar as teclas
-            playerInputs.PlayerMovement.Move.canceled += ctx => {
-                movement_input = Vector2.zero;
-            };
-            playerInputs.PlayerMovement.Jump.performed += ctx => {
-                jump_input = true;
-            };
-            playerInputs.PlayerMovement.Jump.canceled += ctx => {
-                jump_input = false;
-            };
-            playerInputs.PlayerMovement.Look.performed += ctx => {
-                look_input = playerInputs.PlayerMovement.Look.ReadValue<Vector2>();
-            };
-            playerInputs.PlayerMovement.Look.canceled += ctx => {
-                look_input = Vector2.zero;
-            };
-        }
-    }
+            PlayerInputs.PlayerActions.LeftMouse.performed += HandleAttackPerformed;
+            PlayerInputs.PlayerActions.Interact.performed += HandleInteractPerformed;
+            PlayerInputs.PlayerActions.Grab.performed += HandleGrabPerformed;
+            PlayerInputs.PlayerActions.Grab.canceled += HandleGrabCanceled;
+            _guiInputs.PlayerUI.HotbarNumbers.performed += HandleHotbarNumberPerformed;
+            _guiInputs.PlayerUI.HotbarMouseScroll.performed += HandleHotbarScrollPerformed;
 
-    private void HandlePlayerInputs()
-    {
-        playerInputs = new PlayerInputs();
-        if (playerInputs != null) 
-        {
-            playerInputs.PlayerActions.Grab.performed += i => {
-                grab_input = true;
-                OnPickupObject?.Invoke();
-            };
-            playerInputs.PlayerActions.Grab.canceled += i => {
-                grab_input = false;
-                OnDropObject?.Invoke();
-            };
-            playerInputs.PlayerActions.Interact.performed += i => {
-                interact_input = true;
-                OnPlayerInteract?.Invoke();
-            };
-            playerInputs.PlayerActions.Interact.canceled += i => {
-                interact_input = false;
-            };
+            PlayerInputs.Enable();
+            _guiInputs.Enable();
         }
-        playerInputs.Enable();
-    }
 
-    private void HandleGUIInputs() 
-    {
-        _guiInputs = new GUIInputs();
-        if (_guiInputs != null) 
+        private void OnDisable()
         {
-            _guiInputs.PlayerUI.HotbarMouseScroll.performed += i => {
-                _hotbarScrollInput = i.ReadValue<Vector2>().normalized.y;
-                OnHotbarScrollInput?.Invoke(_hotbarScrollInput);
-            };
-            _guiInputs.PlayerUI.HotbarNumbers.performed += i => {
-                _hotbarNumberInput = i.ReadValue<float>();
-                OnHotbarNumberInput?.Invoke((int)_hotbarNumberInput-1);
-            };
+            if (PlayerInputs == null) return;
+
+            PlayerInputs.PlayerActions.LeftMouse.performed -= HandleAttackPerformed;
+            PlayerInputs.PlayerActions.Interact.performed -= HandleInteractPerformed;
+            PlayerInputs.PlayerActions.Grab.performed -= HandleGrabPerformed;
+            PlayerInputs.PlayerActions.Grab.canceled -= HandleGrabCanceled;
+            _guiInputs.PlayerUI.HotbarNumbers.performed -= HandleHotbarNumberPerformed;
+            _guiInputs.PlayerUI.HotbarMouseScroll.performed -= HandleHotbarScrollPerformed;
+
+            PlayerInputs.Disable();
+            _guiInputs.Disable();
         }
-        _guiInputs.Enable();
+
+        private void OnDestroy()
+        {
+            if (Instance != this) return;
+
+            PlayerInputs?.Dispose();
+            _guiInputs?.Dispose();
+            Instance = null;
+        }
+
+        private void HandleAttackPerformed(InputAction.CallbackContext context) => AttackPressed?.Invoke();
+
+        private void HandleInteractPerformed(InputAction.CallbackContext context) => InteractPressed?.Invoke();
+
+        private void HandleGrabPerformed(InputAction.CallbackContext context) => GrabPressed?.Invoke();
+
+        private void HandleGrabCanceled(InputAction.CallbackContext context) => GrabReleased?.Invoke();
+
+        // As teclas 1-9 estao configuradas para devolver o proprio numero
+        private void HandleHotbarNumberPerformed(InputAction.CallbackContext context)
+        {
+            HotbarSlotSelected?.Invoke(Mathf.RoundToInt(context.ReadValue<float>()) - 1);
+        }
+
+        private void HandleHotbarScrollPerformed(InputAction.CallbackContext context)
+        {
+            float scroll = context.ReadValue<Vector2>().y;
+            if (scroll != 0f) HotbarScrolled?.Invoke(Mathf.Sign(scroll));
+        }
+
+        private static string GetKeyLabel(InputAction action)
+        {
+            if (action.bindings.Count == 0) return string.Empty;
+            return InputControlPath.ToHumanReadableString(action.bindings[0].effectivePath,
+                InputControlPath.HumanReadableStringOptions.OmitDevice);
+        }
     }
 }

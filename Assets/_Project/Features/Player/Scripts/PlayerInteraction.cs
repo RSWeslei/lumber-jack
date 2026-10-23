@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Managers;
 using System;
+using LumberJack.Core;
 
 public class PlayerInteraction : MonoBehaviour
 {
@@ -17,12 +18,12 @@ public class PlayerInteraction : MonoBehaviour
 
     void OnEnable()
     {
-        InputManager.Instance.OnPlayerInteract += Interact;
+        InputManager.Instance.InteractPressed += Interact;
     }
 
     void OnDisable()
     {
-        InputManager.Instance.OnPlayerInteract -= Interact;
+        InputManager.Instance.InteractPressed -= Interact;
     }
 
     void Update()

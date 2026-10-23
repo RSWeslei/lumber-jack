@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using LumberJack.Core;
 public class MenuActivator : MonoBehaviour, IDisplayable
 {
     [SerializeField] private GameObject document;
@@ -15,7 +16,7 @@ public class MenuActivator : MonoBehaviour, IDisplayable
 
     public void Display()
     {
-        UIDisplays.Instance.ShowKeyInfo($"Press {InputManager.Instance.interactKey} to open the menu");
+        UIDisplays.Instance.ShowKeyInfo($"Press {InputManager.Instance.InteractKeyLabel} to open the menu");
         menu.style.display = DisplayStyle.Flex;
     }
 }

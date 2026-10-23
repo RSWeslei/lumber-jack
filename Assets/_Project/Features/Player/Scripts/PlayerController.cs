@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Managers;
+using LumberJack.Core;
 
 public class PlayerController : MonoBehaviour
 {
@@ -39,7 +40,7 @@ public class PlayerController : MonoBehaviour
 
     private void PlayerMovement() 
     {
-        Vector2 move_input = InputManager.Instance.movement_input;
+        Vector2 move_input = InputManager.Instance.MoveInput;
         Vector3 movement = (move_input.y * transform.forward) + (move_input.x * transform.right);
         _characterController.Move(movement * _moveSpeed * Time.deltaTime);
          var rot = transform.eulerAngles;
@@ -49,7 +50,7 @@ public class PlayerController : MonoBehaviour
 
     private void Jump() 
     {
-        if (InputManager.Instance.jump_input && _isGrounded) {
+        if (InputManager.Instance.IsJumpHeld && _isGrounded) {
             _velocity.y = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
         }
     }
@@ -64,13 +65,13 @@ public class PlayerController : MonoBehaviour
     private void CameraRotation()
     {
         // if there is an input
-        if (InputManager.Instance.look_input.sqrMagnitude >= _threshold)
+        if (InputManager.Instance.LookInput.sqrMagnitude >= _threshold)
         {
             //Don't multiply mouse input by Time.deltaTime
             float deltaTimeMultiplier = true ? 1.0f : Time.deltaTime;
             
-            _cinemachineTargetPitch += InputManager.Instance.look_input.y * RotationSpeed * deltaTimeMultiplier;
-            _rotationVelocity = InputManager.Instance.look_input.x * RotationSpeed * deltaTimeMultiplier;
+            _cinemachineTargetPitch += InputManager.Instance.LookInput.y * RotationSpeed * deltaTimeMultiplier;
+            _rotationVelocity = InputManager.Instance.LookInput.x * RotationSpeed * deltaTimeMultiplier;
 
             // clamp our pitch rotation
             _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
@@ -97,11 +98,11 @@ public class PlayerController : MonoBehaviour
 
     private void OnEnable() 
     {
-        InputManager.Instance.playerInputs.Enable();
+        InputManager.Instance.PlayerInputs.Enable();
     } 
 
     private void OnDisable() 
     {
-        InputManager.Instance.playerInputs.Disable();
+        InputManager.Instance.PlayerInputs.Disable();
     }
 }

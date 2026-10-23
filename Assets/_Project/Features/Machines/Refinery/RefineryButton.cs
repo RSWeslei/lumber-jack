@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using LumberJack.Core;
 
 namespace Refiner 
 {
@@ -17,10 +18,10 @@ namespace Refiner
         {
             _refiner = GetComponentInParent<WoodRefinery>();
             _screenText = _isX ? _refiner.screenTextX : _refiner.screenTextY;
-            _text = (_isX && _isLeft) ? $"Press {InputManager.Instance.interactKey} to decrease width" 
-            : (_isX && !_isLeft) ? $"Press {InputManager.Instance.interactKey} to increase width"
-            : (_isLeft) ? $"Press {InputManager.Instance.interactKey} to decrease height"
-            : $"Press {InputManager.Instance.interactKey} to increase height";
+            _text = (_isX && _isLeft) ? $"Press {InputManager.Instance.InteractKeyLabel} to decrease width" 
+            : (_isX && !_isLeft) ? $"Press {InputManager.Instance.InteractKeyLabel} to increase width"
+            : (_isLeft) ? $"Press {InputManager.Instance.InteractKeyLabel} to decrease height"
+            : $"Press {InputManager.Instance.InteractKeyLabel} to increase height";
         }
 
         public void Display() 

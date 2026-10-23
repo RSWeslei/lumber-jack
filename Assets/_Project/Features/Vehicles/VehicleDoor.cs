@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using LumberJack.Core;
 
 namespace Vehicle
 {
@@ -42,7 +43,7 @@ namespace Vehicle
 
         public void Display()
         {
-            UIDisplays.Instance.ShowKeyInfo($"Press {InputManager.Instance.interactKey} to enter the vehicle");
+            UIDisplays.Instance.ShowKeyInfo($"Press {InputManager.Instance.InteractKeyLabel} to enter the vehicle");
         }
     }
 }

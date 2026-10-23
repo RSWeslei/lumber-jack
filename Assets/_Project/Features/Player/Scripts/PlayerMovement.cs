@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using LumberJack.Core;
 
 // Movimento em primeira pessoa com CharacterController.
 // Aceleracao por vetor (troca de direcao responsiva), controle no ar, coyote time,
@@ -79,7 +80,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void ReadInput()
     {
-        PlayerInputs.PlayerMovementActions actions = InputManager.Instance.playerInputs.PlayerMovement;
+        PlayerInputs.PlayerMovementActions actions = InputManager.Instance.PlayerInputs.PlayerMovement;
         _moveInput = Vector2.ClampMagnitude(actions.Move.ReadValue<Vector2>(), 1f);
         _jumpPressed = actions.Jump.WasPressedThisFrame();
         _jumpHeld = actions.Jump.IsPressed();

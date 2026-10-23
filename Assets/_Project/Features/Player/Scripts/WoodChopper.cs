@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using LumberJack.Core;
 
 // Corta madeira com o machado equipado na hotbar.
 // Mira na madeira, mostra a linha do corte e corta no clique (OnPlayerAttack).
@@ -38,12 +39,12 @@ public class WoodChopper : MonoBehaviour
 
     private void OnEnable()
     {
-        InputManager.Instance.OnPlayerAttack += Chop;
+        InputManager.Instance.AttackPressed += Chop;
     }
 
     private void OnDisable()
     {
-        InputManager.Instance.OnPlayerAttack -= Chop;
+        InputManager.Instance.AttackPressed -= Chop;
     }
 
     private void Update()

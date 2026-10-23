@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Managers;
+using LumberJack.Core;
 
 public class WieldManager : MonoBehaviour
 {
@@ -21,10 +22,10 @@ public class WieldManager : MonoBehaviour
 
     void OnEnable()
     {
-        InputManager.Instance.OnPlayerAttack += WieldRight;
+        InputManager.Instance.AttackPressed += WieldRight;
     }
     void OnDisable()
     {
-        InputManager.Instance.OnPlayerAttack -= WieldRight;
+        InputManager.Instance.AttackPressed -= WieldRight;
     }
 }

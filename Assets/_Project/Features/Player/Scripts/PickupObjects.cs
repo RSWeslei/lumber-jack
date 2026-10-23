@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Managers;
+using LumberJack.Core;
 
 public class PickupObjects : MonoBehaviour
 {
@@ -34,14 +35,14 @@ public class PickupObjects : MonoBehaviour
 
     private void OnEnable() 
     {
-        InputManager.Instance.OnPickupObject += PickUp;
-        InputManager.Instance.OnDropObject += Drop;
+        InputManager.Instance.GrabPressed += PickUp;
+        InputManager.Instance.GrabReleased += Drop;
     }
 
     private void OnDisable()
     {
-        InputManager.Instance.OnPickupObject -= PickUp;
-        InputManager.Instance.OnDropObject -= Drop;
+        InputManager.Instance.GrabPressed -= PickUp;
+        InputManager.Instance.GrabReleased -= Drop;
     }
 
     public void PickUp() 

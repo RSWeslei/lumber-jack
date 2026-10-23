@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using LumberJack.Core;
 
 [RequireComponent(typeof(ItemReference))]
 public class Tool : MonoBehaviour, IDisplayable, IInteractable
@@ -13,7 +14,7 @@ public class Tool : MonoBehaviour, IDisplayable, IInteractable
 
     public void Display()
     {
-        UIDisplays.Instance.ShowKeyInfo($"Press {InputManager.Instance.interactKey} to pick up the tool");
+        UIDisplays.Instance.ShowKeyInfo($"Press {InputManager.Instance.InteractKeyLabel} to pick up the tool");
     }
 
     public void Interact()

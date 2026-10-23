@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Managers;
+using LumberJack.Core;
 
 public class EquippedItemSway : MonoBehaviour
 {
@@ -17,8 +18,8 @@ public class EquippedItemSway : MonoBehaviour
 
     private void Update() 
     {
-        float movementX = -InputManager.Instance.movement_input.x * _amount;
-        float movementY = -InputManager.Instance.movement_input.y * _amount;
+        float movementX = -InputManager.Instance.MoveInput.x * _amount;
+        float movementY = -InputManager.Instance.MoveInput.y * _amount;
 
         movementX = Mathf.Clamp(movementX, -_maxAmount, _maxAmount);
         movementY = Mathf.Clamp(movementY, -_maxAmount, _maxAmount);

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Managers;
+using LumberJack.Core;
 
 public class Buyable : MonoBehaviour, IDisplayable, IInteractable
 {
@@ -29,9 +30,9 @@ public class Buyable : MonoBehaviour, IDisplayable, IInteractable
     public void Display() 
     {
         if (isBought) {
-            UIDisplays.Instance.ShowKeyInfo($"Press {InputManager.Instance.interactKey} to open the box");
+            UIDisplays.Instance.ShowKeyInfo($"Press {InputManager.Instance.InteractKeyLabel} to open the box");
         } else {
-            UIDisplays.Instance.ShowKeyInfo($"Press {InputManager.Instance.interactKey} to check");
+            UIDisplays.Instance.ShowKeyInfo($"Press {InputManager.Instance.InteractKeyLabel} to check");
             // UIDisplays.Instance.DisplayBuyableInfo(_buyableSO);
         }
     }

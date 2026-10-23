@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Managers;
+using LumberJack.Core;
 
 public class Hotbar : MonoBehaviour
 {
@@ -21,14 +22,14 @@ public class Hotbar : MonoBehaviour
 
     void OnEnable()
     {
-        InputManager.Instance.OnHotbarNumberInput += SelectSlot;
-        InputManager.Instance.OnHotbarScrollInput += SelectSlotScroll;
+        InputManager.Instance.HotbarSlotSelected += SelectSlot;
+        InputManager.Instance.HotbarScrolled += SelectSlotScroll;
     }
 
     void OnDisable()
     {
-        InputManager.Instance.OnHotbarNumberInput -= SelectSlot;
-        InputManager.Instance.OnHotbarScrollInput -= SelectSlotScroll;
+        InputManager.Instance.HotbarSlotSelected -= SelectSlot;
+        InputManager.Instance.HotbarScrolled -= SelectSlotScroll;
     }
 
     private void CreateSlots()
