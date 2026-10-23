@@ -1,31 +1,31 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using Managers;
 using LumberJack.Core;
+using UnityEngine;
 
-public class WieldManager : MonoBehaviour
+namespace LumberJack.Player
 {
-    [SerializeField] private Hand leftHand;
-    [SerializeField] private Hand rightHand;
-    
-    public void WieldRight()
+    /// <summary>
+    /// Toca a animacao "Use" do item equipado ao atacar.
+    /// </summary>
+    public class WieldManager : MonoBehaviour
     {
-        // animationManager.PlayRightHandAnimation("Use");
-        Animator animator = rightHand.GetWieldedAnimator();
-        // MUDAR PARA ANIMAR COM O PERSONAGEM, NAO COM A M�O
-        if (animator != null) 
-        {
-            animator.Play("Use");
-        }
-    }
+        private const string UseAnimationState = "Use";
 
-    void OnEnable()
-    {
-        InputManager.Instance.AttackPressed += WieldRight;
-    }
-    void OnDisable()
-    {
-        InputManager.Instance.AttackPressed -= WieldRight;
+        [SerializeField] private Hand _rightHand;
+
+        private void OnEnable()
+        {
+            InputManager.Instance.AttackPressed += HandleAttackPressed;
+        }
+
+        private void OnDisable()
+        {
+            InputManager.Instance.AttackPressed -= HandleAttackPressed;
+        }
+
+        private void HandleAttackPressed()
+        {
+            Animator animator = _rightHand.GetEquippedAnimator();
+            if (animator != null) animator.Play(UseAnimationState);
+        }
     }
 }

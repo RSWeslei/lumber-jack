@@ -1,30 +1,34 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using Managers;
 using LumberJack.Core;
+using UnityEngine;
 
-public class EquippedItemSway : MonoBehaviour
+namespace LumberJack.Player
 {
-    private float _amount = 0.04f;
-    private float _maxAmount = 0.2f;
-    private float _smoothAmount = 3f;
-    private Vector3 _defaultPos;
-
-    private void Start()
-     {
-        _defaultPos = transform.localPosition;
-    }
-
-    private void Update() 
+    /// <summary>
+    /// Balanca o item na mao de leve na direcao oposta ao movimento.
+    /// Adicionado em runtime pela <see cref="Hand"/>.
+    /// </summary>
+    public class EquippedItemSway : MonoBehaviour
     {
-        float movementX = -InputManager.Instance.MoveInput.x * _amount;
-        float movementY = -InputManager.Instance.MoveInput.y * _amount;
+        private const float SwayAmount = 0.04f;
+        private const float MaxSway = 0.2f;
+        private const float Smoothing = 3f;
 
-        movementX = Mathf.Clamp(movementX, -_maxAmount, _maxAmount);
-        movementY = Mathf.Clamp(movementY, -_maxAmount, _maxAmount);
+        private Vector3 _restPosition;
 
-        Vector3 finalPosition = new Vector3(movementX, movementY, 0);
-        transform.localPosition = Vector3.Lerp(transform.localPosition, finalPosition + _defaultPos, Time.deltaTime * _smoothAmount);
+        private void Start()
+        {
+            _restPosition = transform.localPosition;
+        }
+
+        private void Update()
+        {
+            Vector2 move = InputManager.Instance.MoveInput;
+            Vector3 sway = new Vector3(
+                Mathf.Clamp(-move.x * SwayAmount, -MaxSway, MaxSway),
+                Mathf.Clamp(-move.y * SwayAmount, -MaxSway, MaxSway),
+                0f);
+
+            transform.localPosition = Vector3.Lerp(transform.localPosition, _restPosition + sway, Time.deltaTime * Smoothing);
+        }
     }
 }

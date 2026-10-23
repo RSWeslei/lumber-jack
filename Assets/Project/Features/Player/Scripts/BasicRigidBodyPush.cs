@@ -1,35 +1,37 @@
 ﻿using UnityEngine;
 
-public class BasicRigidBodyPush : MonoBehaviour
+namespace LumberJack.Player
 {
-	public LayerMask pushLayers;
-	public bool canPush;
-	[Range(0.5f, 5f)] public float strength = 1.1f;
+    /// <summary>
+    /// Empurra rigidbodies quando o CharacterController esbarra neles.
+    /// </summary>
+    public class BasicRigidBodyPush : MonoBehaviour
+    {
+        // Abaixo disso o contato e com algo sob os pes, que nao deve ser empurrado
+        private const float MinPushDirectionY = -0.3f;
 
-	private void OnControllerColliderHit(ControllerColliderHit hit)
-	{
-		if (canPush) PushRigidBodies(hit);
-	}
+        [SerializeField] private LayerMask _pushLayers;
+        [SerializeField] private bool _canPush;
+        [Range(0.5f, 5f)]
+        [SerializeField] private float _strength = 1.1f;
 
-	private void PushRigidBodies(ControllerColliderHit hit)
-	{
-		// https://docs.unity3d.com/ScriptReference/CharacterController.OnControllerColliderHit.html
+        private void OnControllerColliderHit(ControllerColliderHit hit)
+        {
+            if (_canPush) PushRigidBody(hit);
+        }
 
-		// make sure we hit a non kinematic rigidbody
-		Rigidbody body = hit.collider.attachedRigidbody;
-		if (body == null || body.isKinematic) return;
+        private void PushRigidBody(ControllerColliderHit hit)
+        {
+            Rigidbody body = hit.collider.attachedRigidbody;
+            if (body == null || body.isKinematic) return;
 
-		// make sure we only push desired layer(s)
-		var bodyLayerMask = 1 << body.gameObject.layer;
-		if ((bodyLayerMask & pushLayers.value) == 0) return;
+            int bodyLayerMask = 1 << body.gameObject.layer;
+            if ((bodyLayerMask & _pushLayers.value) == 0) return;
 
-		// We dont want to push objects below us
-		if (hit.moveDirection.y < -0.3f) return;
+            if (hit.moveDirection.y < MinPushDirectionY) return;
 
-		// Calculate push direction from move direction, horizontal motion only
-		Vector3 pushDir = new Vector3(hit.moveDirection.x, 0.0f, hit.moveDirection.z);
-
-		// Apply the push and take strength into account
-		body.AddForce(pushDir * strength, ForceMode.Impulse);
-	}
+            Vector3 pushDirection = new Vector3(hit.moveDirection.x, 0f, hit.moveDirection.z);
+            body.AddForce(pushDirection * _strength, ForceMode.Impulse);
+        }
+    }
 }

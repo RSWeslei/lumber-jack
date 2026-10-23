@@ -524,7 +524,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6dab0516ec636b847af98d4f35ebf3cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isLeftHand: 0
 --- !u!95 &69200235
 Animator:
   serializedVersion: 5
@@ -579,7 +578,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1978471637655604388, guid: c5efc39a8aaf6e64ea40e9ad573e9b47,
         type: 3}
-      propertyPath: canPush
+      propertyPath: _canPush
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6204245627405528969, guid: c5efc39a8aaf6e64ea40e9ad573e9b47,
@@ -1311,8 +1310,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1201bee787c175478ea01ac7bb37c12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  leftHand: {fileID: 2139922103}
-  rightHand: {fileID: 69200234}
+  _rightHand: {fileID: 69200234}
 --- !u!1 &293712177
 GameObject:
   m_ObjectHideFlags: 0
@@ -9867,7 +9865,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6dab0516ec636b847af98d4f35ebf3cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isLeftHand: 0
 --- !u!33 &1351299814435202734
 MeshFilter:
   m_ObjectHideFlags: 0

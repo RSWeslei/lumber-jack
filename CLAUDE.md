@@ -29,7 +29,7 @@
 - Member order: constants, serialized fields (`[Header]`), private fields, properties/events, Unity callbacks in execution order, public methods, private methods.
 - `[SerializeField] private` instead of public fields; `[Tooltip]` on tunables; no magic numbers.
 - Comments explain *why*. No commented-out code.
-- Legacy code is migrated feature by feature. Done: Core. Don't restyle code outside the feature you are working on; keep migrations in their own commit.
+- Legacy code is migrated feature by feature. Done: Core, Player. Don't restyle code outside the feature you are working on; keep migrations in their own commit.
 
 ## Architecture
 
@@ -41,11 +41,32 @@
 ## Unity rules
 
 - Subscribe in `OnEnable`, unsubscribe in `OnDisable`. Never subscribe lambdas you cannot remove.
-- Never use `?.`, `??` or `is null` on `UnityEngine.Object`; use `== null` or `if (obj)`.
-- In `Update`/`FixedUpdate`/`LateUpdate`: no `GetComponent`, `Find`, allocations or `Debug.Log`; use `NonAlloc` physics queries; cache in `Awake`.
-- Prefer `Awaitable` over coroutines in new async code.
+- Never use `?.`, `??` or `is null` on `UnityEngine.Object`; use `== null` or `if (obj)` (and see Performance for hot paths).
+- Prefer `Awaitable` over coroutines in new async code. In coroutines, cache `WaitForSeconds` instead of allocating one per yield.
+- Use `TryGetComponent` instead of `GetComponent` + null check.
+- Compare tags with `CompareTag`, never `gameObject.tag == "..."` (allocates a string).
+- No string-based calls: no `SendMessage`, `BroadcastMessage`, `Invoke("Name")`, `StartCoroutine("Name")`.
+- Animator/material properties by cached ID: `Animator.StringToHash`, `Shader.PropertyToID` in `static readonly` fields.
+- Don't leave empty Unity callbacks (`Update`, `LateUpdate`...): Unity still calls them every frame.
+- Prefer events over polling: react when something changes instead of checking it every frame.
 - Money in integer cents, never `float`.
-- When renaming a serialized field, add `[FormerlySerializedAs("oldName")]`. When renaming a class, rename its file too.
+- When renaming or removing a serialized field, update every scene/prefab that stores it (the key inside the component's YAML block and any `propertyPath` overrides). Don't leave `[FormerlySerializedAs]` or orphaned keys behind. When renaming a class, rename its file too.
+
+## Performance
+
+Target: **0 bytes of managed allocation per frame** during gameplay (Unity's GC stops the game while it collects).
+
+- Hot paths = `Update`/`FixedUpdate`/`LateUpdate`/`OnGUI`, coroutines, per-frame physics/collision callbacks, and everything they call (cost propagates to callers). Before finishing, walk each hot path's call graph and remove:
+  - `GetComponent`/`Find*`/`AddComponent`/`Camera.main`: cache in `Awake`. For "what am I looking at", cache the last collider and call `TryGetComponent` only when it changes (`ReferenceEquals`).
+  - Unity null checks (`== null`, `!= null`, `if (obj)` on `UnityEngine.Object`): track state with a `bool` (`_hasTarget`, `_isCarrying`); compare identity with `ReferenceEquals`. Keep a real null check only where the object can be destroyed while in use, with a comment saying why.
+  - Allocations: no `new` lists/arrays, LINQ, `foreach` over interfaces, string concatenation/interpolation, boxing, or lambdas/closures (pass a cached `IComparer` to `Sort`). Reuse buffers owned by the caller.
+  - Unity APIs that copy: `Mesh.vertices`/`triangles`/`normals`/`uv`, `GetComponents`, `Physics.RaycastAll`... Cache arrays (an immutable mesh can be cached once) and use `NonAlloc`/`List<T>` overloads.
+  - `Debug.Log` (wrap diagnostics in `[Conditional]` methods or remove them).
+  - UI updates that don't change anything: only touch UI when the value changes; use `TMP_Text.SetText` with format args for numbers.
+- Spawned-often objects (wood pieces, effects, projectiles) use `UnityEngine.Pool.ObjectPool<T>` instead of `Instantiate`/`Destroy` per use.
+- Physics queries: always pass a `LayerMask` and `QueryTriggerInteraction`; use `NonAlloc` variants.
+- Rider's Unity performance highlights ("Expensive method invocation", "Comparison to 'null' is expensive") are bugs to fix, not noise.
+- Measure before optimizing anything that isn't on this list: Profiler (CPU, GC Alloc column), in a build when the problem might be Editor overhead.
 
 ## Editing assets
 
@@ -59,7 +80,7 @@
 
 - Before asking the developer to open Unity, compile with Unity's bundled compiler: `C:\Program Files\Unity\Hub\Editor\6000.6.7f1\Editor\Data\DotNetSdk\dotnet.exe` running `...\DotNetSdk\sdk\8.0.318\Roslyn\bincore\csc.dll`, with `-langversion:9 -nostdlib -t:library -define:UNITY_EDITOR;ENABLE_INPUT_SYSTEM`, referencing `...\NetStandard\ref\2.1.0\netstandard.dll`, `...\Managed\UnityEngine\UnityEngine*.dll` and `Library/ScriptAssemblies/{Unity.InputSystem,Unity.TextMeshPro,UnityEngine.UI}.dll` (editor code also needs `UnityEditor*.dll` and the game dll). Pass arguments through a `.rsp` file with quoted Windows paths (the project path has a space).
 - After Unity opens, check `Logs/Editor.log` inside the project for `error CS`, missing scripts and exceptions.
-- Measure before guessing on performance problems. Editor-only hitching is Editor overhead: confirm in a build.
+- Editor-only hitching is Editor overhead: confirm performance problems in a build.
 
 ## Git
 

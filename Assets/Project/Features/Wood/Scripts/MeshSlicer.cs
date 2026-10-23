@@ -148,7 +148,9 @@ public static class MeshSlicer
             return false;
         }
 
-        List<Vector3> outline = SortAroundCenter(Weld(cutPoints), plane.normal, out Vector3 center);
+        WeldInPlace(cutPoints);
+        Vector3 center = SortAroundCenter(cutPoints, plane.normal);
+        List<Vector3> outline = cutPoints;
         if (outline.Count < 3) return false;
 
         // A tampa do lado positivo olha para o lado negativo e vice-versa
@@ -161,14 +163,13 @@ public static class MeshSlicer
     }
 
     /// <summary>
-    /// Contorno do corte (pontos em ordem, espaco local) sem cortar nada. Usado no preview.
+    /// Contorno do corte (pontos em ordem, espaco local) sem cortar nada. Usado no preview,
+    /// que roda todo frame: recebe os arrays da malha ja em cache e preenche <paramref name="outline"/>
+    /// (reaproveitada pelo chamador) sem alocar memoria.
     /// </summary>
-    public static List<Vector3> GetCrossSection(Mesh mesh, Plane plane)
+    public static void GetCrossSection(Vector3[] vertices, int[] triangles, Plane plane, List<Vector3> outline)
     {
-        Vector3[] vertices = mesh.vertices;
-        int[] triangles = mesh.triangles;
-        List<Vector3> cutPoints = new List<Vector3>();
-
+        outline.Clear();
         for (int i = 0; i < triangles.Length; i += 3)
         {
             for (int edge = 0; edge < 3; edge++)
@@ -179,12 +180,13 @@ public static class MeshSlicer
                 float d1 = plane.GetDistanceToPoint(p1);
                 if ((d0 >= 0f) != (d1 >= 0f))
                 {
-                    cutPoints.Add(Vector3.Lerp(p0, p1, d0 / (d0 - d1)));
+                    outline.Add(Vector3.Lerp(p0, p1, d0 / (d0 - d1)));
                 }
             }
         }
 
-        return SortAroundCenter(Weld(cutPoints), plane.normal, out _);
+        WeldInPlace(outline);
+        SortAroundCenter(outline, plane.normal);
     }
 
     /// <summary>
@@ -232,46 +234,68 @@ public static class MeshSlicer
         }
     }
 
-    // Junta pontos repetidos (cada ponto do corte aparece em dois triangulos vizinhos)
-    private static List<Vector3> Weld(List<Vector3> points)
+    // Junta pontos repetidos (cada ponto do corte aparece em dois triangulos vizinhos), na propria lista
+    private static void WeldInPlace(List<Vector3> points)
     {
-        List<Vector3> welded = new List<Vector3>();
         float sqrDistance = WeldDistance * WeldDistance;
-        foreach (Vector3 point in points)
+        int count = 0;
+        for (int i = 0; i < points.Count; i++)
         {
+            Vector3 point = points[i];
             bool duplicate = false;
-            foreach (Vector3 existing in welded)
+            for (int j = 0; j < count; j++)
             {
-                if ((existing - point).sqrMagnitude < sqrDistance)
+                if ((points[j] - point).sqrMagnitude < sqrDistance)
                 {
                     duplicate = true;
                     break;
                 }
             }
-            if (!duplicate) welded.Add(point);
+            if (!duplicate) points[count++] = point;
         }
-        return welded;
+        points.RemoveRange(count, points.Count - count);
     }
 
-    // Ordena os pontos do contorno pelo angulo em volta do centro, no plano do corte
-    private static List<Vector3> SortAroundCenter(List<Vector3> points, Vector3 planeNormal, out Vector3 center)
+    // Ordena os pontos do contorno pelo angulo em volta do centro, no plano do corte. Devolve o centro.
+    private static Vector3 SortAroundCenter(List<Vector3> points, Vector3 planeNormal)
     {
-        center = Vector3.zero;
-        if (points.Count == 0) return points;
+        if (points.Count == 0) return Vector3.zero;
 
+        Vector3 center = Vector3.zero;
         foreach (Vector3 point in points) center += point;
         center /= points.Count;
 
         Vector3 axisU = Vector3.Cross(planeNormal, Mathf.Abs(planeNormal.y) < 0.9f ? Vector3.up : Vector3.right).normalized;
-        Vector3 axisV = Vector3.Cross(planeNormal, axisU);
-        Vector3 origin = center;
+        AngleComparer.Shared.Set(center, axisU, Vector3.Cross(planeNormal, axisU));
+        points.Sort(AngleComparer.Shared);
+        return center;
+    }
 
-        points.Sort((p, q) =>
+    // Comparador reaproveitado: uma lambda no Sort criaria uma closure nova a cada chamada
+    private sealed class AngleComparer : IComparer<Vector3>
+    {
+        public static readonly AngleComparer Shared = new AngleComparer();
+
+        private Vector3 _origin;
+        private Vector3 _axisU;
+        private Vector3 _axisV;
+
+        public void Set(Vector3 origin, Vector3 axisU, Vector3 axisV)
         {
-            float angleP = Mathf.Atan2(Vector3.Dot(p - origin, axisV), Vector3.Dot(p - origin, axisU));
-            float angleQ = Mathf.Atan2(Vector3.Dot(q - origin, axisV), Vector3.Dot(q - origin, axisU));
-            return angleP.CompareTo(angleQ);
-        });
-        return points;
+            _origin = origin;
+            _axisU = axisU;
+            _axisV = axisV;
+        }
+
+        public int Compare(Vector3 p, Vector3 q)
+        {
+            return Angle(p).CompareTo(Angle(q));
+        }
+
+        private float Angle(Vector3 point)
+        {
+            Vector3 offset = point - _origin;
+            return Mathf.Atan2(Vector3.Dot(offset, _axisV), Vector3.Dot(offset, _axisU));
+        }
     }
 }

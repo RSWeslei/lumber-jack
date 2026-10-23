@@ -1,31 +1,38 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Managers;
+using UnityEngine;
 
-public class PlayerStats : MonoBehaviour
+namespace LumberJack.Player
 {
-    [Header("Player Stats")]
-    [SerializeField] private float _life;
-    [SerializeField] private float _maxLife;
-    [SerializeField] private float _money=1000f;
-
-    private void Start() 
+    /// <summary>
+    /// Dinheiro (e futuramente vida) do jogador.
+    /// </summary>
+    public class PlayerStats : MonoBehaviour
     {
-        UIManager.Instance.UpdateMoneyText(_money);
-    }
-    
-    public void AddMoney(float amount) 
-    {
-        _money += amount;
-        UIManager.Instance.UpdateMoneyText(_money);
-    }
+        [Header("Player Stats")]
+        [SerializeField] private float _life;
+        [SerializeField] private float _maxLife;
+        // Ainda em float; vai para centavos (int) na migracao da feature Shop
+        [SerializeField] private float _money = 1000f;
 
-    public void RemoveMoney(float amount) 
-    {
-        _money -= amount;
-        UIManager.Instance.UpdateMoneyText(_money);
-    }
+        public float Money => _money;
+        public float Life => _life;
+        public float MaxLife => _maxLife;
 
-    public float Money => _money;
+        private void Start()
+        {
+            UIManager.Instance.UpdateMoneyText(_money);
+        }
+
+        public void AddMoney(float amount)
+        {
+            _money += amount;
+            UIManager.Instance.UpdateMoneyText(_money);
+        }
+
+        public void RemoveMoney(float amount)
+        {
+            _money -= amount;
+            UIManager.Instance.UpdateMoneyText(_money);
+        }
+    }
 }

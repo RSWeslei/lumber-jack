@@ -1,68 +1,63 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Hand : MonoBehaviour
+namespace LumberJack.Player
 {
-    [SerializeField] private bool _isLeftHand;
-    private GameObject _currentEquippedItemGO;
-
-    public Item EquippedItem { get; private set; }
-
-    public void LoadItem(Item item)
+    /// <summary>
+    /// Segura o item equipado na hotbar: instancia o prefab do item como filho e o deixa
+    /// sem fisica e sem colisao.
+    /// </summary>
+    public class Hand : MonoBehaviour
     {
-        UnloadItemAndDestroy();
+        private GameObject _equippedObject;
 
-        if (item?.itemPrefab == null)
+        public Item EquippedItem { get; private set; }
+        public bool IsItemEquipped => _equippedObject != null;
+
+        public void LoadItem(Item item)
         {
-            UnloadItem();
-            return;
+            UnloadItemAndDestroy();
+
+            if (item == null || item.itemPrefab == null)
+            {
+                UnloadItem();
+                return;
+            }
+
+            EquippedItem = item;
+
+            GameObject itemObject = Instantiate(item.itemPrefab, transform);
+            itemObject.transform.localPosition = Vector3.zero;
+            itemObject.transform.localRotation = Quaternion.identity;
+            itemObject.transform.localScale = Vector3.one;
+            itemObject.AddComponent<EquippedItemSway>();
+
+            Rigidbody itemBody = itemObject.GetComponent<Rigidbody>();
+            if (itemBody != null) itemBody.isKinematic = true;
+
+            // Item na mao nao colide nem bloqueia os raycasts da camera
+            foreach (Collider itemCollider in itemObject.GetComponentsInChildren<Collider>())
+            {
+                itemCollider.enabled = false;
+            }
+
+            _equippedObject = itemObject;
         }
-        EquippedItem = item;
 
-        GameObject itemObject = Instantiate(item.itemPrefab, transform);
-        itemObject.transform.localPosition = Vector3.zero;
-        itemObject.transform.localRotation = Quaternion.identity;
-        itemObject.transform.localScale = Vector3.one;
-
-        itemObject.AddComponent<EquippedItemSway>();
-        
-        Rigidbody itemRigidbody = itemObject.GetComponent<Rigidbody>();
-        if (itemRigidbody != null)
+        public Animator GetEquippedAnimator()
         {
-            itemRigidbody.isKinematic = true;
+            return IsItemEquipped ? _equippedObject.GetComponent<Animator>() : null;
         }
 
-        // Item na mao nao colide nem bloqueia os raycasts da camera
-        foreach (Collider itemCollider in itemObject.GetComponentsInChildren<Collider>())
+        public void UnloadItem()
         {
-            itemCollider.enabled = false;
+            EquippedItem = null;
+            if (_equippedObject != null) _equippedObject.SetActive(false);
         }
 
-        _currentEquippedItemGO = itemObject;
-    }
-
-    public bool IsItemEquiped => _currentEquippedItemGO != null;
-
-    public Animator GetWieldedAnimator() 
-    {
-        if (!IsItemEquiped) return null;
-        return _currentEquippedItemGO.GetComponent<Animator>() ?? null;
-    }
-
-    public void UnloadItem()
-    {
-        EquippedItem = null;
-        if (_currentEquippedItemGO != null){
-            _currentEquippedItemGO.SetActive(false);
-        }
-    }
-
-    public void UnloadItemAndDestroy()
-    {
-        EquippedItem = null;
-        if (_currentEquippedItemGO != null){
-            Destroy(_currentEquippedItemGO);
+        public void UnloadItemAndDestroy()
+        {
+            EquippedItem = null;
+            if (_equippedObject != null) Destroy(_equippedObject);
         }
     }
 }

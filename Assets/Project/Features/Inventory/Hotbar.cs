@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Managers;
 using LumberJack.Core;
+using LumberJack.Player;
 
 public class Hotbar : MonoBehaviour
 {

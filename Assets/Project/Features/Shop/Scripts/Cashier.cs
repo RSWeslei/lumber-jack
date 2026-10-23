@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using LumberJack.Player;
 
 public class Cashier : MonoBehaviour
 {

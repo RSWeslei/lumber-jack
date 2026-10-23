@@ -1,87 +1,93 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using Managers;
 using LumberJack.Core;
+using UnityEngine;
 
-public class PickupObjects : MonoBehaviour
+namespace LumberJack.Player
 {
-    [Header("Pickup Settings")]
-    public bool isDraggingObject = false;
-    [SerializeField] private Transform _carryPosition;
-    private Rigidbody _objectRigidbody;
-    private Transform _objectTransform;
-
-    [Header("Raycast")]
-    [SerializeField] private float _raycastDistance = 2f;
-    [SerializeField] private LayerMask _layerMask;
-    [SerializeField] private Transform _cameraTransform;
-
-    [Header("ObjectFollow")]
-    [SerializeField] private float _maxDistance = 1.5f;
-    [SerializeField] private float _currentDistance = 0f;
-
-    [Header("Rotation")]
-    public float rotationSpeed = 100f;
-    private Quaternion _originalRotation;
-
-    private void Update() 
+    /// <summary>
+    /// Agarra rigidbodies com a tecla de pegar e solta ao largar a tecla ou se afastar demais.
+    /// </summary>
+    public class PickupObjects : MonoBehaviour
     {
-        if (isDraggingObject) 
+        [Header("Carregar")]
+        [SerializeField] private Transform _carryPosition;
+        [Tooltip("Solta o objeto se ele ficar mais longe que isso do ponto de carregar")]
+        [SerializeField] private float _maxDistance = 1.5f;
+
+        [Header("Raycast")]
+        [SerializeField] private float _raycastDistance = 2f;
+        [SerializeField] private LayerMask _layerMask;
+        [SerializeField] private Transform _cameraTransform;
+
+        private Rigidbody _carriedBody;
+        // Flag propria: evita a checagem de null do Unity a cada frame no Update
+        private bool _isCarrying;
+
+        public bool IsCarrying => _isCarrying;
+
+        private void OnEnable()
         {
-            CarryObject();
+            InputManager.Instance.GrabPressed += HandleGrabPressed;
+            InputManager.Instance.GrabReleased += HandleGrabReleased;
         }
-    }
 
-    private void OnEnable() 
-    {
-        InputManager.Instance.GrabPressed += PickUp;
-        InputManager.Instance.GrabReleased += Drop;
-    }
-
-    private void OnDisable()
-    {
-        InputManager.Instance.GrabPressed -= PickUp;
-        InputManager.Instance.GrabReleased -= Drop;
-    }
-
-    public void PickUp() 
-    { 
-        Debug.Log("Pickup");
-        RaycastHit hit;
-        if (Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out hit, _raycastDistance, _layerMask)) 
+        private void Update()
         {
-            _objectRigidbody = hit.transform.GetComponent<Rigidbody>();
-            if (_objectRigidbody == null) {
-                return;
-            }
-            _objectTransform = hit.transform;
-            _originalRotation = _objectTransform.rotation;
-            _objectRigidbody.useGravity = false;
-            _objectRigidbody.freezeRotation = true;
-            isDraggingObject = true;
+            if (_isCarrying) CheckCarryDistance();
         }
-    }
-    private void CarryObject() 
-    {
-        _currentDistance = Vector3.Distance(_objectRigidbody.transform.position, _carryPosition.position);
-        if (_currentDistance > _maxDistance) 
+
+        private void OnDisable()
+        {
+            InputManager.Instance.GrabPressed -= HandleGrabPressed;
+            InputManager.Instance.GrabReleased -= HandleGrabReleased;
+        }
+
+        private void HandleGrabPressed()
+        {
+            if (!Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out RaycastHit hit, _raycastDistance, _layerMask)) return;
+
+            if (!hit.transform.TryGetComponent(out Rigidbody body)) return;
+
+            _carriedBody = body;
+            _carriedBody.useGravity = false;
+            _carriedBody.freezeRotation = true;
+            _isCarrying = true;
+        }
+
+        private void HandleGrabReleased()
         {
             Drop();
-            return;
         }
-    }
 
-    public void Drop() 
-    {
-        if (_objectRigidbody != null) 
+        private void CheckCarryDistance()
         {
-            _objectRigidbody.useGravity = true;
-            _objectRigidbody.freezeRotation = false;
-            _objectRigidbody.transform.SetParent(null);
+            // O objeto pode ter sido destruido enquanto era carregado (ex.: vendido, cortado)
+            if (!_carriedBody)
+            {
+                ClearCarried();
+                return;
+            }
+
+            float distance = Vector3.Distance(_carriedBody.position, _carryPosition.position);
+            if (distance > _maxDistance) Drop();
         }
-        isDraggingObject = false;
-        _objectRigidbody = null;
-        _currentDistance = 0f;
+
+        private void Drop()
+        {
+            if (!_isCarrying) return;
+
+            if (_carriedBody)
+            {
+                _carriedBody.useGravity = true;
+                _carriedBody.freezeRotation = false;
+                _carriedBody.transform.SetParent(null);
+            }
+            ClearCarried();
+        }
+
+        private void ClearCarried()
+        {
+            _carriedBody = null;
+            _isCarrying = false;
+        }
     }
 }

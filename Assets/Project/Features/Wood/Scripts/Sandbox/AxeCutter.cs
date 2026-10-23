@@ -25,7 +25,13 @@ public class AxeCutter : MonoBehaviour
     private bool _wasCursorLocked;
     private Quaternion _axeRestRotation;
 
+    // Cache do ultimo collider mirado: evita GetComponent a cada frame no mesmo tronco
+    private Collider _lastCollider;
+    private CuttableWood _lastColliderWood;
+    private bool _lastColliderIsWood;
+
     private CuttableWood _target;
+    private bool _hasTarget;
     private Plane _targetPlane;
     private bool _targetValid;
 
@@ -43,7 +49,7 @@ public class AxeCutter : MonoBehaviour
 
         Mouse mouse = Mouse.current;
         // So corta se o cursor ja estava travado (o primeiro clique so trava o cursor)
-        if (mouse != null && mouse.leftButton.wasPressedThisFrame && _wasCursorLocked && !_swinging && _target != null && _targetValid)
+        if (mouse != null && mouse.leftButton.wasPressedThisFrame && _wasCursorLocked && !_swinging && _hasTarget && _targetValid)
         {
             StartCoroutine(Swing(_target, _targetPlane));
         }
@@ -71,25 +77,32 @@ public class AxeCutter : MonoBehaviour
 
     private void UpdateTarget()
     {
-        _target = null;
+        _hasTarget = false;
         _targetValid = false;
 
         Ray ray = new Ray(transform.position, transform.forward);
         if (!Physics.Raycast(ray, out RaycastHit hit, reach)) return;
 
-        CuttableWood wood = hit.collider.GetComponent<CuttableWood>();
-        if (wood == null) return;
+        // ReferenceEquals compara so a referencia C#, sem a checagem nativa do == do Unity
+        Collider hitCollider = hit.collider;
+        if (!ReferenceEquals(hitCollider, _lastCollider))
+        {
+            _lastCollider = hitCollider;
+            _lastColliderIsWood = hitCollider.TryGetComponent(out _lastColliderWood);
+        }
+        if (!_lastColliderIsWood) return;
 
-        _target = wood;
-        _targetPlane = wood.GetCutPlane(hit.point, transform.forward, transform.up, _tilt);
-        _targetValid = wood.CanCut(_targetPlane);
+        _target = _lastColliderWood;
+        _hasTarget = true;
+        _targetPlane = _target.GetCutPlane(hit.point, transform.forward, transform.up, _tilt);
+        _targetValid = _target.CanCut(_targetPlane);
     }
 
     private void UpdatePreview()
     {
         if (_preview == null) return;
 
-        if (_target == null || _swinging) _preview.Hide();
+        if (!_hasTarget || _swinging) _preview.Hide();
         else _preview.Show(_target, _targetPlane, _targetValid);
     }
 
@@ -125,7 +138,7 @@ public class AxeCutter : MonoBehaviour
     {
         float size = 6f;
         Vector2 center = new Vector2(Screen.width / 2f, Screen.height / 2f);
-        GUI.color = _target == null ? Color.white : _targetValid ? new Color(0.2f, 1f, 0.3f) : new Color(1f, 0.25f, 0.2f);
+        GUI.color = !_hasTarget ? Color.white : _targetValid ? new Color(0.2f, 1f, 0.3f) : new Color(1f, 0.25f, 0.2f);
         GUI.DrawTexture(new Rect(center.x - size / 2f, center.y - size / 2f, size, size), Texture2D.whiteTexture);
 
         GUI.color = Color.white;

@@ -17,8 +17,14 @@ public class CuttableWood : MonoBehaviour
 
     private MeshFilter _meshFilter;
     private Rigidbody _rigidbody;
+    // A malha de um pedaco nunca muda (cortar cria pedacos novos), entao os arrays ficam em cache:
+    // Mesh.vertices/triangles copiam o array inteiro a cada acesso
+    private Vector3[] _vertices;
+    private int[] _triangles;
 
     public Mesh Mesh => _meshFilter.sharedMesh;
+    public Vector3[] Vertices => _vertices ??= Mesh.vertices;
+    public int[] Triangles => _triangles ??= Mesh.triangles;
 
     // Eixo do tronco (comprimento) em coordenadas do mundo
     public Vector3 WorldAxis => transform.TransformDirection(Vector3.up);
@@ -59,7 +65,7 @@ public class CuttableWood : MonoBehaviour
     {
         float min = float.MaxValue;
         float max = float.MinValue;
-        foreach (Vector3 vertex in Mesh.vertices)
+        foreach (Vector3 vertex in Vertices)
         {
             float distance = localPlane.GetDistanceToPoint(vertex);
             min = Mathf.Min(min, distance);

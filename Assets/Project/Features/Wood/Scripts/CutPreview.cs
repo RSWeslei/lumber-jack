@@ -4,7 +4,12 @@ using UnityEngine;
 // Desenha com um LineRenderer o contorno de onde o corte vai passar.
 public class CutPreview
 {
+    private const float OutlineInflate = 1.02f;
+    private const int InitialOutlineCapacity = 64;
+
     private readonly LineRenderer _line;
+    // Reaproveitada a cada frame para nao alocar
+    private readonly List<Vector3> _outline = new List<Vector3>(InitialOutlineCapacity);
 
     public Color ValidColor = new Color(0.2f, 1f, 0.3f);
     public Color InvalidColor = new Color(1f, 0.25f, 0.2f);
@@ -34,8 +39,8 @@ public class CutPreview
 
     public void Show(CuttableWood wood, Plane localPlane, bool valid)
     {
-        List<Vector3> outline = MeshSlicer.GetCrossSection(wood.Mesh, localPlane);
-        if (outline.Count < 3)
+        MeshSlicer.GetCrossSection(wood.Vertices, wood.Triangles, localPlane, _outline);
+        if (_outline.Count < 3)
         {
             Hide();
             return;
@@ -43,14 +48,15 @@ public class CutPreview
 
         // Empurra a linha um pouquinho para fora da madeira para nao sumir dentro da casca
         Vector3 center = Vector3.zero;
-        foreach (Vector3 point in outline) center += point;
-        center /= outline.Count;
+        foreach (Vector3 point in _outline) center += point;
+        center /= _outline.Count;
 
-        _line.positionCount = outline.Count;
-        for (int i = 0; i < outline.Count; i++)
+        Transform woodTransform = wood.transform;
+        _line.positionCount = _outline.Count;
+        for (int i = 0; i < _outline.Count; i++)
         {
-            Vector3 local = center + (outline[i] - center) * 1.02f;
-            _line.SetPosition(i, wood.transform.TransformPoint(local));
+            Vector3 local = center + (_outline[i] - center) * OutlineInflate;
+            _line.SetPosition(i, woodTransform.TransformPoint(local));
         }
 
         Color color = valid ? ValidColor : InvalidColor;
