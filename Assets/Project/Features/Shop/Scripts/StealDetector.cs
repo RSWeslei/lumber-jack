@@ -1,18 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class StealDetector : MonoBehaviour
+namespace LumberJack.Shop
 {
-    void OnTriggerEnter(Collider other)
+    /// <summary>
+    /// Na saida da loja: caixa que passa por aqui sem ter sido paga e destruida.
+    /// </summary>
+    public class StealDetector : MonoBehaviour
     {
-        if (other.gameObject.CompareTag("Buyable"))
+        private const string BuyableTag = "Buyable";
+
+        private void OnTriggerEnter(Collider other)
         {
-            Buyable buyable = other.gameObject.GetComponent<Buyable>();
-            if (buyable != null && !buyable.IsBought)
-            {
-                Destroy(other.gameObject);
-            }
+            if (!other.CompareTag(BuyableTag)) return;
+            if (other.TryGetComponent(out Buyable buyable) && !buyable.IsBought) Destroy(other.gameObject);
         }
     }
 }

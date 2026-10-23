@@ -29,7 +29,7 @@
 - Member order: constants, serialized fields (`[Header]`), private fields, properties/events, Unity callbacks in execution order, public methods, private methods.
 - `[SerializeField] private` instead of public fields; `[Tooltip]` on tunables; no magic numbers.
 - Comments explain *why*. No commented-out code.
-- Legacy code is migrated feature by feature. Done: Core, Player, Inventory, Tools, Wood, Machines. Don't restyle code outside the feature you are working on; keep migrations in their own commit.
+- Legacy code is migrated feature by feature. Done: Core, Player, Inventory, Tools, Wood, Machines, Shop. Don't restyle code outside the feature you are working on; keep migrations in their own commit.
 
 ## Architecture
 

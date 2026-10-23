@@ -29,9 +29,9 @@ namespace Managers
             _moneyText = root.Q<Label>("player-money");
         }
 
-        public void UpdateMoneyText(float money)
+        public void UpdateMoneyText(int cents)
         {
-            _moneyText.text = money.ToString();
+            _moneyText.text = LumberJack.Core.Money.Format(cents);
         }
 
         public void ToggleElement(GameObject element, bool toggle)

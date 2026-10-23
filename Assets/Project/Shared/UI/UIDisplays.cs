@@ -8,6 +8,8 @@ using System;
 using UnityEngine.UIElements;
 using LumberJack.Inventory;
 using Image = UnityEngine.UI.Image;
+using LumberJack.Shop;
+using LumberJack.Core;
 
 public class UIDisplays : MonoBehaviour
 {
@@ -43,10 +45,10 @@ public class UIDisplays : MonoBehaviour
         m_keyInfoParent.style.display = DisplayStyle.None;
     }
 
-    public void DisplayBuyableInfo(BuyableSO buyable) 
+    public void DisplayBuyableInfo(BuyableDefinition buyable) 
     {
         _buyableInfoText[0].text = buyable.DisplayName;
-        _buyableInfoText[1].text = "$ " + buyable.buyPrice.ToString("F2");
+        _buyableInfoText[1].text = Money.Format(buyable.PriceCents);
         _buyableInfoText[2].text = buyable.Description;
         // _buyableInfoText[3].text = buyable.category.ToString();
         // _buyableImage = buyable.icon;

@@ -1,52 +1,61 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using Managers;
 using LumberJack.Core;
-using LumberJack.Inventory;
+using UnityEngine;
 
-public class Buyable : MonoBehaviour, IDisplayable, IInteractable
+namespace LumberJack.Shop
 {
-    [SerializeField] private BuyableSO _buyableSO;
-    private bool isBought = false;
-
-    public BuyableSO BuyableItem => _buyableSO;
-    public bool IsBought => isBought;
-
-    public void Buy() 
+    /// <summary>
+    /// Caixa de produto na loja: mostra as informacoes, e depois de paga no caixa pode ser aberta
+    /// para soltar o item.
+    /// </summary>
+    [RequireComponent(typeof(MeshRenderer))]
+    public class Buyable : MonoBehaviour, IDisplayable, IInteractable
     {
-        isBought = true;
-        GetComponent<MeshRenderer>().material.color = Color.green;
-    }
+        [SerializeField] private BuyableDefinition _definition;
+        [Tooltip("Cor da caixa depois de paga")]
+        [SerializeField] private Color _boughtColor = Color.green;
 
-    private void OpenBox() 
-    {
-        if (!isBought) {
-            return;
-        }
-        GameObject itemGO = Instantiate(_buyableSO.Prefab, transform.position, Quaternion.identity);
-        Destroy(gameObject);
-    }
+        private MeshRenderer _renderer;
+        private bool _isBought;
+        // Montadas uma vez: a tecla nao muda durante o jogo e assim a dica nao aloca string
+        private string _checkHint;
+        private string _openHint;
 
-    public void Display() 
-    {
-        if (isBought) {
-            UIDisplays.Instance.ShowKeyInfo($"Press {InputManager.Instance.InteractKeyLabel} to open the box");
-        } else {
-            UIDisplays.Instance.ShowKeyInfo($"Press {InputManager.Instance.InteractKeyLabel} to check");
-            // UIDisplays.Instance.DisplayBuyableInfo(_buyableSO);
-        }
-    }
+        public BuyableDefinition Definition => _definition;
+        public bool IsBought => _isBought;
 
-    public void Interact() 
-    {
-        if (isBought) 
+        private void Awake()
         {
-            OpenBox();
-        } 
-        else 
+            _renderer = GetComponent<MeshRenderer>();
+        }
+
+        private void Start()
         {
-            UIDisplays.Instance.DisplayBuyableInfo(_buyableSO);
+            string key = InputManager.Instance.InteractKeyLabel;
+            _checkHint = $"Press {key} to check";
+            _openHint = $"Press {key} to open the box";
+        }
+
+        public void MarkAsBought()
+        {
+            _isBought = true;
+            _renderer.material.color = _boughtColor;
+        }
+
+        public void Display()
+        {
+            UIDisplays.Instance.ShowKeyInfo(_isBought ? _openHint : _checkHint);
+        }
+
+        public void Interact()
+        {
+            if (_isBought) OpenBox();
+            else UIDisplays.Instance.DisplayBuyableInfo(_definition);
+        }
+
+        private void OpenBox()
+        {
+            Instantiate(_definition.Prefab, transform.position, Quaternion.identity);
+            Destroy(gameObject);
         }
     }
 }

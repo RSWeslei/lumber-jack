@@ -837,7 +837,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e13e78276dc0124c98d2a80e4ffc0ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _buyableSO: {fileID: 11400000, guid: c94ae76045aa1864bbfd3ae83f7a05db, type: 2}
+  _definition: {fileID: 11400000, guid: c94ae76045aa1864bbfd3ae83f7a05db, type: 2}
 --- !u!65 &118852350
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2150,8 +2150,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0eae6d9f76fd804e84e0b2d71a03510, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _buyables: []
-  _totalCost: 0
   _playerStats: {fileID: 1004265938}
   _totalCostText: {fileID: 677234734}
 --- !u!65 &417514946

@@ -1,62 +1,73 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using TMPro;
+using LumberJack.Core;
 using LumberJack.Player;
+using TMPro;
+using UnityEngine;
 
-public class Cashier : MonoBehaviour
+namespace LumberJack.Shop
 {
-    [SerializeField] private List<Buyable> _buyables;
-    [SerializeField] private float _totalCost = 0f;
-    [SerializeField] private PlayerStats _playerStats;
-    [SerializeField] private TextMeshPro _totalCostText;
-
-    private void OnTriggerEnter(Collider other) 
+    /// <summary>
+    /// Balcao do caixa: soma as caixas colocadas em cima e cobra tudo de uma vez.
+    /// </summary>
+    public class Cashier : MonoBehaviour
     {
-        if (other.CompareTag("Buyable")) 
+        private const string BuyableTag = "Buyable";
+        private const string TotalFormat = "{0:2}";
+
+        [SerializeField] private PlayerStats _playerStats;
+        [SerializeField] private TextMeshPro _totalCostText;
+
+        private readonly List<Buyable> _pendingItems = new List<Buyable>();
+        private int _totalCents;
+
+        private void Start()
         {
-            Buyable buyable = other.GetComponent<Buyable>();
-            if (buyable == null || buyable.IsBought) {
-                return;
+            UpdateTotalText();
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (!TryGetUnpaidBuyable(other, out Buyable buyable)) return;
+
+            _pendingItems.Add(buyable);
+            _totalCents += buyable.Definition.PriceCents;
+            UpdateTotalText();
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            if (!TryGetUnpaidBuyable(other, out Buyable buyable) || !_pendingItems.Remove(buyable)) return;
+
+            _totalCents -= buyable.Definition.PriceCents;
+            UpdateTotalText();
+        }
+
+        /// <summary>
+        /// Cobra o total. Retorna false se nao ha nada no balcao ou falta dinheiro.
+        /// </summary>
+        public bool TryCheckout()
+        {
+            if (_pendingItems.Count == 0 || !_playerStats.TrySpend(_totalCents)) return false;
+
+            foreach (Buyable buyable in _pendingItems)
+            {
+                buyable.MarkAsBought();
             }
-            _totalCost += buyable.BuyableItem.buyPrice;
-            _totalCostText.text = _totalCost.ToString("F2");
-            _buyables.Add(buyable);
+            _pendingItems.Clear();
+            _totalCents = 0;
+            UpdateTotalText();
+            return true;
+        }
+
+        private static bool TryGetUnpaidBuyable(Collider other, out Buyable buyable)
+        {
+            buyable = null;
+            return other.CompareTag(BuyableTag) && other.TryGetComponent(out buyable) && !buyable.IsBought;
+        }
+
+        private void UpdateTotalText()
+        {
+            _totalCostText.SetText(TotalFormat, Money.ToUnits(_totalCents));
         }
     }
-
-    private void OnTriggerExit(Collider other) 
-    {
-        if (other.CompareTag("Buyable")) 
-        {
-            Buyable buyable = other.GetComponent<Buyable>();
-            if (buyable == null || buyable.IsBought) {
-                return;
-            }
-            _totalCost -= buyable.BuyableItem.buyPrice;
-            _totalCostText.text = _totalCost.ToString("F2");
-            _buyables.Remove(buyable);
-        }
-    }
-
-    public void Buy () 
-    {
-        if (_buyables.Count == 0) {
-            return;
-        }
-        if (_playerStats.Money >= _totalCost) 
-        {
-            _playerStats.RemoveMoney(_totalCost);
-            foreach (Buyable buyable in _buyables)
-             {
-                buyable.Buy();
-            }
-            _buyables = new List<Buyable>();
-            _totalCost = 0f;
-            _totalCostText.text = "0.00";
-            Debug.Log("Bought");
-        } else {
-            Debug.Log("Not enough money");
-        }
-    } 
 }
