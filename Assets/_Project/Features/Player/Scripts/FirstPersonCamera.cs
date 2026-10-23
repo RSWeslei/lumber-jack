@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -17,6 +18,9 @@ public class FirstPersonCamera : MonoBehaviour
     [SerializeField] private float _mouseSensitivity = 1f;
     [SerializeField] private float _gamepadSensitivity = 1f;
     [SerializeField] private float _pitchLimit = 89f;
+    [Tooltip("Espalha cada leitura do mouse por essa janela (s). Mouses de 125 Hz deixam frames sem " +
+             "movimento e a camera gira aos trancos; ~0.01 resolve com atraso minimo. 0 = mouse cru")]
+    [SerializeField] private float _mouseResampleWindow = 0.01f;
 
     [Header("Lente")]
     [SerializeField] private float _baseFov = 70f;
@@ -43,6 +47,7 @@ public class FirstPersonCamera : MonoBehaviour
     [SerializeField] private float _tiltSharpness = 8f;
 
     private PlayerMovement _movement;
+    private readonly Queue<(float time, Vector2 delta)> _mouseSamples = new Queue<(float, Vector2)>();
     private float _pitch;
     private float _bobPhase;
     private float _bobWeight;
@@ -104,11 +109,31 @@ public class FirstPersonCamera : MonoBehaviour
 
         // Mouse ja vem em "pixels deste frame"; o analogico e uma velocidade, entao usa deltaTime
         bool gamepad = look.activeControl != null && look.activeControl.device is Gamepad;
-        delta *= gamepad ? _gamepadSensitivity * Time.deltaTime : _mouseSensitivity;
+        if (gamepad) delta *= _gamepadSensitivity * Time.deltaTime;
+        else delta = ResampleMouse(delta) * _mouseSensitivity;
 
         _pitch = Mathf.Clamp(_pitch + delta.y, -_pitchLimit, _pitchLimit);
         _cameraRoot.localRotation = Quaternion.Euler(_pitch, 0f, 0f);
         transform.Rotate(Vector3.up * delta.x);
+    }
+
+    // Media movel da *velocidade* do mouse numa janela curta: cada leitura vira um giro continuo
+    // durante a janela, e o total girado continua igual ao do mouse (nada se perde nem sobra).
+    private Vector2 ResampleMouse(Vector2 rawDelta)
+    {
+        if (_mouseResampleWindow <= 0f) return rawDelta;
+
+        // Com FPS baixo (frame maior que a janela) o resultado e o proprio delta, sem atraso
+        float deltaTime = Time.unscaledDeltaTime;
+        float window = Mathf.Max(_mouseResampleWindow, deltaTime);
+
+        float now = Time.unscaledTime;
+        _mouseSamples.Enqueue((now, rawDelta));
+        while (_mouseSamples.Count > 0 && _mouseSamples.Peek().time <= now - window) _mouseSamples.Dequeue();
+
+        Vector2 sum = Vector2.zero;
+        foreach ((float _, Vector2 sample) in _mouseSamples) sum += sample;
+        return sum * (deltaTime / window);
     }
 
     private Vector3 UpdateHeadBob(float deltaTime)
