@@ -29,7 +29,7 @@
 - Member order: constants, serialized fields (`[Header]`), private fields, properties/events, Unity callbacks in execution order, public methods, private methods.
 - `[SerializeField] private` instead of public fields; `[Tooltip]` on tunables; no magic numbers.
 - Comments explain *why*. No commented-out code.
-- Legacy code is migrated feature by feature. Done: Core, Player, Inventory, Tools. Don't restyle code outside the feature you are working on; keep migrations in their own commit.
+- Legacy code is migrated feature by feature. Done: Core, Player, Inventory, Tools, Wood. Don't restyle code outside the feature you are working on; keep migrations in their own commit.
 
 ## Architecture
 
@@ -63,7 +63,7 @@ Target: **0 bytes of managed allocation per frame** during gameplay (Unity's GC 
   - Unity APIs that copy: `Mesh.vertices`/`triangles`/`normals`/`uv`, `GetComponents`, `Physics.RaycastAll`... Cache arrays (an immutable mesh can be cached once) and use `NonAlloc`/`List<T>` overloads.
   - `Debug.Log` (wrap diagnostics in `[Conditional]` methods or remove them).
   - UI updates that don't change anything: only touch UI when the value changes; use `TMP_Text.SetText` with format args for numbers.
-- Spawned-often objects (wood pieces, effects, projectiles) use `UnityEngine.Pool.ObjectPool<T>` instead of `Instantiate`/`Destroy` per use.
+- Objects spawned and destroyed many times per second (effects, projectiles, UI entries) use `UnityEngine.Pool.ObjectPool<T>` instead of `Instantiate`/`Destroy`. Cut wood pieces are not pooled: each one gets a new unique mesh.
 - Physics queries: always pass a `LayerMask` and `QueryTriggerInteraction`; use `NonAlloc` variants.
 - Rider's Unity performance highlights ("Expensive method invocation", "Comparison to 'null' is expensive") are bugs to fix, not noise.
 - Measure before optimizing anything that isn't on this list: Profiler (CPU, GC Alloc column), in a build when the problem might be Editor overhead.

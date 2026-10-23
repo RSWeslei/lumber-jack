@@ -1,6 +1,7 @@
 using System.Collections;
 using LumberJack.Core;
 using LumberJack.Tools;
+using LumberJack.Wood;
 using UnityEngine;
 using UnityEngine.InputSystem;
 

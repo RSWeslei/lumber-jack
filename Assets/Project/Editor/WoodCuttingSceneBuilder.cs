@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using LumberJack.Wood;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -70,7 +71,7 @@ public static class WoodCuttingSceneBuilder
 
         GameObject spawner = new GameObject("Log Spawner");
         spawner.transform.position = new Vector3(0f, 0.4f + LogRadius + 0.05f, 0f);
-        SetField(spawner.AddComponent<LogSpawner>(), "logPrefab", logPrefab);
+        SetField(spawner.AddComponent<LogSpawner>(), "_logPrefab", logPrefab);
 
         // Camera = jogador: anda, mira e corta
         GameObject cameraObject = GameObject.Find("Main Camera");
@@ -90,8 +91,8 @@ public static class WoodCuttingSceneBuilder
         Transform axe = BuildAxe(cameraObject.transform, axeHandle, axeHead);
 
         AxeCutter cutter = cameraObject.AddComponent<AxeCutter>();
-        SetField(cutter, "cutPreview", line);
-        SetField(cutter, "axe", axe);
+        SetField(cutter, "_cutPreview", line);
+        SetField(cutter, "_axe", axe);
 
         EditorSceneManager.SaveScene(scene, ScenePath);
         AssetDatabase.SaveAssets();
@@ -160,11 +161,11 @@ public static class WoodCuttingSceneBuilder
         body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 
         CuttableWood wood = log.AddComponent<CuttableWood>();
-        SetField(wood, "ringRadius", LogRadius);
+        SetField(wood, "_ringRadius", LogRadius);
 
         // Madeira do jogo: tag usada pela refinaria e tipo de madeira para o preco
         log.tag = "Wood";
-        SetField(log.AddComponent<Wood>(), "_woodSO", AssetDatabase.LoadAssetAtPath<WoodSO>(WoodTypePath));
+        SetField(log.AddComponent<WoodPiece>(), "_definition", AssetDatabase.LoadAssetAtPath<WoodDefinition>(WoodTypePath));
 
         PrefabUtility.SaveAsPrefabAsset(log, LogPrefabPath);
         Object.DestroyImmediate(log);

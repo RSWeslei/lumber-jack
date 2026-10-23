@@ -156,11 +156,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b44e6a2db43e9a64c91f0fbd1e1a923a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CuttableWood
-  innerSubmesh: 1
-  ringRadius: 0.3
-  minThickness: 0.08
-  density: 600
-  separationSpeed: 0.4
+  _innerSubmesh: 1
+  _ringRadius: 0.3
+  _minThickness: 0.08
+  _density: 600
+  _separationSpeed: 0.4
 --- !u!114 &4417529610396524011
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -173,6 +173,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 033e587058b75cb4881c77a1bbba035c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Wood
-  woodValue: 0
-  isRefined: 0
-  _woodSO: {fileID: 11400000, guid: 9243628b26dcabb4f9011a945c1a7a13, type: 2}
+  _isRefined: 0
+  _definition: {fileID: 11400000, guid: 9243628b26dcabb4f9011a945c1a7a13, type: 2}

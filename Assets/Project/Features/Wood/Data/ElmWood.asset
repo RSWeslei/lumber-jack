@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef8a417fd4ea5124e86b59424b4bc9d8, type: 3}
   m_Name: Elm Wood
   m_EditorClassIdentifier: 
-  woodName: 
-  rawPrice: 1
-  refinedPrice: 3
-  hardness: 3
-  texture: {fileID: 2800000, guid: 26ccc8eff3911b94491a982e148f6bb0, type: 3}
+  _displayName: 
+  _rawPriceCentsPerCubicMeter: 100
+  _refinedPriceCentsPerCubicMeter: 300
+  _hardness: 3
+  _texture: {fileID: 2800000, guid: 26ccc8eff3911b94491a982e148f6bb0, type: 3}

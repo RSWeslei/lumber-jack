@@ -1,7 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using LumberJack.Wood;
 using TMPro;
+using UnityEngine;
 
 namespace Refiner 
 {
@@ -32,26 +33,25 @@ namespace Refiner
         {
             if (other.gameObject.tag == "Wood") 
             {
-                Wood wood = other.gameObject.GetComponent<Wood>();
+                WoodPiece wood = other.gameObject.GetComponent<WoodPiece>();
                 if (wood == null) {
                     return;
                 }
-                if (wood.isRefined) {
+                if (wood.IsRefined) {
                     return;
                 }
-                RefineWood(wood.WoodSO, wood.Volume);
+                RefineWood(wood.Definition, wood.Volume);
                 Destroy(other.gameObject);
             }
         }
 
-        private void RefineWood(WoodSO woodSO, float rawWoodVolume)
+        private void RefineWood(WoodDefinition woodSO, float rawWoodVolume)
         {
             GameObject newWood = Instantiate(_rawWoodGO, _instanciatePosition.position, Quaternion.identity) as GameObject;
-            Wood wood = newWood.GetComponent<Wood>();
+            WoodPiece wood = newWood.GetComponent<WoodPiece>();
             wood.transform.localScale = RecalculateWoodSize(rawWoodVolume);
             GenerateWoodMesh(wood.transform.localScale, newWood);
-            wood.isRefined = true;
-            wood.GenerateWood(woodSO);
+            wood.Initialize(woodSO, true);
         }
 
         private Vector3 RecalculateWoodSize(float volume)

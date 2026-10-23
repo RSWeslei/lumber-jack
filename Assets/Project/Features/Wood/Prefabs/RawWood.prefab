@@ -127,6 +127,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 033e587058b75cb4881c77a1bbba035c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  woodValue: 0
-  isRefined: 0
-  _woodSO: {fileID: 0}
+  _isRefined: 0
+  _definition: {fileID: 0}

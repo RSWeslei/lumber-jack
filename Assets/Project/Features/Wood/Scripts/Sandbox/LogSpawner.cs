@@ -1,20 +1,25 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// Coloca um tronco na cena e, apertando R, limpa os pedacos e coloca um tronco novo.
-public class LogSpawner : MonoBehaviour
+namespace LumberJack.Wood
 {
-    [SerializeField] private CuttableWood logPrefab;
-
-    private void Start()
+    /// <summary>
+    /// So para a cena de teste: coloca um tronco e, apertando R, limpa os pedacos e coloca outro.
+    /// </summary>
+    public class LogSpawner : MonoBehaviour
     {
-        Spawn();
-    }
+        [SerializeField] private CuttableWood _logPrefab;
 
-    private void Update()
-    {
-        if (Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
+        private void Start()
         {
+            Spawn();
+        }
+
+        private void Update()
+        {
+            Keyboard keyboard = Keyboard.current;
+            if (keyboard == null || !keyboard.rKey.wasPressedThisFrame) return;
+
             // Os pedacos cortados nascem como filhos do mesmo pai do tronco (este objeto)
             foreach (Transform child in transform)
             {
@@ -22,15 +27,15 @@ public class LogSpawner : MonoBehaviour
             }
             Spawn();
         }
-    }
 
-    private void Spawn()
-    {
-        if (logPrefab == null)
+        private void Spawn()
         {
-            Debug.LogError("LogSpawner sem prefab do tronco. Arraste Features/Wood/Prefabs/Log.prefab no campo Log Prefab.", this);
-            return;
+            if (_logPrefab == null)
+            {
+                Debug.LogError($"{nameof(LogSpawner)} sem prefab do tronco. Arraste Features/Wood/Prefabs/Log.prefab no campo Log Prefab.", this);
+                return;
+            }
+            Instantiate(_logPrefab, transform.position, transform.rotation * _logPrefab.transform.rotation, transform);
         }
-        Instantiate(logPrefab, transform.position, transform.rotation * logPrefab.transform.rotation, transform);
     }
 }
