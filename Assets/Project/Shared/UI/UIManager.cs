@@ -1,43 +1,58 @@
-using System.Collections;
-using System.Collections.Generic;
+using LumberJack.Core;
+using LumberJack.Player;
 using UnityEngine;
 using UnityEngine.UIElements;
-using LumberJack.Player;
 
-namespace Managers
+namespace LumberJack.Shared
 {
+    /// <summary>
+    /// HUD principal (UI Toolkit): mostra o dinheiro do jogador e se atualiza quando ele muda.
+    /// </summary>
+    [RequireComponent(typeof(UIDocument))]
     public class UIManager : MonoBehaviour
     {
-        public static UIManager Instance { get; private set; }
+        private const string MoneyLabelName = "player-money";
 
-        [Header("References")]
         [SerializeField] private PlayerStats _playerStats;
-        [Header("UI Elements")]
+
         private Label _moneyText;
+
+        public static UIManager Instance { get; private set; }
 
         private void Awake()
         {
-            if (Instance == null)
+            if (Instance != null && Instance != this)
             {
-                Instance = this;
+                Destroy(this);
+                return;
             }
-            else
-            {
-                Destroy(gameObject);
-            }
-            var root = GetComponent<UIDocument>().rootVisualElement;
-            _moneyText = root.Q<Label>("player-money");
+            Instance = this;
+            _moneyText = GetComponent<UIDocument>().rootVisualElement.Q<Label>(MoneyLabelName);
         }
 
-        public void UpdateMoneyText(int cents)
+        private void OnEnable()
         {
-            _moneyText.text = LumberJack.Core.Money.Format(cents);
+            _playerStats.MoneyChanged += HandleMoneyChanged;
         }
 
-        public void ToggleElement(GameObject element, bool toggle)
+        private void Start()
         {
-            element.SetActive(toggle);
+            HandleMoneyChanged(_playerStats.MoneyCents);
+        }
+
+        private void OnDisable()
+        {
+            _playerStats.MoneyChanged -= HandleMoneyChanged;
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this) Instance = null;
+        }
+
+        private void HandleMoneyChanged(int cents)
+        {
+            _moneyText.text = Money.Format(cents);
         }
     }
 }
-

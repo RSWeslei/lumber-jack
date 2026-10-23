@@ -1,4 +1,5 @@
 using LumberJack.Core;
+using LumberJack.Shared;
 
 namespace LumberJack.Shop
 {

@@ -1,22 +1,33 @@
-using System.Collections;
-using System.Collections.Generic;
+using LumberJack.Core;
 using UnityEngine;
 using UnityEngine.UIElements;
-using LumberJack.Core;
-public class MenuActivator : MonoBehaviour, IDisplayable
+
+namespace LumberJack.Shared
 {
-    [SerializeField] private GameObject document;
-    [SerializeField] private string menuName;
-    private VisualElement menu;
-
-    void Start()
+    /// <summary>
+    /// Abre um menu do UI Toolkit (pelo nome do elemento) quando o jogador olha para este objeto.
+    /// </summary>
+    public class MenuActivator : MonoBehaviour, IDisplayable
     {
-        menu = document.GetComponent<UIDocument>().rootVisualElement.Q<VisualElement>(menuName);
-    }
+        [Tooltip("Objeto com o UIDocument que contem o menu")]
+        [SerializeField] private GameObject _document;
+        [Tooltip("Nome (name) do VisualElement do menu no UXML")]
+        [SerializeField] private string _menuName;
 
-    public void Display()
-    {
-        UIDisplays.Instance.ShowKeyInfo($"Press {InputManager.Instance.InteractKeyLabel} to open the menu");
-        menu.style.display = DisplayStyle.Flex;
+        private VisualElement _menu;
+        // Montada uma vez: a tecla nao muda durante o jogo e assim a dica nao aloca string
+        private string _hint;
+
+        private void Start()
+        {
+            _menu = _document.GetComponent<UIDocument>().rootVisualElement.Q<VisualElement>(_menuName);
+            _hint = $"Press {InputManager.Instance.InteractKeyLabel} to open the menu";
+        }
+
+        public void Display()
+        {
+            UIDisplays.Instance.ShowKeyInfo(_hint);
+            _menu.style.display = DisplayStyle.Flex;
+        }
     }
 }

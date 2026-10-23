@@ -1,4 +1,5 @@
 using LumberJack.Core;
+using LumberJack.Shared;
 using UnityEngine;
 
 namespace LumberJack.Shop
@@ -49,7 +50,7 @@ namespace LumberJack.Shop
         public void Interact()
         {
             if (_isBought) OpenBox();
-            else UIDisplays.Instance.DisplayBuyableInfo(_definition);
+            else UIDisplays.Instance.ShowBuyableInfo(_definition);
         }
 
         private void OpenBox()

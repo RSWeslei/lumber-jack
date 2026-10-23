@@ -1,5 +1,4 @@
 using System;
-using Managers;
 using UnityEngine;
 
 namespace LumberJack.Player
@@ -21,11 +20,6 @@ namespace LumberJack.Player
 
         /// <summary>Disparado com o novo saldo (centavos) sempre que ele muda.</summary>
         public event Action<int> MoneyChanged;
-
-        private void Start()
-        {
-            UIManager.Instance.UpdateMoneyText(_moneyCents);
-        }
 
         public void AddMoney(int cents)
         {
@@ -49,7 +43,6 @@ namespace LumberJack.Player
 
         private void NotifyMoneyChanged()
         {
-            UIManager.Instance.UpdateMoneyText(_moneyCents);
             MoneyChanged?.Invoke(_moneyCents);
         }
     }

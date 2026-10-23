@@ -3222,8 +3222,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f72e8aa4adc436d498ef7b3352d380e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  document: {fileID: 1324661470}
-  menuName: Refinary
+  _document: {fileID: 1324661470}
+  _menuName: Refinary
 --- !u!65 &699741244
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10126,14 +10126,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99a8b115f79623a43b75379c3a11c857, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_menuUIDocument: {fileID: 1324661472}
-  _buyableInfoText:
-  - {fileID: 1007559321}
-  - {fileID: 889912995}
-  - {fileID: 1457543321}
-  - {fileID: 1288886999}
-  _buyableImage: {fileID: 501201108}
-  _buyableParent: {fileID: 1115020072}
+  _menuDocument: {fileID: 1324661472}
+  _buyablePanel: {fileID: 1115020071}
+  _buyableNameText: {fileID: 1007559321}
+  _buyablePriceText: {fileID: 889912995}
+  _buyableDescriptionText: {fileID: 1457543321}
 --- !u!222 &4128028041071804810
 CanvasRenderer:
   m_ObjectHideFlags: 0

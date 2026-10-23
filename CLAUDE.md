@@ -18,7 +18,7 @@
 - All project code lives in `Assets/Project/` (game assembly `LumberJack`). Editor-only code goes in `Assets/Project/Editor/` (assembly `LumberJack.Editor`) or behind `#if UNITY_EDITOR`.
 - Put new code in its feature folder under `Features/`. Add `Scripts/ Prefabs/ Art/ Data/` subfolders only once a feature passes ~8-10 files.
 - Put test/sandbox-only code in a `Sandbox/` subfolder of its feature. Test scenes go in `Scenes/Sandbox/`.
-- Namespace = `LumberJack.<Feature>` (Core code uses `LumberJack.Core`).
+- Namespace = `LumberJack.<Feature>` (`Core/` uses `LumberJack.Core`, `Shared/` uses `LumberJack.Shared`, `Editor/` uses `LumberJack.Editor`). Never name a class like its namespace's last segment (e.g. `Wood` in `LumberJack.Wood`): other namespaces would resolve the name to the namespace.
 
 ## Code style
 
@@ -29,7 +29,7 @@
 - Member order: constants, serialized fields (`[Header]`), private fields, properties/events, Unity callbacks in execution order, public methods, private methods.
 - `[SerializeField] private` instead of public fields; `[Tooltip]` on tunables; no magic numbers.
 - Comments explain *why*. No commented-out code.
-- Legacy code is migrated feature by feature. Done: Core, Player, Inventory, Tools, Wood, Machines, Shop, Vehicles. Don't restyle code outside the feature you are working on; keep migrations in their own commit.
+- Legacy code is migrated feature by feature. Done: Core, Player, Inventory, Tools, Wood, Machines, Shop, Vehicles, Shared. Don't restyle code outside the feature you are working on; keep migrations in their own commit.
 
 ## Architecture
 

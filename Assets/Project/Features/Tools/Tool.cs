@@ -1,5 +1,6 @@
 using LumberJack.Core;
 using LumberJack.Inventory;
+using LumberJack.Shared;
 using UnityEngine;
 
 namespace LumberJack.Tools
