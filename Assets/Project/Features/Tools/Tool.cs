@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using LumberJack.Core;
+using LumberJack.Inventory;
 
 [RequireComponent(typeof(ItemReference))]
 public class Tool : MonoBehaviour, IDisplayable, IInteractable
@@ -19,7 +20,7 @@ public class Tool : MonoBehaviour, IDisplayable, IInteractable
 
     public void Interact()
     {
-        InventoryManager.Instance.AddItemToInventory(itemReference.Item);
-        Destroy(gameObject);
+        // So some do mundo se coube no inventario
+        if (InventoryManager.Instance.TryAddItem(itemReference.Item)) Destroy(gameObject);
     }
 }

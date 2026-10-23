@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using Managers;
 using System;
 using UnityEngine.UIElements;
+using LumberJack.Inventory;
 using Image = UnityEngine.UI.Image;
 
 public class UIDisplays : MonoBehaviour
@@ -44,9 +45,9 @@ public class UIDisplays : MonoBehaviour
 
     public void DisplayBuyableInfo(BuyableSO buyable) 
     {
-        _buyableInfoText[0].text = buyable.itemName;
+        _buyableInfoText[0].text = buyable.DisplayName;
         _buyableInfoText[1].text = "$ " + buyable.buyPrice.ToString("F2");
-        _buyableInfoText[2].text = buyable.description;
+        _buyableInfoText[2].text = buyable.Description;
         // _buyableInfoText[3].text = buyable.category.ToString();
         // _buyableImage = buyable.icon;
         UIManager.Instance.ToggleElement(_buyableParent.gameObject, true);

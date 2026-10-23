@@ -1,42 +1,40 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Scripting;
 using UnityEngine.UIElements;
 
-[UxmlElement] // Permite usar o Slot em arquivos UXML / UI Builder
-public partial class Slot : VisualElement
+namespace LumberJack.Inventory
 {
-    private Image _icon;
-    public string slotName;
-    private Item _item;
-
-    public Item Item { get => _item; }
-
-    public Slot() // Construtor
+    /// <summary>
+    /// Um espaco da hotbar (elemento do UI Toolkit) que mostra o icone do item guardado.
+    /// </summary>
+    [UxmlElement]
+    public partial class Slot : VisualElement
     {
-        // Cria uma nova imagem e adiciona no slot da hotbar
-        _icon = new Image(); 
-        _icon.name = "icon"; // Nome do elemento
-        _icon.AddToClassList("slotIcon"); // Adiciona uma classe CSS ao icone
-        AddToClassList("slot"); // Adiciona uma classe CSS ao slot
-        this.slotName = "Slot " + this.name; // Muda o nome do slot
-        RegisterCallback<ClickEvent>(evt => { 
-            Debug.Log(slotName);
-        });
-        Add(_icon);
-    }
+        private const string SlotClass = "hotbar__slot";
+        private const string IconClass = "hotbar__slot-icon";
+        private const string IconName = "icon";
 
-    public void AddItem(Item item) {
-        _icon.image = item.icon;
-        this._item = item;
-    }
+        private readonly Image _icon;
 
-    public void RemoveItem() {
-        _icon.image = null;
-        this._item = null;
+        public ItemDefinition Item { get; private set; }
+        public bool IsEmpty => Item == null;
+
+        public Slot()
+        {
+            AddToClassList(SlotClass);
+            _icon = new Image { name = IconName };
+            _icon.AddToClassList(IconClass);
+            Add(_icon);
+        }
+
+        public void SetItem(ItemDefinition item)
+        {
+            Item = item;
+            _icon.image = item.Icon;
+        }
+
+        public void ClearItem()
+        {
+            Item = null;
+            _icon.image = null;
+        }
     }
 }
-
-
-

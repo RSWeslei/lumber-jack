@@ -1,29 +1,37 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class InventoryManager : MonoBehaviour
+namespace LumberJack.Inventory
 {
-    public static InventoryManager Instance { get; private set; }
-    [SerializeField] private Hotbar hotbar;
-
-    void Awake()
+    /// <summary>
+    /// Ponto de entrada para guardar itens no inventario do jogador (hoje so a hotbar).
+    /// </summary>
+    public class InventoryManager : MonoBehaviour
     {
-        if (Instance == null)
+        [SerializeField] private Hotbar _hotbar;
+
+        public static InventoryManager Instance { get; private set; }
+
+        private void Awake()
         {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(this);
+                return;
+            }
             Instance = this;
         }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
 
-    public void AddItemToInventory(Item item)
-    {
-        if (!hotbar.AddItem(item)){
-            Debug.Log("Inventory is full");
-            // TODO: Message to player
+        private void OnDestroy()
+        {
+            if (Instance == this) Instance = null;
+        }
+
+        /// <summary>
+        /// Guarda o item no primeiro espaco livre. Retorna false se o inventario estiver cheio.
+        /// </summary>
+        public bool TryAddItem(ItemDefinition item)
+        {
+            return _hotbar.TryAddItem(item);
         }
     }
 }

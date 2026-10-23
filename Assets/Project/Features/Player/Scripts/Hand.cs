@@ -1,3 +1,4 @@
+using LumberJack.Inventory;
 using UnityEngine;
 
 namespace LumberJack.Player
@@ -10,14 +11,14 @@ namespace LumberJack.Player
     {
         private GameObject _equippedObject;
 
-        public Item EquippedItem { get; private set; }
+        public ItemDefinition EquippedItem { get; private set; }
         public bool IsItemEquipped => _equippedObject != null;
 
-        public void LoadItem(Item item)
+        public void LoadItem(ItemDefinition item)
         {
             UnloadItemAndDestroy();
 
-            if (item == null || item.itemPrefab == null)
+            if (item == null || item.Prefab == null)
             {
                 UnloadItem();
                 return;
@@ -25,7 +26,7 @@ namespace LumberJack.Player
 
             EquippedItem = item;
 
-            GameObject itemObject = Instantiate(item.itemPrefab, transform);
+            GameObject itemObject = Instantiate(item.Prefab, transform);
             itemObject.transform.localPosition = Vector3.zero;
             itemObject.transform.localRotation = Quaternion.identity;
             itemObject.transform.localScale = Vector3.one;

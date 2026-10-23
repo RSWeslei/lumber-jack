@@ -5290,7 +5290,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66dd1da61ce74c14c8c66c8e480a5a56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hotbar: {fileID: 1575485468}
+  _hotbar: {fileID: 1575485468}
 --- !u!1001 &1027851349
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7274,7 +7274,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0cefdf98ea5649458d1dba69952ce7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  testItem: {fileID: 11400000, guid: c94ae76045aa1864bbfd3ae83f7a05db, type: 2}
   _hand: {fileID: 2139922103}
 --- !u!114 &1575485469
 MonoBehaviour:

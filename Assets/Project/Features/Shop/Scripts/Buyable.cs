@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Managers;
 using LumberJack.Core;
+using LumberJack.Inventory;
 
 public class Buyable : MonoBehaviour, IDisplayable, IInteractable
 {
@@ -23,7 +24,7 @@ public class Buyable : MonoBehaviour, IDisplayable, IInteractable
         if (!isBought) {
             return;
         }
-        GameObject itemGO = Instantiate(_buyableSO.itemPrefab, transform.position, Quaternion.identity);
+        GameObject itemGO = Instantiate(_buyableSO.Prefab, transform.position, Quaternion.identity);
         Destroy(gameObject);
     }
 

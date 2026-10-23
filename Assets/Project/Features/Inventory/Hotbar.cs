@@ -1,106 +1,91 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UIElements;
-using Managers;
 using LumberJack.Core;
 using LumberJack.Player;
+using UnityEngine;
+using UnityEngine.UIElements;
 
-public class Hotbar : MonoBehaviour
+namespace LumberJack.Inventory
 {
-    public VisualElement m_hotbar;
-    public List<Slot> slots = new List<Slot>();
-    public Item testItem;
-    [SerializeField] private Hand _hand;
-    private int _previousSlot = 0;
-    private bool _sameSlot = false;
-
-    private void Awake()
+    /// <summary>
+    /// Hotbar do jogador: guarda itens nos slots do UI Toolkit e equipa na mao o item do slot
+    /// selecionado. Selecionar de novo o slot atual guarda o item (mao vazia).
+    /// </summary>
+    [RequireComponent(typeof(UIDocument))]
+    public class Hotbar : MonoBehaviour
     {
-        CreateSlots();
-        SelectSlot(0);
-    }
+        private const string SlotContainerName = "hotbar";
+        private const string SelectedClass = "hotbar__slot--selected";
 
-    void OnEnable()
-    {
-        InputManager.Instance.HotbarSlotSelected += SelectSlot;
-        InputManager.Instance.HotbarScrolled += SelectSlotScroll;
-    }
+        [SerializeField] private Hand _hand;
 
-    void OnDisable()
-    {
-        InputManager.Instance.HotbarSlotSelected -= SelectSlot;
-        InputManager.Instance.HotbarScrolled -= SelectSlotScroll;
-    }
+        private readonly List<Slot> _slots = new List<Slot>();
+        private int _selectedIndex;
+        private bool _isSlotEquipped;
 
-    private void CreateSlots()
-    {
-        var root = GetComponent<UIDocument>().rootVisualElement; // Pega o root do UI Document
-        m_hotbar = root.Q<VisualElement>("hotbar"); // Pega o elemento visual com o nome "hotbar"
-
-        for (int i = 0; i < m_hotbar.childCount; i++)
+        private void Awake()
         {
-            slots.Add(m_hotbar[i] as Slot);
+            VisualElement container = GetComponent<UIDocument>().rootVisualElement.Q<VisualElement>(SlotContainerName);
+            container.Query<Slot>().ToList(_slots);
+            SelectSlot(0);
         }
 
-        // Testing
-        // slots[0].AddItem(testItem);
-        // SelectSlot(1);
-    }
-
-    public bool AddItem(Item item)
-    {
-        foreach (var slot in slots)
+        private void OnEnable()
         {
-            if (slot.Item == null)
+            InputManager.Instance.HotbarSlotSelected += HandleHotbarSlotSelected;
+            InputManager.Instance.HotbarScrolled += HandleHotbarScrolled;
+        }
+
+        private void OnDisable()
+        {
+            InputManager.Instance.HotbarSlotSelected -= HandleHotbarSlotSelected;
+            InputManager.Instance.HotbarScrolled -= HandleHotbarScrolled;
+        }
+
+        /// <summary>
+        /// Guarda o item no primeiro slot vazio. Retorna false se a hotbar estiver cheia.
+        /// </summary>
+        public bool TryAddItem(ItemDefinition item)
+        {
+            for (int i = 0; i < _slots.Count; i++)
             {
-                slot.AddItem(item);
+                if (!_slots[i].IsEmpty) continue;
+
+                _slots[i].SetItem(item);
+                // Caiu no slot que ja esta selecionado: equipa na hora
+                if (_isSlotEquipped && i == _selectedIndex) _hand.LoadItem(item);
                 return true;
             }
+            return false;
         }
-        return false;
-    }
 
-    public void SelectSlot(int slotNumber)
-    {
-        if (slotNumber == _previousSlot && !_sameSlot)
+        private void HandleHotbarSlotSelected(int index)
         {
+            if (index < 0 || index >= _slots.Count) return;
+
+            if (index == _selectedIndex && _isSlotEquipped) UnequipSlot();
+            else SelectSlot(index);
+        }
+
+        private void HandleHotbarScrolled(float direction)
+        {
+            int step = direction > 0f ? 1 : -1;
+            SelectSlot((_selectedIndex + step + _slots.Count) % _slots.Count);
+        }
+
+        private void SelectSlot(int index)
+        {
+            _slots[_selectedIndex].EnableInClassList(SelectedClass, false);
+            _slots[index].EnableInClassList(SelectedClass, true);
+            _selectedIndex = index;
+            _isSlotEquipped = true;
+            _hand.LoadItem(_slots[index].Item);
+        }
+
+        private void UnequipSlot()
+        {
+            _slots[_selectedIndex].EnableInClassList(SelectedClass, false);
+            _isSlotEquipped = false;
             _hand.UnloadItemAndDestroy();
-            _sameSlot = true;
-            slots[_previousSlot].RemoveFromClassList("selected");
-            return;
-        }
-
-        slots[_previousSlot].RemoveFromClassList("selected");
-        slots[slotNumber].AddToClassList("selected");
-        _hand.LoadItem(slots[slotNumber].Item); // Carrega o item no slot selecionado
-        _previousSlot = slotNumber;
-        _sameSlot = false;
-    }
-
-    public void SelectSlotScroll(float scroll)
-    {
-        if (scroll > 0)
-        {
-            if (_previousSlot == slots.Count - 1)
-            {
-                SelectSlot(0);
-            }
-            else
-            {
-                SelectSlot(_previousSlot + 1);
-            }
-        }
-        else if (scroll < 0)
-        {
-            if (_previousSlot == 0)
-            {
-                SelectSlot(slots.Count - 1);
-            }
-            else
-            {
-                SelectSlot(_previousSlot - 1);
-            }
         }
     }
 }

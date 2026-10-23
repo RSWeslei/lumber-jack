@@ -1,6 +1,14 @@
 using UnityEngine;
 
-public class ItemReference : MonoBehaviour
+namespace LumberJack.Inventory
 {
-    public Item Item;
+    /// <summary>
+    /// Liga um objeto do mundo ao item que ele representa (ex.: o machado no chao).
+    /// </summary>
+    public class ItemReference : MonoBehaviour
+    {
+        [SerializeField] private ItemDefinition _item;
+
+        public ItemDefinition Item => _item;
+    }
 }
