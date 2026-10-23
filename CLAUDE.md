@@ -29,7 +29,7 @@
 - Member order: constants, serialized fields (`[Header]`), private fields, properties/events, Unity callbacks in execution order, public methods, private methods.
 - `[SerializeField] private` instead of public fields; `[Tooltip]` on tunables; no magic numbers.
 - Comments explain *why*. No commented-out code.
-- Legacy code is migrated feature by feature. Done: Core, Player, Inventory, Tools, Wood, Machines, Shop, Vehicles, Shared. Don't restyle code outside the feature you are working on; keep migrations in their own commit.
+- All project code follows this standard. Keep it that way: don't restyle code outside the feature you are working on, and keep large refactors in their own commit.
 
 ## Architecture
 
@@ -74,7 +74,7 @@ Target: **0 bytes of managed allocation per frame** during gameplay (Unity's GC 
 - Scenes/prefabs may be edited as YAML: look up real fileIDs/GUIDs, preserve each file's line endings, back the file up to the scratchpad first.
 - If a scene/prefab must reference a new script before Unity imports it, create the script's `.meta` yourself with a fresh 32-hex GUID.
 - In editor scripts, reload asset references by path after `EditorSceneManager.NewScene()` (it unloads unused assets).
-- Preserve each script's encoding, BOM and line endings. Don't assume UTF-8 (`Editor/Calculator.cs` is Windows-1252).
+- Scripts are UTF-8 (Unity reads them as UTF-8; other encodings show broken symbols). Preserve each file's BOM and line endings when editing.
 
 ## Verifying
 
