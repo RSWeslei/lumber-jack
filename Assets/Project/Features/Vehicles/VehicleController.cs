@@ -1,121 +1,150 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using UnityEngine;
-using Managers;
 using LumberJack.Core;
+using UnityEngine;
+using UnityEngine.InputSystem;
 
-namespace Vehicle
+namespace LumberJack.Vehicles
 {
-    public class VehicleController : MonoBehaviour
+    /// <summary>
+    /// Um eixo do veiculo: as duas rodas e se ele traciona e/ou esterca.
+    /// </summary>
+    [Serializable]
+    public class AxleInfo
     {
-        public List<AxleInfo> axleInfos; // the information about each individual axle
-        public float maxMotorTorque; // maximum torque the motor can apply to wheel
-        public float maxSteeringAngle; // maximum steer angle the wheel can have
-        [SerializeField] private Transform playerTransform;
-        [SerializeField] private Camera vehicleCamera;
+        [SerializeField] private WheelCollider _leftWheel;
+        [SerializeField] private WheelCollider _rightWheel;
+        [Tooltip("Este eixo recebe o torque do motor")]
+        [SerializeField] private bool _isMotor;
+        [Tooltip("Este eixo vira com a direcao")]
+        [SerializeField] private bool _isSteering;
 
-        [Header("Vehicle")]
-        public VehicleInputs vehicleInputs;
-        public bool handbrake_input = true;
-        
-        public void FixedUpdate()
-        {
-            float motor = maxMotorTorque * Input.GetAxis("Vertical");
-            float steering = maxSteeringAngle * Input.GetAxis("Horizontal");
-                
-            foreach (AxleInfo axleInfo in axleInfos) {
-                if (axleInfo.steering) {
-                    axleInfo.leftWheel.steerAngle = steering;
-                    axleInfo.rightWheel.steerAngle = steering;
-                }
-                if (axleInfo.motor) {
-                    axleInfo.leftWheel.motorTorque = motor;
-                    axleInfo.rightWheel.motorTorque = motor;
-                }
-                ApplyLocalPositionToVisuals(axleInfo.leftWheel);
-                ApplyLocalPositionToVisuals(axleInfo.rightWheel);
-            }
-        }
-
-        private void Update() {
-            RotateCamera();
-        }
-
-        private void HandleVehicleInputs() {
-            vehicleInputs = new VehicleInputs();
-            if (vehicleInputs != null) {
-                vehicleInputs.VehicleActions.Brake.performed += i => {
-                    Handbrake(handbrake_input);
-                    handbrake_input = !handbrake_input;
-                };
-            }
-            vehicleInputs.Enable();
-        }
-
-        public void ApplyLocalPositionToVisuals(WheelCollider collider)
-        {
-            if (collider.transform.childCount == 0) {
-                return;
-            }
-        
-            Transform visualWheel = collider.transform.GetChild(0);
-        
-            Vector3 position;
-            Quaternion rotation;
-            collider.GetWorldPose(out position, out rotation);
-        
-            visualWheel.transform.position = position;
-            visualWheel.transform.rotation = rotation;
-        }
-
-        private void RotateCamera ()
-        {
-            vehicleCamera.transform.RotateAround(transform.position, Vector3.up, Input.GetAxis("Mouse X"));
-        }
-
-        public void Handbrake (bool isBraking) {
-            if (isBraking){
-                foreach (AxleInfo axleInfo in axleInfos) {
-                    if (axleInfo.motor) {
-                        axleInfo.leftWheel.brakeTorque = 1000f;
-                        axleInfo.rightWheel.brakeTorque = 1000f;
-                    }
-                }
-            }
-            else {
-                foreach (AxleInfo axleInfo in axleInfos) {
-                    if (axleInfo.motor) {
-                        axleInfo.leftWheel.brakeTorque = 0f;
-                        axleInfo.rightWheel.brakeTorque = 0f;
-                    }
-                }
-            }
-        }
-
-        private void Enter () {
-            playerTransform.gameObject.SetActive(false);
-            vehicleCamera.gameObject.SetActive(true);
-        }
-
-        public void EnterDriverSeat () {
-            Enter();
-            this.enabled = true;
-        }
-
-        private void OnEnable() {
-            HandleVehicleInputs();
-        }
-
-        private void OnDisable() {
-            vehicleInputs.Disable();
-        }
+        public WheelCollider LeftWheel => _leftWheel;
+        public WheelCollider RightWheel => _rightWheel;
+        public bool IsMotor => _isMotor;
+        public bool IsSteering => _isSteering;
     }
 
-    [System.Serializable]
-    public class AxleInfo {
-        public WheelCollider leftWheel;
-        public WheelCollider rightWheel;
-        public bool motor; // is this wheel attached to motor?
-        public bool steering; // does this wheel apply steer angle?
+    /// <summary>
+    /// Dirige o veiculo com WheelColliders. Fica desligado ate o jogador entrar pela porta.
+    /// </summary>
+    public class VehicleController : MonoBehaviour
+    {
+        private const float HandbrakeTorque = 1000f;
+
+        [SerializeField] private List<AxleInfo> _axles = new List<AxleInfo>();
+        [SerializeField] private float _maxMotorTorque = 400f;
+        [Tooltip("Graus")]
+        [SerializeField] private float _maxSteeringAngle = 30f;
+        [Tooltip("Graus por pixel de mouse ao girar a camera em volta do carro")]
+        [SerializeField] private float _cameraSensitivity = 0.1f;
+
+        [Header("Referencias")]
+        [SerializeField] private Transform _playerTransform;
+        [SerializeField] private Camera _vehicleCamera;
+
+        private VehicleInputs _inputs;
+        private Transform _cameraTransform;
+        private bool _isHandbrakeOn;
+        // Rodas visuais (primeiro filho de cada WheelCollider), cacheadas para nao procurar a cada FixedUpdate
+        private readonly List<(WheelCollider collider, Transform visual)> _wheelVisuals =
+            new List<(WheelCollider, Transform)>();
+
+        private void Awake()
+        {
+            if (_vehicleCamera == null || _playerTransform == null)
+            {
+                Debug.LogError($"{nameof(VehicleController)} sem camera ou sem referencia do player.", this);
+                enabled = false;
+                return;
+            }
+
+            _inputs = new VehicleInputs();
+            _cameraTransform = _vehicleCamera.transform;
+            foreach (AxleInfo axle in _axles)
+            {
+                CacheWheelVisual(axle.LeftWheel);
+                CacheWheelVisual(axle.RightWheel);
+            }
+        }
+
+        private void OnEnable()
+        {
+            if (_inputs == null) return;
+
+            _inputs.VehicleActions.Brake.performed += HandleBrakePerformed;
+            _inputs.Enable();
+        }
+
+        private void Update()
+        {
+            Vector2 look = _inputs.VehicleMovement.Look.ReadValue<Vector2>();
+            _cameraTransform.RotateAround(transform.position, Vector3.up, look.x * _cameraSensitivity);
+        }
+
+        private void FixedUpdate()
+        {
+            Vector2 move = _inputs.VehicleMovement.Movement.ReadValue<Vector2>();
+            float motor = _maxMotorTorque * move.y;
+            float steering = _maxSteeringAngle * move.x;
+
+            foreach (AxleInfo axle in _axles)
+            {
+                if (axle.IsSteering)
+                {
+                    axle.LeftWheel.steerAngle = steering;
+                    axle.RightWheel.steerAngle = steering;
+                }
+                if (axle.IsMotor)
+                {
+                    axle.LeftWheel.motorTorque = motor;
+                    axle.RightWheel.motorTorque = motor;
+                }
+            }
+
+            foreach ((WheelCollider wheel, Transform visual) in _wheelVisuals)
+            {
+                wheel.GetWorldPose(out Vector3 position, out Quaternion rotation);
+                visual.SetPositionAndRotation(position, rotation);
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (_inputs == null) return;
+
+            _inputs.VehicleActions.Brake.performed -= HandleBrakePerformed;
+            _inputs.Disable();
+        }
+
+        private void OnDestroy()
+        {
+            _inputs?.Dispose();
+        }
+
+        public void EnterDriverSeat()
+        {
+            _playerTransform.gameObject.SetActive(false);
+            _vehicleCamera.gameObject.SetActive(true);
+            enabled = true;
+        }
+
+        private void HandleBrakePerformed(InputAction.CallbackContext context)
+        {
+            _isHandbrakeOn = !_isHandbrakeOn;
+            float torque = _isHandbrakeOn ? HandbrakeTorque : 0f;
+            foreach (AxleInfo axle in _axles)
+            {
+                if (!axle.IsMotor) continue;
+                axle.LeftWheel.brakeTorque = torque;
+                axle.RightWheel.brakeTorque = torque;
+            }
+        }
+
+        private void CacheWheelVisual(WheelCollider wheel)
+        {
+            Transform wheelTransform = wheel.transform;
+            if (wheelTransform.childCount > 0) _wheelVisuals.Add((wheel, wheelTransform.GetChild(0)));
+        }
     }
 }

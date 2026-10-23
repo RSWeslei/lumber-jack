@@ -1,49 +1,45 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using LumberJack.Core;
+using UnityEngine;
 
-namespace Vehicle
+namespace LumberJack.Vehicles
 {
+    public enum DoorSide
+    {
+        FrontLeft,
+        FrontRight,
+        BackLeft,
+        BackRight
+    }
+
+    /// <summary>
+    /// Porta do veiculo. A dianteira esquerda leva ao banco do motorista; as outras ainda nao fazem nada.
+    /// </summary>
     public class VehicleDoor : MonoBehaviour, IInteractable, IDisplayable
     {
-        public enum DoorSide
+        [SerializeField] private DoorSide _side;
+
+        private VehicleController _vehicle;
+        // Montada uma vez: a tecla nao muda durante o jogo e assim a dica nao aloca string
+        private string _hint;
+
+        private void Awake()
         {
-            FrontLeft,
-            FrontRight,
-            BackLeft,
-            BackRight
+            _vehicle = GetComponentInParent<VehicleController>();
         }
 
-        public DoorSide doorSide;
-        // [SerializeField] private bool isOpen = false;
-        private VehicleController vehicleController;
-
-        private void Awake() {
-            vehicleController = GetComponentInParent<VehicleController>();
+        private void Start()
+        {
+            _hint = $"Press {InputManager.Instance.InteractKeyLabel} to enter the vehicle";
         }
 
         public void Interact()
         {
-            switch (doorSide)
-            {
-                case DoorSide.FrontLeft:
-                    vehicleController.EnterDriverSeat();
-                    break;
-                case DoorSide.FrontRight:
-                    break;
-                case DoorSide.BackLeft:
-                    break;
-                case DoorSide.BackRight:
-                    break;
-                default:
-                    break;
-            }
+            if (_side == DoorSide.FrontLeft) _vehicle.EnterDriverSeat();
         }
 
         public void Display()
         {
-            UIDisplays.Instance.ShowKeyInfo($"Press {InputManager.Instance.InteractKeyLabel} to enter the vehicle");
+            UIDisplays.Instance.ShowKeyInfo(_hint);
         }
     }
 }

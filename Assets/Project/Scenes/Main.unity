@@ -1263,7 +1263,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f215ce4915ff2dd4a852c9099f43ad5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  doorSide: 0
+  _side: 0
 --- !u!1 &273087084
 GameObject:
   m_ObjectHideFlags: 0
@@ -8711,20 +8711,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8af19be42848e484991a68add27d45bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  axleInfos:
-  - leftWheel: {fileID: 146313953}
-    rightWheel: {fileID: 360643747}
-    motor: 1
-    steering: 1
-  - leftWheel: {fileID: 347766629}
-    rightWheel: {fileID: 293712179}
-    motor: 0
-    steering: 0
-  maxMotorTorque: 400
-  maxSteeringAngle: 30
-  playerTransform: {fileID: 0}
-  vehicleCamera: {fileID: 0}
-  handbrake_input: 1
+  _axles:
+  - _leftWheel: {fileID: 146313953}
+    _rightWheel: {fileID: 360643747}
+    _isMotor: 1
+    _isSteering: 1
+  - _leftWheel: {fileID: 347766629}
+    _rightWheel: {fileID: 293712179}
+    _isMotor: 0
+    _isSteering: 0
+  _maxMotorTorque: 400
+  _maxSteeringAngle: 30
+  _playerTransform: {fileID: 0}
+  _vehicleCamera: {fileID: 0}
 --- !u!1 &1868941474
 GameObject:
   m_ObjectHideFlags: 0
@@ -10566,20 +10565,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8af19be42848e484991a68add27d45bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  axleInfos:
-  - leftWheel: {fileID: 1952426988}
-    rightWheel: {fileID: 1353482548}
-    motor: 1
-    steering: 1
-  - leftWheel: {fileID: 9162047523383437824}
-    rightWheel: {fileID: 7006948495700097596}
-    motor: 0
-    steering: 0
-  maxMotorTorque: 400
-  maxSteeringAngle: 30
-  playerTransform: {fileID: 2120004503}
-  vehicleCamera: {fileID: 989896011}
-  handbrake_input: 1
+  _axles:
+  - _leftWheel: {fileID: 1952426988}
+    _rightWheel: {fileID: 1353482548}
+    _isMotor: 1
+    _isSteering: 1
+  - _leftWheel: {fileID: 9162047523383437824}
+    _rightWheel: {fileID: 7006948495700097596}
+    _isMotor: 0
+    _isSteering: 0
+  _maxMotorTorque: 400
+  _maxSteeringAngle: 30
+  _playerTransform: {fileID: 2120004503}
+  _vehicleCamera: {fileID: 989896011}
 --- !u!4 &9162047523383437823
 Transform:
   m_ObjectHideFlags: 0
