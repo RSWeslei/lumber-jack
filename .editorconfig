@@ -1,0 +1,181 @@
+# Lumber Jack - padrao de codigo (ver CLAUDE.md)
+# Baseado no C# style guide do Unity 6 + convencoes da Microsoft. Rider e Visual Studio aplicam sozinhos.
+root = true
+
+# Arquivos de texto em geral
+[*]
+charset = utf-8
+insert_final_newline = true
+
+# Assets do Unity (cenas, prefabs, .meta, .asset...) sao gerados pelo editor: nao formatar
+[*.{unity,prefab,asset,meta,mat,anim,controller,overrideController,mask,physicMaterial,lighting,shadervariants,inputactions}]
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_style = unset
+
+[*.{json,asmdef,asmref}]
+indent_style = space
+indent_size = 4
+
+[*.{uxml,uss,xml,yml,yaml}]
+indent_style = space
+indent_size = 4
+
+[*.md]
+trim_trailing_whitespace = false
+
+# ---------------------------------------------------------------------------
+# C#
+# ---------------------------------------------------------------------------
+[*.cs]
+indent_style = space
+indent_size = 4
+tab_width = 4
+trim_trailing_whitespace = true
+max_line_length = 140
+
+# Classes geradas pelo Input System nao seguem o padrao
+generated_code = false
+
+# ----- Organizacao -----
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+csharp_using_directive_placement = outside_namespace:suggestion
+# Unity compila em C# 9: namespace em bloco (file-scoped e C# 10)
+csharp_style_namespace_declarations = block_scoped:silent
+
+# ----- Chaves e quebras de linha (Allman) -----
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_new_line_before_members_in_object_initializers = true
+csharp_new_line_before_members_in_anonymous_types = true
+csharp_new_line_between_query_expression_clauses = true
+csharp_prefer_braces = when_multiline:suggestion
+
+# ----- Indentacao -----
+csharp_indent_case_contents = true
+csharp_indent_switch_labels = true
+csharp_indent_labels = one_less_than_current
+csharp_indent_block_contents = true
+csharp_indent_braces = false
+
+# ----- Espacos -----
+csharp_space_after_cast = false
+csharp_space_after_keywords_in_control_flow_statements = true
+csharp_space_between_method_declaration_parameter_list_parentheses = false
+csharp_space_between_method_call_parameter_list_parentheses = false
+csharp_space_between_parentheses = false
+csharp_space_before_colon_in_inheritance_clause = true
+csharp_space_after_colon_in_inheritance_clause = true
+csharp_space_around_binary_operators = before_and_after
+csharp_space_after_comma = true
+csharp_space_after_semicolon_in_for_statement = true
+csharp_preserve_single_line_statements = false
+csharp_preserve_single_line_blocks = true
+
+# ----- Preferencias de linguagem -----
+# var so quando o tipo e obvio na mesma linha
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = false:suggestion
+
+dotnet_style_qualification_for_field = false:suggestion
+dotnet_style_qualification_for_property = false:suggestion
+dotnet_style_qualification_for_method = false:suggestion
+dotnet_style_qualification_for_event = false:suggestion
+dotnet_style_predefined_type_for_locals_parameters_members = true:suggestion
+dotnet_style_predefined_type_for_member_access = true:suggestion
+dotnet_style_require_accessibility_modifiers = for_non_interface_members:suggestion
+dotnet_style_readonly_field = true:suggestion
+
+csharp_style_expression_bodied_methods = when_on_single_line:silent
+csharp_style_expression_bodied_properties = true:suggestion
+csharp_style_expression_bodied_accessors = true:suggestion
+csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion
+csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
+csharp_style_inlined_variable_declaration = true:suggestion
+csharp_style_deconstructed_variable_declaration = true:suggestion
+
+# ?. e ?? NAO funcionam com objetos do Unity (null customizado): nao sugerir
+dotnet_style_coalesce_expression = false:none
+dotnet_style_null_propagation = false:none
+csharp_style_conditional_delegate_call = false:none
+# "is null" tambem ignora o null do Unity
+dotnet_style_prefer_is_null_check_over_reference_equality_method = false:none
+
+# ----- Nomes -----
+# Severidade "suggestion" porque o codigo antigo ainda nao segue o padrao (migrado aos poucos)
+
+# Simbolos
+dotnet_naming_symbols.interfaces.applicable_kinds = interface
+dotnet_naming_symbols.types.applicable_kinds = class, struct, enum, delegate
+dotnet_naming_symbols.members.applicable_kinds = method, property, event, local_function
+dotnet_naming_symbols.public_fields.applicable_kinds = field
+dotnet_naming_symbols.public_fields.applicable_accessibilities = public, internal, protected, protected_internal
+dotnet_naming_symbols.constants.applicable_kinds = field, local
+dotnet_naming_symbols.constants.required_modifiers = const
+dotnet_naming_symbols.static_readonly_fields.applicable_kinds = field
+dotnet_naming_symbols.static_readonly_fields.required_modifiers = static, readonly
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private, private_protected
+dotnet_naming_symbols.parameters_and_locals.applicable_kinds = parameter, local
+
+# Estilos
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+dotnet_naming_style.camel_case.capitalization = camel_case
+dotnet_naming_style.underscore_camel_case.capitalization = camel_case
+dotnet_naming_style.underscore_camel_case.required_prefix = _
+dotnet_naming_style.interface_prefix.capitalization = pascal_case
+dotnet_naming_style.interface_prefix.required_prefix = I
+
+# Regras (a ordem importa: mais especificas primeiro)
+dotnet_naming_rule.interfaces_with_i.symbols = interfaces
+dotnet_naming_rule.interfaces_with_i.style = interface_prefix
+dotnet_naming_rule.interfaces_with_i.severity = suggestion
+
+dotnet_naming_rule.constants_pascal.symbols = constants
+dotnet_naming_rule.constants_pascal.style = pascal_case
+dotnet_naming_rule.constants_pascal.severity = suggestion
+
+dotnet_naming_rule.static_readonly_pascal.symbols = static_readonly_fields
+dotnet_naming_rule.static_readonly_pascal.style = pascal_case
+dotnet_naming_rule.static_readonly_pascal.severity = suggestion
+
+dotnet_naming_rule.private_fields_underscore.symbols = private_fields
+dotnet_naming_rule.private_fields_underscore.style = underscore_camel_case
+dotnet_naming_rule.private_fields_underscore.severity = suggestion
+
+dotnet_naming_rule.public_fields_pascal.symbols = public_fields
+dotnet_naming_rule.public_fields_pascal.style = pascal_case
+dotnet_naming_rule.public_fields_pascal.severity = suggestion
+
+dotnet_naming_rule.types_pascal.symbols = types
+dotnet_naming_rule.types_pascal.style = pascal_case
+dotnet_naming_rule.types_pascal.severity = suggestion
+
+dotnet_naming_rule.members_pascal.symbols = members
+dotnet_naming_rule.members_pascal.style = pascal_case
+dotnet_naming_rule.members_pascal.severity = suggestion
+
+dotnet_naming_rule.parameters_camel.symbols = parameters_and_locals
+dotnet_naming_rule.parameters_camel.style = camel_case
+dotnet_naming_rule.parameters_camel.severity = suggestion
+
+# ----- Analisadores -----
+# Campos [SerializeField] parecem "nunca atribuidos" para o compilador, mas o Unity preenche
+dotnet_diagnostic.CS0649.severity = none
+# Analisadores do Unity (Microsoft.Unity.Analyzers) ja vem no Unity 6; manter ativos
+dotnet_diagnostic.UNT0001.severity = warning
+dotnet_diagnostic.UNT0006.severity = warning
+
+# Codigo gerado pelo Input System: nao aplicar o padrao
+[Assets/_Project/Core/Input/{GUIInputs,PlayerInputs,VehicleInputs}.cs]
+generated_code = true
+dotnet_analyzer_diagnostic.severity = none
+
+# Pacotes de terceiros: nao aplicar o padrao
+[{Assets/ThirdParty/**,Assets/TextMesh Pro/**}]
+generated_code = true
+dotnet_analyzer_diagnostic.severity = none
