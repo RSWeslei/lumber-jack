@@ -1,5 +1,6 @@
 using System.Collections;
 using LumberJack.Core;
+using LumberJack.Tools;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -45,7 +46,7 @@ namespace LumberJack.Player
         private Plane _targetPlane;
         private bool _isTargetValid;
 
-        private bool HasAxe => _hand.EquippedItem is ToolSO tool && tool.canCutWood;
+        private bool HasAxe => _hand.EquippedItem is ToolDefinition tool && tool.CanCutWood;
 
         private void Awake()
         {

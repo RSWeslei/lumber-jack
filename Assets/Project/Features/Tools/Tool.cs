@@ -1,26 +1,38 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using LumberJack.Core;
 using LumberJack.Inventory;
+using UnityEngine;
 
-[RequireComponent(typeof(ItemReference))]
-public class Tool : MonoBehaviour, IDisplayable, IInteractable
+namespace LumberJack.Tools
 {
-    private ItemReference itemReference;
-    void Awake()
+    /// <summary>
+    /// Ferramenta solta no mundo: mostra a dica ao olhar e vai para o inventario ao interagir.
+    /// </summary>
+    [RequireComponent(typeof(ItemReference))]
+    public class Tool : MonoBehaviour, IDisplayable, IInteractable
     {
-        itemReference = GetComponent<ItemReference>();
-    }
+        private ItemReference _itemReference;
+        // Montada uma vez: a tecla nao muda durante o jogo e assim a dica nao aloca string
+        private string _pickUpHint;
 
-    public void Display()
-    {
-        UIDisplays.Instance.ShowKeyInfo($"Press {InputManager.Instance.InteractKeyLabel} to pick up the tool");
-    }
+        private void Awake()
+        {
+            _itemReference = GetComponent<ItemReference>();
+        }
 
-    public void Interact()
-    {
-        // So some do mundo se coube no inventario
-        if (InventoryManager.Instance.TryAddItem(itemReference.Item)) Destroy(gameObject);
+        private void Start()
+        {
+            _pickUpHint = $"Press {InputManager.Instance.InteractKeyLabel} to pick up the tool";
+        }
+
+        public void Display()
+        {
+            UIDisplays.Instance.ShowKeyInfo(_pickUpHint);
+        }
+
+        public void Interact()
+        {
+            // So some do mundo se coube no inventario
+            if (InventoryManager.Instance.TryAddItem(_itemReference.Item)) Destroy(gameObject);
+        }
     }
 }
