@@ -1,97 +1,107 @@
-using System.Collections;
-using System.Collections.Generic;
 using LumberJack.Wood;
 using TMPro;
 using UnityEngine;
 
-namespace Refiner 
+namespace LumberJack.Machines
 {
+    public enum RefineryDimension
+    {
+        Width,
+        Height
+    }
+
+    /// <summary>
+    /// Transforma madeira bruta em tabua. A largura e a altura da tabua sao ajustadas pelos botoes
+    /// da maquina; o comprimento sai do volume da madeira que entrou (menos a perda).
+    /// O estado fica aqui em passos inteiros: as telas so mostram o valor.
+    /// </summary>
     public class WoodRefinery : MonoBehaviour
     {
-        [Header("Properties")]
-        public float changeAmount = 0.2f;
-        public float maxAmount = 3f;
-        public float minAmount = 1f;
-        [SerializeField] private float loseAmount = 0.1f;
+        private const string WoodTag = "Wood";
+        private const string ValueFormat = "{0:1}";
 
-        [SerializeField] private Transform _instanciatePosition;
-        [SerializeField] private GameObject _rawWoodGO;
-        [SerializeField] public TextMeshPro screenTextX;
-        [SerializeField] public TextMeshPro screenTextY;
-        [SerializeField] public GameObject woodPreviewGO;
-        
-        private float _woodChangeAmountY = 0;
-        private float _woodChangeAmountZ = 0;
-        private Vector3 _size;
+        [Header("Ajuste do tamanho")]
+        [Tooltip("Quanto cada clique muda o valor mostrado")]
+        [SerializeField] private float _step = 0.2f;
+        [SerializeField] private float _minValue = 1f;
+        [SerializeField] private float _maxValue = 3f;
+        [Tooltip("Valor inicial das telas; deve bater com o tamanho do preview na cena")]
+        [SerializeField] private float _startValue = 3f;
+        [Tooltip("Fracao do comprimento perdida ao refinar (0.1 = 10%)")]
+        [SerializeField] private float _lossFraction = 0.1f;
 
-        private void Awake() 
+        [Header("Referencias")]
+        [SerializeField] private Transform _spawnPoint;
+        [SerializeField] private GameObject _boardPrefab;
+        [SerializeField] private TextMeshPro _widthText;
+        [SerializeField] private TextMeshPro _heightText;
+        [Tooltip("Tabua de exemplo na maquina; o tamanho dela vira o tamanho da tabua gerada")]
+        [SerializeField] private GameObject _boardPreview;
+
+        private Transform _previewTransform;
+        private Vector3 _previewStartSize;
+        private float _previewStep;
+        private int _stepCount;
+        private int _startSteps;
+        private int _widthSteps;
+        private int _heightSteps;
+
+        private void Awake()
         {
-            CalculateChangeAmount();
+            _stepCount = Mathf.RoundToInt((_maxValue - _minValue) / _step);
+            _startSteps = Mathf.RoundToInt((_startValue - _minValue) / _step);
+            _widthSteps = _startSteps;
+            _heightSteps = _startSteps;
+
+            _previewTransform = _boardPreview.transform;
+            _previewStartSize = _previewTransform.localScale;
+            _previewStep = _step / _stepCount;
+            UpdateDisplay();
         }
 
-        private void OnTriggerEnter(Collider other) 
+        private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.tag == "Wood") 
-            {
-                WoodPiece wood = other.gameObject.GetComponent<WoodPiece>();
-                if (wood == null) {
-                    return;
-                }
-                if (wood.IsRefined) {
-                    return;
-                }
-                RefineWood(wood.Definition, wood.Volume);
-                Destroy(other.gameObject);
-            }
+            if (!other.CompareTag(WoodTag)) return;
+            if (!other.TryGetComponent(out WoodPiece wood) || wood.IsRefined) return;
+
+            Refine(wood.Definition, wood.Volume);
+            Destroy(other.gameObject);
         }
 
-        private void RefineWood(WoodDefinition woodSO, float rawWoodVolume)
+        /// <summary>
+        /// Muda a largura ou a altura em um passo (direction = +1 aumenta, -1 diminui).
+        /// </summary>
+        public void Adjust(RefineryDimension dimension, int direction)
         {
-            GameObject newWood = Instantiate(_rawWoodGO, _instanciatePosition.position, Quaternion.identity) as GameObject;
-            WoodPiece wood = newWood.GetComponent<WoodPiece>();
-            wood.transform.localScale = RecalculateWoodSize(rawWoodVolume);
-            GenerateWoodMesh(wood.transform.localScale, newWood);
-            wood.Initialize(woodSO, true);
+            if (dimension == RefineryDimension.Width) _widthSteps = Mathf.Clamp(_widthSteps + direction, 0, _stepCount);
+            else _heightSteps = Mathf.Clamp(_heightSteps + direction, 0, _stepCount);
+            UpdateDisplay();
         }
 
-        private Vector3 RecalculateWoodSize(float volume)
+        private void UpdateDisplay()
         {
-            Vector3 previewSize = woodPreviewGO.transform.localScale;
-            Vector3 newSize = new Vector3();
-            float lenght = volume / (previewSize.y * previewSize.z);
-            lenght -= lenght * loseAmount;
-            
-            newSize.z = lenght;
-            newSize.x = previewSize.z;
-            newSize.y = previewSize.y;
-            return newSize;
+            _widthText.SetText(ValueFormat, _minValue + _widthSteps * _step);
+            _heightText.SetText(ValueFormat, _minValue + _heightSteps * _step);
+
+            Vector3 size = _previewStartSize;
+            size.z += (_widthSteps - _startSteps) * _previewStep;
+            size.y += (_heightSteps - _startSteps) * _previewStep;
+            _previewTransform.localScale = size;
         }
 
-        private void GenerateWoodMesh(Vector3 size, GameObject wood) 
+        private void Refine(WoodDefinition definition, float rawVolume)
         {
-            MeshFilter meshFilter = wood.GetComponent<MeshFilter>();
-
+            GameObject board = Instantiate(_boardPrefab, _spawnPoint.position, Quaternion.identity);
+            board.transform.localScale = GetBoardSize(rawVolume);
+            board.GetComponent<WoodPiece>().Initialize(definition, true);
         }
 
-        public void ChangeWoodSize(bool isLeft, bool isX) 
+        // A secao da tabua e a do preview; o comprimento conserva o volume (menos a perda)
+        private Vector3 GetBoardSize(float volume)
         {
-            if (isX) {
-                _size.z += isLeft ? -_woodChangeAmountZ : _woodChangeAmountZ;
-            } else {
-                _size.y += isLeft ? -_woodChangeAmountY : _woodChangeAmountY;
-            }
-            woodPreviewGO.transform.localScale = _size;
-        }
-
-        private void CalculateChangeAmount() 
-        {
-            int count = 0;
-            for (float i = minAmount; i < maxAmount; i+=changeAmount) {
-                count++;
-            }
-            _size = woodPreviewGO.transform.localScale;
-            _woodChangeAmountY = changeAmount / count;
-            _woodChangeAmountZ = changeAmount / count;
+            Vector3 preview = _previewTransform.localScale;
+            float length = volume / (preview.y * preview.z) * (1f - _lossFraction);
+            return new Vector3(preview.z, preview.y, length);
         }
     }
 }

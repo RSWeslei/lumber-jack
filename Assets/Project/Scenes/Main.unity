@@ -904,8 +904,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad4910dd1c44e2b41a18f3ddb1c833c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isLeft: 1
-  _isX: 1
+  _isDecrease: 1
+  _dimension: 0
 --- !u!95 &130061685
 Animator:
   serializedVersion: 5
@@ -1738,8 +1738,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad4910dd1c44e2b41a18f3ddb1c833c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isLeft: 1
-  _isX: 0
+  _isDecrease: 1
+  _dimension: 1
 --- !u!95 &390484687
 Animator:
   serializedVersion: 5
@@ -3167,16 +3167,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e60275bbd6c72a4fad58063e15c288f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  changeAmount: 0.2
-  maxAmount: 3
-  minAmount: 1
-  loseAmount: 0.1
-  _instanciatePosition: {fileID: 58631481}
-  _rawWoodGO: {fileID: 5231422374201941628, guid: 1b799db8f6dd64e4483bffbffcaf427b,
+  _step: 0.2
+  _maxValue: 3
+  _minValue: 1
+  _lossFraction: 0.1
+  _spawnPoint: {fileID: 58631481}
+  _boardPrefab: {fileID: 5231422374201941628, guid: 1b799db8f6dd64e4483bffbffcaf427b,
     type: 3}
-  screenTextX: {fileID: 891952317}
-  screenTextY: {fileID: 1615141107}
-  woodPreviewGO: {fileID: 1254487549}
+  _widthText: {fileID: 891952317}
+  _heightText: {fileID: 1615141107}
+  _boardPreview: {fileID: 1254487549}
 --- !u!1 &699741241
 GameObject:
   m_ObjectHideFlags: 0
@@ -5388,8 +5388,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad4910dd1c44e2b41a18f3ddb1c833c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isLeft: 0
-  _isX: 1
+  _isDecrease: 0
+  _dimension: 0
 --- !u!95 &1056998836
 Animator:
   serializedVersion: 5
@@ -8364,8 +8364,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad4910dd1c44e2b41a18f3ddb1c833c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isLeft: 0
-  _isX: 0
+  _isDecrease: 0
+  _dimension: 1
 --- !u!95 &1741954563
 Animator:
   serializedVersion: 5

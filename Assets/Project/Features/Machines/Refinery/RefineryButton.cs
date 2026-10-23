@@ -1,49 +1,38 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using TMPro;
 using LumberJack.Core;
+using UnityEngine;
 
-namespace Refiner 
+namespace LumberJack.Machines
 {
+    /// <summary>
+    /// Botao fisico da refinaria que aumenta ou diminui a largura ou a altura da tabua.
+    /// </summary>
     public class RefineryButton : InteractableButton, IDisplayable
     {
-        [SerializeField] private bool _isLeft = false;
-        [SerializeField] private bool _isX = false;
-        private WoodRefinery _refiner;
-        private TextMeshPro _screenText;
-        private string _text;
+        [SerializeField] private RefineryDimension _dimension;
+        [SerializeField] private bool _isDecrease;
 
-        private void Start() 
+        private WoodRefinery _refinery;
+        // Montada uma vez: a tecla nao muda durante o jogo e assim a dica nao aloca string
+        private string _hint;
+
+        private void Start()
         {
-            _refiner = GetComponentInParent<WoodRefinery>();
-            _screenText = _isX ? _refiner.screenTextX : _refiner.screenTextY;
-            _text = (_isX && _isLeft) ? $"Press {InputManager.Instance.InteractKeyLabel} to decrease width" 
-            : (_isX && !_isLeft) ? $"Press {InputManager.Instance.InteractKeyLabel} to increase width"
-            : (_isLeft) ? $"Press {InputManager.Instance.InteractKeyLabel} to decrease height"
-            : $"Press {InputManager.Instance.InteractKeyLabel} to increase height";
+            _refinery = GetComponentInParent<WoodRefinery>();
+
+            string action = _isDecrease ? "decrease" : "increase";
+            string dimension = _dimension == RefineryDimension.Width ? "width" : "height";
+            _hint = $"Press {InputManager.Instance.InteractKeyLabel} to {action} {dimension}";
         }
 
-        public void Display() 
+        public void Display()
         {
-            UIDisplays.Instance.ShowKeyInfo(_text);
-            // GetComponent<MeshRenderer>().material.color = Color.green;
+            UIDisplays.Instance.ShowKeyInfo(_hint);
         }
 
         public override void Interact()
         {
             base.Interact();
-            TweakPreview();
-        }
-
-        private void TweakPreview() {
-            float value = float.Parse(_screenText.text);
-            float newValue = _isLeft ? value - _refiner.changeAmount : value + _refiner.changeAmount;
-            if (newValue < _refiner.minAmount || newValue > _refiner.maxAmount) {
-                return;
-            }
-            _screenText.text = newValue.ToString();
-            _refiner.ChangeWoodSize(_isLeft, _isX);
+            _refinery.Adjust(_dimension, _isDecrease ? -1 : 1);
         }
     }
 }
