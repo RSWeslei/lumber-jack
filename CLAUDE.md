@@ -15,7 +15,7 @@
 
 ## Where code goes
 
-- All project code lives in `Assets/_Project/` (game assembly `LumberJack`). Editor-only code goes in `Assets/_Project/Editor/` (assembly `LumberJack.Editor`) or behind `#if UNITY_EDITOR`.
+- All project code lives in `Assets/Project/` (game assembly `LumberJack`). Editor-only code goes in `Assets/Project/Editor/` (assembly `LumberJack.Editor`) or behind `#if UNITY_EDITOR`.
 - Put new code in its feature folder under `Features/`. Add `Scripts/ Prefabs/ Art/ Data/` subfolders only once a feature passes ~8-10 files.
 - Put test/sandbox-only code in a `Sandbox/` subfolder of its feature. Test scenes go in `Scenes/Sandbox/`.
 - Namespace = `LumberJack.<Feature>` (Core code uses `LumberJack.Core`).

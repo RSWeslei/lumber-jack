@@ -21,7 +21,7 @@
 .woodPreview {
     width: 100px;
     height: 100px;
-    background-image: url('project://database/Assets/_Project/Shared/UI/MenuBackground.jpg?fileID=2800000&guid=26ccc8eff3911b94491a982e148f6bb0&type=3#MenuBackground');
+    background-image: url('project://database/Assets/Project/Shared/UI/MenuBackground.jpg?fileID=2800000&guid=26ccc8eff3911b94491a982e148f6bb0&type=3#MenuBackground');
     margin-left: 10px;
     align-items: stretch;
     justify-content: flex-start;

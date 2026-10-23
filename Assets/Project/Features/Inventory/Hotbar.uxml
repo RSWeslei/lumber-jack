@@ -1,5 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/_Project/Features/Inventory/Hotbar.uss?fileID=7433441132597879392&amp;guid=0b0d19d3902c3744e8c2ff99f5fc03e9&amp;type=3#Hotbar" />
+    <Style src="project://database/Assets/Project/Features/Inventory/Hotbar.uss?fileID=7433441132597879392&amp;guid=0b0d19d3902c3744e8c2ff99f5fc03e9&amp;type=3#Hotbar" />
     <ui:VisualElement name="hotbarContainer" style="height: 415px; justify-content: flex-end; transform-origin: center; flex-grow: 1;">
         <ui:VisualElement name="hotbar" class="slotParent" style="align-items: stretch; flex-wrap: nowrap; justify-content: center; flex-direction: row; margin-left: 20px; margin-right: 20px; margin-top: 20px; margin-bottom: 20px;">
             <Slot />

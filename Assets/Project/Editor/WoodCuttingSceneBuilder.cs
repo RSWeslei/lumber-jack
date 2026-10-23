@@ -10,10 +10,10 @@ using UnityEngine.SceneManagement;
 // Pode rodar de novo a qualquer momento para recriar tudo.
 public static class WoodCuttingSceneBuilder
 {
-    private const string WoodFolder = "Assets/_Project/Features/Wood";
+    private const string WoodFolder = "Assets/Project/Features/Wood";
     private const string ArtFolder = WoodFolder + "/Art";
     private const string SandboxArtFolder = ArtFolder + "/Sandbox";
-    private const string ScenePath = "Assets/_Project/Scenes/Sandbox/WoodCuttingTest.unity";
+    private const string ScenePath = "Assets/Project/Scenes/Sandbox/WoodCuttingTest.unity";
     private const string LogPrefabPath = WoodFolder + "/Prefabs/Log.prefab";
     private const string WoodTypePath = WoodFolder + "/Data/ElmWood.asset";
     private const string GroundMaterialPath = "Assets/ThirdParty/Gridbox Prototype Materials/Materials/URP/Prototype_512x512_Grey2.mat";
