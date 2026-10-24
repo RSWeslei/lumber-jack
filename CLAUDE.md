@@ -70,6 +70,16 @@ Target: **0 bytes of managed allocation per frame** during gameplay (Unity's GC 
 - Rider's Unity performance highlights ("Expensive method invocation", "Comparison to 'null' is expensive") are bugs to fix, not noise.
 - Measure before optimizing anything that isn't on this list: Profiler (CPU, GC Alloc column), in a build when the problem might be Editor overhead.
 
+## Scene hierarchy
+
+- The scene root holds only these groups, in this order: `Systems` (managers, EventSystem), `Lighting` (sun, Global Volume, probes), `Player` (player rig and cameras), `UI` (Canvas, UIDocuments), `Environment` (static scenery), `Gameplay` (interactive stations: shop, refinery, machines), `Vehicles`, `Props` (loose physics objects placed in the scene: logs, items, boxes). Add a group only when none fits, and add it to this list.
+- Groups are empty GameObjects at the origin with zero rotation, scale 1 and no components. Never move, rotate or scale a group.
+- No separator objects (`-----`) and no generic names (`GameObject`, `Cube (1)`, `Plane_01`). Name objects for what they are, in PascalCase. Prefab instances keep the prefab's name (Unity's ` (1)` suffix on copies is fine).
+- Each station or machine is one object under `Gameplay`, named after it (`Refinery`, `Cashier`); its parts are its children.
+- Mark everything under `Environment` that never moves as Static.
+- Keep moving objects shallow: no Rigidbody or per-frame-moved object more than two levels deep, and never under another moving object unless it is attached to it. Spawn runtime objects (cut pieces, effects) next to their source or at the root, never under `Systems` or `UI`.
+- Don't leave disabled or unused leftovers in a scene; ask the developer, then delete them. Test objects go in `Scenes/Sandbox/`, not in `Main`.
+
 ## Editing assets
 
 - Move or rename an asset together with its `.meta` (`git mv` both). Ask the developer to close Unity before large moves.
