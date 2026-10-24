@@ -15,6 +15,7 @@ MonoBehaviour:
   _displayName: Carvalho
   _wood: {fileID: 0}
   _barkMaterial: {fileID: 2100000, guid: 200697ce454616c49bd55014abb529e7, type: 2}
+  _cutFaceMaterial: {fileID: 2100000, guid: 3120af1b1cae48740bd349fcbf4dd344, type: 2}
   _trunk:
     _height:
       _min: 3

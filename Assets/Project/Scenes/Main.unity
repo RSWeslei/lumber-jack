@@ -5691,7 +5691,8 @@ GameObject:
   - component: {fileID: 1839316070}
   - component: {fileID: 1083006327}
   - component: {fileID: 1187149298}
-  m_Layer: 0
+  - component: {fileID: 1548697843}
+  m_Layer: 8
   m_Name: Pine 12
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6058,7 +6059,8 @@ GameObject:
   - component: {fileID: 1884381008}
   - component: {fileID: 1418630502}
   - component: {fileID: 1599922321}
-  m_Layer: 0
+  - component: {fileID: 1198090283}
+  m_Layer: 8
   m_Name: Oak 21
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7322,7 +7324,8 @@ GameObject:
   - component: {fileID: 1466545231}
   - component: {fileID: 1320225621}
   - component: {fileID: 1324229843}
-  m_Layer: 0
+  - component: {fileID: 1210507606}
+  m_Layer: 8
   m_Name: Pine 13
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7629,7 +7632,8 @@ GameObject:
   - component: {fileID: 1865686145}
   - component: {fileID: 1442031041}
   - component: {fileID: 1348676120}
-  m_Layer: 0
+  - component: {fileID: 1684806652}
+  m_Layer: 8
   m_Name: Pine 11
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8002,7 +8006,8 @@ GameObject:
   - component: {fileID: 1943374174}
   - component: {fileID: 1877186517}
   - component: {fileID: 1697128502}
-  m_Layer: 0
+  - component: {fileID: 1089789610}
+  m_Layer: 8
   m_Name: Oak 22
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8116,7 +8121,8 @@ GameObject:
   - component: {fileID: 1519591773}
   - component: {fileID: 1078875484}
   - component: {fileID: 1545117919}
-  m_Layer: 0
+  - component: {fileID: 1622298085}
+  m_Layer: 8
   m_Name: Birch 33
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8136,7 +8142,8 @@ GameObject:
   - component: {fileID: 1036136549}
   - component: {fileID: 1090501170}
   - component: {fileID: 1925064578}
-  m_Layer: 0
+  - component: {fileID: 1555917561}
+  m_Layer: 8
   m_Name: Oak 23
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9667,7 +9674,8 @@ GameObject:
   - component: {fileID: 1335948875}
   - component: {fileID: 1643464417}
   - component: {fileID: 1488564121}
-  m_Layer: 0
+  - component: {fileID: 1521359599}
+  m_Layer: 8
   m_Name: Birch 31
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10305,7 +10313,8 @@ GameObject:
   - component: {fileID: 1837072114}
   - component: {fileID: 1924492383}
   - component: {fileID: 1020466841}
-  m_Layer: 0
+  - component: {fileID: 1687313848}
+  m_Layer: 8
   m_Name: Birch 32
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12234,6 +12243,114 @@ WheelCollider:
   m_LayerOverridePriority: 0
   m_Enabled: 1
   m_ProvidesContacts: 0
+--- !u!114 &1684806652
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1461353600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0083ba2e28d4dad86d7ac396ad2bf4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: LumberJack::LumberJack.Trees.ChoppableTree
+--- !u!114 &1548697843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1087561387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0083ba2e28d4dad86d7ac396ad2bf4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: LumberJack::LumberJack.Trees.ChoppableTree
+--- !u!114 &1210507606
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1444763651}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0083ba2e28d4dad86d7ac396ad2bf4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: LumberJack::LumberJack.Trees.ChoppableTree
+--- !u!114 &1198090283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1233548243}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0083ba2e28d4dad86d7ac396ad2bf4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: LumberJack::LumberJack.Trees.ChoppableTree
+--- !u!114 &1089789610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1502406057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0083ba2e28d4dad86d7ac396ad2bf4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: LumberJack::LumberJack.Trees.ChoppableTree
+--- !u!114 &1555917561
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1554182665}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0083ba2e28d4dad86d7ac396ad2bf4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: LumberJack::LumberJack.Trees.ChoppableTree
+--- !u!114 &1521359599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1798672469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0083ba2e28d4dad86d7ac396ad2bf4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: LumberJack::LumberJack.Trees.ChoppableTree
+--- !u!114 &1687313848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1924154506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0083ba2e28d4dad86d7ac396ad2bf4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: LumberJack::LumberJack.Trees.ChoppableTree
+--- !u!114 &1622298085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1549065154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0083ba2e28d4dad86d7ac396ad2bf4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: LumberJack::LumberJack.Trees.ChoppableTree
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

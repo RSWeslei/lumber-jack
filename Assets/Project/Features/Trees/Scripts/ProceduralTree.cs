@@ -45,6 +45,9 @@ namespace LumberJack.Trees
         public TreeSpeciesDefinition Species => _species;
         public int Seed => _seed;
         public TreeSkeleton Skeleton => _skeleton;
+
+        /// <summary>Malha gerada (a árvore inteira, antes de qualquer corte).</summary>
+        public Mesh Mesh => _mesh;
         public bool IsGenerated { get; private set; }
         public int VertexCount { get; private set; }
         public int TriangleCount { get; private set; }

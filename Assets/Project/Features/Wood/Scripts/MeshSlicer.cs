@@ -19,19 +19,23 @@ namespace LumberJack.Wood
             public readonly List<Vector3> Vertices = new List<Vector3>();
             public readonly List<Vector3> Normals = new List<Vector3>();
             public readonly List<Vector2> UVs = new List<Vector2>();
+            public readonly List<Vector2> UV2s = new List<Vector2>();
             public readonly List<int>[] Submeshes;
+            private readonly bool _hasUV2;
 
-            public MeshBuilder(int submeshCount)
+            public MeshBuilder(int submeshCount, bool hasUV2)
             {
+                _hasUV2 = hasUV2;
                 Submeshes = new List<int>[submeshCount];
                 for (int i = 0; i < submeshCount; i++) Submeshes[i] = new List<int>();
             }
 
-            public int AddVertex(Vector3 position, Vector3 normal, Vector2 uv)
+            public int AddVertex(Vector3 position, Vector3 normal, Vector2 uv, Vector2 uv2)
             {
                 Vertices.Add(position);
                 Normals.Add(normal);
                 UVs.Add(uv);
+                UV2s.Add(uv2);
                 return Vertices.Count - 1;
             }
 
@@ -49,6 +53,7 @@ namespace LumberJack.Wood
                 mesh.SetVertices(Vertices);
                 mesh.SetNormals(Normals);
                 mesh.SetUVs(0, UVs);
+                if (_hasUV2) mesh.SetUVs(1, UV2s);
                 mesh.subMeshCount = Submeshes.Length;
                 for (int i = 0; i < Submeshes.Length; i++) mesh.SetTriangles(Submeshes[i], i);
                 mesh.RecalculateBounds();
@@ -62,6 +67,7 @@ namespace LumberJack.Wood
             public Vector3 Position;
             public Vector3 Normal;
             public Vector2 UV;
+            public Vector2 UV2;
 
             public static Vertex Lerp(Vertex a, Vertex b, float t)
             {
@@ -69,7 +75,8 @@ namespace LumberJack.Wood
                 {
                     Position = Vector3.Lerp(a.Position, b.Position, t),
                     Normal = Vector3.Lerp(a.Normal, b.Normal, t).normalized,
-                    UV = Vector2.Lerp(a.UV, b.UV, t)
+                    UV = Vector2.Lerp(a.UV, b.UV, t),
+                    UV2 = Vector2.Lerp(a.UV2, b.UV2, t)
                 };
             }
         }
@@ -82,18 +89,31 @@ namespace LumberJack.Wood
         public static bool Slice(Mesh mesh, Plane plane, int capSubmesh, Func<Vector3, Vector2> capUV,
             out Mesh positive, out Mesh negative)
         {
+            return Slice(mesh, plane, capSubmesh, capUV, null, Vector2.zero, out positive, out negative);
+        }
+
+        /// <summary>
+        /// Igual ao outro, mas <paramref name="forcedSide"/> (índice do 1º vértice do triângulo) pode mandar o
+        /// triângulo inteiro para um lado: &gt; 0 positivo, &lt; 0 negativo, 0 = o plano decide. O segundo canal
+        /// de UV é preservado; a tampa recebe <paramref name="capUV2"/>.
+        /// </summary>
+        public static bool Slice(Mesh mesh, Plane plane, int capSubmesh, Func<Vector3, Vector2> capUV,
+            Func<int, int> forcedSide, Vector2 capUV2, out Mesh positive, out Mesh negative)
+        {
             positive = null;
             negative = null;
 
             Vector3[] vertices = mesh.vertices;
             Vector3[] normals = mesh.normals;
             Vector2[] uvs = mesh.uv;
+            Vector2[] uv2s = mesh.uv2;
             bool hasNormals = normals.Length == vertices.Length;
             bool hasUVs = uvs.Length == vertices.Length;
+            bool hasUV2s = uv2s.Length == vertices.Length;
 
             int submeshCount = Mathf.Max(mesh.subMeshCount, capSubmesh + 1);
-            MeshBuilder positiveBuilder = new MeshBuilder(submeshCount);
-            MeshBuilder negativeBuilder = new MeshBuilder(submeshCount);
+            MeshBuilder positiveBuilder = new MeshBuilder(submeshCount, hasUV2s);
+            MeshBuilder negativeBuilder = new MeshBuilder(submeshCount, hasUV2s);
             List<Vector3> cutPoints = new List<Vector3>();
 
             float[] distances = new float[vertices.Length];
@@ -103,7 +123,8 @@ namespace LumberJack.Wood
             {
                 Position = vertices[index],
                 Normal = hasNormals ? normals[index] : Vector3.up,
-                UV = hasUVs ? uvs[index] : Vector2.zero
+                UV = hasUVs ? uvs[index] : Vector2.zero,
+                UV2 = hasUV2s ? uv2s[index] : Vector2.zero
             };
 
             for (int submesh = 0; submesh < mesh.subMeshCount; submesh++)
@@ -118,6 +139,9 @@ namespace LumberJack.Wood
                         distances[tri[1]] >= 0f,
                         distances[tri[2]] >= 0f
                     };
+
+                    int forced = forcedSide == null ? 0 : forcedSide(tri[0]);
+                    if (forced != 0) side[0] = side[1] = side[2] = forced > 0;
 
                     if (side[0] == side[1] && side[1] == side[2])
                     {
@@ -158,8 +182,8 @@ namespace LumberJack.Wood
             if (outline.Count < 3) return false;
 
             // A tampa do lado positivo olha para o lado negativo e vice-versa
-            AddCap(positiveBuilder, capSubmesh, outline, center, -plane.normal, capUV);
-            AddCap(negativeBuilder, capSubmesh, outline, center, plane.normal, capUV);
+            AddCap(positiveBuilder, capSubmesh, outline, center, -plane.normal, capUV, capUV2);
+            AddCap(negativeBuilder, capSubmesh, outline, center, plane.normal, capUV, capUV2);
 
             positive = positiveBuilder.ToMesh(mesh.name);
             negative = negativeBuilder.ToMesh(mesh.name);
@@ -214,17 +238,17 @@ namespace LumberJack.Wood
         private static void AddTriangle(MeshBuilder builder, int submesh, Vertex a, Vertex b, Vertex c)
         {
             builder.AddTriangle(submesh,
-                builder.AddVertex(a.Position, a.Normal, a.UV),
-                builder.AddVertex(b.Position, b.Normal, b.UV),
-                builder.AddVertex(c.Position, c.Normal, c.UV));
+                builder.AddVertex(a.Position, a.Normal, a.UV, a.UV2),
+                builder.AddVertex(b.Position, b.Normal, b.UV, b.UV2),
+                builder.AddVertex(c.Position, c.Normal, c.UV, c.UV2));
         }
 
         private static void AddCap(MeshBuilder builder, int submesh, List<Vector3> outline, Vector3 center,
-            Vector3 normal, Func<Vector3, Vector2> capUV)
+            Vector3 normal, Func<Vector3, Vector2> capUV, Vector2 capUV2)
         {
-            int centerIndex = builder.AddVertex(center, normal, capUV(center));
+            int centerIndex = builder.AddVertex(center, normal, capUV(center), capUV2);
             int first = builder.Vertices.Count;
-            foreach (Vector3 point in outline) builder.AddVertex(point, normal, capUV(point));
+            foreach (Vector3 point in outline) builder.AddVertex(point, normal, capUV(point), capUV2);
 
             for (int i = 0; i < outline.Count; i++)
             {

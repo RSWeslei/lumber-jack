@@ -15,6 +15,7 @@ MonoBehaviour:
   _displayName: Bétula
   _wood: {fileID: 0}
   _barkMaterial: {fileID: 2100000, guid: 84ca16681417c33499caaa033abc17a9, type: 2}
+  _cutFaceMaterial: {fileID: 2100000, guid: 3120af1b1cae48740bd349fcbf4dd344, type: 2}
   _trunk:
     _height:
       _min: 9

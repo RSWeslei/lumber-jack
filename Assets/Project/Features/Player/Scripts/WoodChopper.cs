@@ -9,8 +9,7 @@ using UnityEngine.InputSystem;
 namespace LumberJack.Player
 {
     /// <summary>
-    /// Corta madeira com o machado equipado na hotbar: mira na madeira, mostra a linha do corte
-    /// e corta no ataque.
+    /// Machado equipado na hotbar: corta toras (com a linha do corte) e golpeia árvores em pé.
     /// </summary>
     public class WoodChopper : MonoBehaviour
     {
@@ -45,10 +44,10 @@ namespace LumberJack.Player
 
         // Cache do último collider mirado: evita GetComponent a cada frame no mesmo tronco
         private Collider _lastCollider;
-        private CuttableWood _lastColliderWood;
-        private bool _lastColliderIsWood;
+        private IAxeTarget _lastColliderTarget;
+        private bool _lastColliderIsTarget;
 
-        private CuttableWood _target;
+        private IAxeTarget _target;
         private bool _hasTarget;
         private Plane _targetPlane;
         private bool _isTargetValid;
@@ -99,7 +98,7 @@ namespace LumberJack.Player
             UpdateTilt();
             UpdateTarget();
 
-            if (_hasTarget) _preview.Show(_target, _targetPlane, _isTargetValid);
+            if (_hasTarget) _preview.Show(_target, _targetPlane, _isTargetValid, _target.CutProgress);
             else _preview.Hide();
         }
 
@@ -119,14 +118,25 @@ namespace LumberJack.Player
             if (!ReferenceEquals(hitCollider, _lastCollider))
             {
                 _lastCollider = hitCollider;
-                _lastColliderIsWood = hitCollider.TryGetComponent(out _lastColliderWood);
+                _lastColliderIsTarget = TryGetAxeTarget(hitCollider, out _lastColliderTarget);
             }
-            if (!_lastColliderIsWood) return;
+            if (!_lastColliderIsTarget) return;
 
-            _target = _lastColliderWood;
+            _target = _lastColliderTarget;
             _hasTarget = true;
             _targetPlane = _target.GetCutPlane(hit.point, _camera.forward, _camera.up, _tilt);
             _isTargetValid = _target.CanCut(_targetPlane);
+        }
+
+        // O alvo pode estar no próprio collider (tora, árvore em pé) ou no corpo dele: pedaços de árvore
+        // colidem com cápsulas filhas e o alvo fica no objeto do Rigidbody
+        private static bool TryGetAxeTarget(Collider hitCollider, out IAxeTarget target)
+        {
+            if (hitCollider.TryGetComponent(out target)) return true;
+
+            Rigidbody body = hitCollider.attachedRigidbody;
+            // attachedRigidbody devolve null de verdade quando não há corpo: ReferenceEquals basta
+            return !ReferenceEquals(body, null) && body.TryGetComponent(out target);
         }
 
         private async void HandleAttackPressed()
@@ -134,10 +144,11 @@ namespace LumberJack.Player
             if (!HasAxe || _isSwinging) return;
 
             // Golpe no ar também anima, só não corta nada
-            CuttableWood target = _hasTarget && _isTargetValid ? _target : null;
+            IAxeTarget target = _hasTarget && _isTargetValid ? _target : null;
+            float damage = ((ToolDefinition)_hand.EquippedItem).ChopDamage;
             try
             {
-                await SwingAsync(target, _targetPlane, destroyCancellationToken);
+                await SwingAsync(target, _targetPlane, damage, destroyCancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -145,7 +156,7 @@ namespace LumberJack.Player
             }
         }
 
-        private async Awaitable SwingAsync(CuttableWood wood, Plane localPlane, CancellationToken token)
+        private async Awaitable SwingAsync(IAxeTarget target, Plane localPlane, float damage, CancellationToken token)
         {
             _isSwinging = true;
             Quaternion rest = _handTransform.localRotation;
@@ -157,8 +168,11 @@ namespace LumberJack.Player
             await RotateHandAsync(rest, axis, _windUpAngle, WindUpDuration, token);
             await RotateHandAsync(rest, axis, _strikeAngle, StrikeDuration, token);
 
-            // O pedaço pode ter sido cortado/destruído enquanto o machado descia
-            if (wood != null) wood.TryCut(localPlane);
+            // O alvo pode ter sido cortado/destruído enquanto o machado descia
+            if (target is UnityEngine.Object targetObject && targetObject != null && target.CanCut(localPlane))
+            {
+                target.Strike(localPlane, _camera.forward, damage);
+            }
 
             await RotateHandAsync(rest, axis, 0f, RecoverDuration, token);
             _handTransform.localRotation = rest;

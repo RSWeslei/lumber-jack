@@ -1,3 +1,4 @@
+using LumberJack.Core;
 using UnityEngine;
 
 namespace LumberJack.Wood
@@ -8,7 +9,7 @@ namespace LumberJack.Wood
     /// por isso os anéis da madeira ficam no lugar certo em todos os cortes.
     /// </summary>
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
-    public class CuttableWood : MonoBehaviour
+    public class CuttableWood : MonoBehaviour, IAxeTarget
     {
         private const float MinPieceMass = 0.5f;
         // Abaixo disso a direção de visão é paralela ao tronco e não serve como eixo de inclinação
@@ -34,6 +35,10 @@ namespace LumberJack.Wood
         private int[] _triangles;
 
         public Mesh Mesh => _meshFilter.sharedMesh;
+        public Transform Transform => transform;
+
+        /// <summary>Tora corta num golpe só: não tem progresso.</summary>
+        public float CutProgress => 0f;
         public Vector3[] Vertices => _vertices ??= Mesh.vertices;
         public int[] Triangles => _triangles ??= Mesh.triangles;
 
@@ -84,6 +89,12 @@ namespace LumberJack.Wood
             }
             float scale = transform.lossyScale.x;
             return -min * scale >= _minThickness && max * scale >= _minThickness;
+        }
+
+        /// <summary>Tora corta inteira no primeiro golpe.</summary>
+        public void Strike(Plane localPlane, Vector3 swingDirection, float damage)
+        {
+            TryCut(localPlane);
         }
 
         public bool TryCut(Plane localPlane)

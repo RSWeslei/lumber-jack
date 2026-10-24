@@ -51,6 +51,36 @@ namespace LumberJack.Trees
             Height = Mathf.Max(Height, node.Position.y);
         }
 
+        /// <summary>Ponto do eixo do galho mais perto de <paramref name="point"/>, com direção, raio e distância (m) da base.</summary>
+        public void ClosestPoint(int branchIndex, Vector3 point, out Vector3 position, out Vector3 direction, out float radius,
+            out float distance)
+        {
+            TreeBranch branch = _branches[branchIndex];
+            float bestSqrDistance = float.MaxValue;
+            position = Vector3.zero;
+            direction = Vector3.up;
+            radius = 0f;
+            distance = 0f;
+
+            for (int n = branch.FirstNode; n < branch.LastNode; n++)
+            {
+                TreeNode from = _nodes[n];
+                TreeNode to = _nodes[n + 1];
+                Vector3 segment = to.Position - from.Position;
+                float lengthSquared = segment.sqrMagnitude;
+                float t = lengthSquared > 0f ? Mathf.Clamp01(Vector3.Dot(point - from.Position, segment) / lengthSquared) : 0f;
+                Vector3 candidate = from.Position + segment * t;
+                float sqrDistance = (point - candidate).sqrMagnitude;
+                if (sqrDistance >= bestSqrDistance) continue;
+
+                bestSqrDistance = sqrDistance;
+                position = candidate;
+                direction = Vector3.Slerp(from.Direction, to.Direction, t);
+                radius = Mathf.Lerp(from.Radius, to.Radius, t);
+                distance = Mathf.Lerp(from.Distance, to.Distance, t);
+            }
+        }
+
         /// <summary>Interpola posição, direção e raio em um ponto do galho (0 = base, 1 = ponta).</summary>
         public void Sample(int branchIndex, float t, out Vector3 position, out Vector3 direction, out float radius)
         {

@@ -3,7 +3,7 @@
 namespace LumberJack.Player
 {
     /// <summary>
-    /// Empurra rigidbodies quando o CharacterController esbarra neles.
+    /// Empurra rigidbodies leves quando o CharacterController esbarra neles.
     /// </summary>
     public class BasicRigidBodyPush : MonoBehaviour
     {
@@ -14,6 +14,9 @@ namespace LumberJack.Player
         [SerializeField] private bool _canPush;
         [Range(0.5f, 5f)]
         [SerializeField] private float _strength = 1.1f;
+        [Tooltip("Objetos mais pesados que isto (kg) não se movem com o corpo")]
+        [Min(0f)]
+        [SerializeField] private float _maxPushMass = 80f;
 
         private void OnControllerColliderHit(ControllerColliderHit hit)
         {
@@ -23,7 +26,7 @@ namespace LumberJack.Player
         private void PushRigidBody(ControllerColliderHit hit)
         {
             Rigidbody body = hit.collider.attachedRigidbody;
-            if (body == null || body.isKinematic) return;
+            if (body == null || body.isKinematic || body.mass > _maxPushMass) return;
 
             int bodyLayerMask = 1 << body.gameObject.layer;
             if ((bodyLayerMask & _pushLayers.value) == 0) return;

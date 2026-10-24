@@ -11,6 +11,9 @@ namespace LumberJack.Trees
     /// </summary>
     public sealed class TreeMeshBuilder
     {
+        /// <summary>Canal de UV com o índice do galho de cada vértice (x), usado para cortar galho a galho.</summary>
+        public const int BranchChannel = 1;
+
         private const int MaxUInt16Vertices = 65535;
         // Altura da ponta cônica de cada galho, em raios
         private const float TipLengthInRadii = 0.6f;
@@ -22,8 +25,11 @@ namespace LumberJack.Trees
         private readonly List<Vector3> _normals = new List<Vector3>();
         private readonly List<Vector2> _uvs = new List<Vector2>();
         private readonly List<int> _triangles = new List<int>();
+        private readonly List<Vector2> _branchIds = new List<Vector2>();
         // Pontos dos anéis do galho sendo construído (NodeCount x lados)
         private readonly List<Vector3> _ringPoints = new List<Vector3>();
+
+        private Vector2 _currentBranchId;
 
         public int VertexCount => _vertices.Count;
         public int TriangleCount => _triangles.Count / 3;
@@ -34,10 +40,12 @@ namespace LumberJack.Trees
             _normals.Clear();
             _uvs.Clear();
             _triangles.Clear();
+            _branchIds.Clear();
 
             var random = new SeededRandom(SeededRandom.Combine(unchecked((uint)seed), MeshSeedSalt));
             for (int i = 0; i < skeleton.BranchCount; i++)
             {
+                _currentBranchId = new Vector2(i, 0f);
                 AddBranch(skeleton, skeleton.GetBranch(i), settings, ref random);
             }
 
@@ -165,6 +173,9 @@ namespace LumberJack.Trees
             _uvs.Add(uvA);
             _uvs.Add(uvB);
             _uvs.Add(uvC);
+            _branchIds.Add(_currentBranchId);
+            _branchIds.Add(_currentBranchId);
+            _branchIds.Add(_currentBranchId);
             _triangles.Add(index);
             _triangles.Add(index + 1);
             _triangles.Add(index + 2);
@@ -178,6 +189,7 @@ namespace LumberJack.Trees
             mesh.SetVertices(_vertices);
             mesh.SetNormals(_normals);
             mesh.SetUVs(0, _uvs);
+            mesh.SetUVs(BranchChannel, _branchIds);
             mesh.SetTriangles(_triangles, 0);
             mesh.RecalculateBounds();
         }

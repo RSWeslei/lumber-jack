@@ -11,7 +11,11 @@ namespace LumberJack.Tools
     {
         [Tooltip("A ferramenta corta madeira (machados)")]
         [SerializeField] private bool _canCutWood;
+        [Tooltip("Dano por golpe em árvores em pé")]
+        [Min(0f)]
+        [SerializeField] private float _chopDamage = 1f;
 
         public bool CanCutWood => _canCutWood;
+        public float ChopDamage => _chopDamage;
     }
 }

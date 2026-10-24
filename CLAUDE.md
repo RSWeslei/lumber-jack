@@ -37,6 +37,7 @@
 - Split definition (ScriptableObject), state (plain serializable C# class) and view (thin MonoBehaviour). Put pure logic in plain C# so it can be tested.
 - Input: subscribe to `InputManager` events for one-shot actions; poll `MoveInput`/`LookInput`/`PlayerInputs.<Map>.<Action>` for continuous values. Show keys with `InteractKeyLabel` etc., never hardcoded.
 - Anything the player targets (interact, cut, grab, future tools) goes through `PlayerAim.TryFindTarget(layerMask, out hit)`; never cast separate rays from the camera. The thing that shows the hint must be the thing the action uses.
+  - Anything the axe cuts (logs, standing trees) implements `IAxeTarget`; the axe and the cut preview only talk to that interface.
 - Layers: the player is on `Player`, wood (logs, pieces, boards) on `Wood`, usable objects on `Interactable`. Get masks with `LayerMask.GetMask("Name")` in `Awake`.
 - Keep gameplay actions as small deterministic commands with stable object IDs (multiplayer is planned).
 

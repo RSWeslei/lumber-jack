@@ -18,6 +18,7 @@ namespace LumberJack.Editor
 
         private const string DataFolder = "Assets/Project/Features/Trees/Data";
         private const string ArtFolder = "Assets/Project/Features/Trees/Art";
+        private const string CutFaceMaterialPath = "Assets/Project/Features/Wood/Art/WoodRings.mat";
         private const string LitShader = "Universal Render Pipeline/Lit";
         private const float BarkSmoothness = 0.05f;
 
@@ -131,6 +132,7 @@ namespace LumberJack.Editor
                 _serialized = new SerializedObject(_species);
                 _serialized.FindProperty("_displayName").stringValue = displayName;
                 _serialized.FindProperty("_barkMaterial").objectReferenceValue = bark;
+                _serialized.FindProperty("_cutFaceMaterial").objectReferenceValue = AssetDatabase.LoadAssetAtPath<Material>(CutFaceMaterialPath);
                 _serialized.FindProperty("_branchLevels").arraySize = 0;
             }
 

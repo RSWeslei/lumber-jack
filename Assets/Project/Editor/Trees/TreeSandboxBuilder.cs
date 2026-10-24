@@ -19,6 +19,7 @@ namespace LumberJack.Editor
         private const string GroundMaterialPath = SandboxArtFolder + "/SandboxGround.mat";
         private const string SkyMaterialPath = "Assets/ThirdParty/Low Poly Sky/Polyverse Skies/Core/Presets/Sky 03.mat";
         private const string LitShader = "Universal Render Pipeline/Lit";
+        private const string WoodLayerName = "Wood";
 
         private const int TreesPerSpecies = 5;
         private const float TreeSpacing = 7f;
@@ -87,10 +88,12 @@ namespace LumberJack.Editor
 
         private static void CreateTree(TreeSpeciesDefinition species, int seed, Vector3 position, Transform parent)
         {
-            var treeObject = new GameObject(species.name + " " + seed);
+            // Camada Wood: o machado mira nela
+            var treeObject = new GameObject(species.name + " " + seed) { layer = LayerMask.NameToLayer(WoodLayerName) };
             treeObject.transform.SetParent(parent, false);
             treeObject.transform.localPosition = position;
             treeObject.AddComponent<ProceduralTree>().Configure(species, seed);
+            treeObject.AddComponent<ChoppableTree>();
         }
 
         private static Transform CreateGroup(string name)
