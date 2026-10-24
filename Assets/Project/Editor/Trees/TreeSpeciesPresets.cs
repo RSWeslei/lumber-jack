@@ -44,7 +44,8 @@ namespace LumberJack.Editor
             species.BranchLevel(new WhorlBranchLayout(new IntRange(4, 5), 0.9f, new FloatRange(0.25f, 0.97f), 0.3f),
                 lengthRatio: new FloatRange(0.16f, 0.22f), lengthOverParent: AnimationCurve.Linear(0f, 1f, 1f, 0.15f),
                 radiusRatio: new FloatRange(0.22f, 0.3f), radiusOverLength: AnimationCurve.Linear(0f, 1f, 1f, 0.15f),
-                angle: new FloatRange(80f, 100f), gravity: -0.12f, curvature: 6f);
+                angle: new FloatRange(80f, 100f), gravity: -0.12f, curvature: 6f,
+                jointSmoothing: 0.25f, collar: 0.35f);
             species.Save();
         }
 
@@ -58,15 +59,18 @@ namespace LumberJack.Editor
             species.BranchLevel(new ForkBranchLayout(new IntRange(2, 3), 0.35f),
                 lengthRatio: new FloatRange(1f, 1.4f), lengthOverParent: AnimationCurve.Constant(0f, 1f, 1f),
                 radiusRatio: new FloatRange(0.6f, 0.75f), radiusOverLength: AnimationCurve.Linear(0f, 1f, 1f, 0.35f),
-                angle: new FloatRange(25f, 45f), gravity: 0.05f, curvature: 12f);
+                angle: new FloatRange(25f, 45f), gravity: 0.05f, curvature: 12f,
+                jointSmoothing: 0.85f, collar: 0.4f);
             species.BranchLevel(new SpiralBranchLayout(new IntRange(3, 5), new FloatRange(0.35f, 0.95f), 0.4f),
                 lengthRatio: new FloatRange(0.45f, 0.7f), lengthOverParent: AnimationCurve.Linear(0f, 1f, 1f, 0.6f),
                 radiusRatio: new FloatRange(0.45f, 0.6f), radiusOverLength: AnimationCurve.Linear(0f, 1f, 1f, 0.2f),
-                angle: new FloatRange(35f, 60f), gravity: -0.05f, curvature: 14f);
+                angle: new FloatRange(35f, 60f), gravity: -0.05f, curvature: 14f,
+                jointSmoothing: 0.4f, collar: 0.3f);
             species.BranchLevel(new SpiralBranchLayout(new IntRange(2, 3), new FloatRange(0.4f, 0.9f), 0.5f),
                 lengthRatio: new FloatRange(0.35f, 0.5f), lengthOverParent: AnimationCurve.Constant(0f, 1f, 1f),
                 radiusRatio: new FloatRange(0.45f, 0.55f), radiusOverLength: AnimationCurve.Linear(0f, 1f, 1f, 0.2f),
-                angle: new FloatRange(30f, 55f), gravity: 0.05f, curvature: 15f);
+                angle: new FloatRange(30f, 55f), gravity: 0.05f, curvature: 15f,
+                jointSmoothing: 0.3f, collar: 0.25f);
             species.Save();
         }
 
@@ -80,11 +84,13 @@ namespace LumberJack.Editor
             species.BranchLevel(new SpiralBranchLayout(new IntRange(5, 8), new FloatRange(0.45f, 0.95f), 0.3f),
                 lengthRatio: new FloatRange(0.2f, 0.32f), lengthOverParent: AnimationCurve.Linear(0f, 1f, 1f, 0.4f),
                 radiusRatio: new FloatRange(0.3f, 0.45f), radiusOverLength: AnimationCurve.Linear(0f, 1f, 1f, 0.2f),
-                angle: new FloatRange(30f, 50f), gravity: 0.12f, curvature: 10f);
+                angle: new FloatRange(30f, 50f), gravity: 0.12f, curvature: 10f,
+                jointSmoothing: 0.35f, collar: 0.25f);
             species.BranchLevel(new SpiralBranchLayout(new IntRange(1, 3), new FloatRange(0.4f, 0.9f), 0.4f),
                 lengthRatio: new FloatRange(0.35f, 0.5f), lengthOverParent: AnimationCurve.Constant(0f, 1f, 1f),
                 radiusRatio: new FloatRange(0.5f, 0.6f), radiusOverLength: AnimationCurve.Linear(0f, 1f, 1f, 0.2f),
-                angle: new FloatRange(30f, 50f), gravity: 0.1f, curvature: 12f);
+                angle: new FloatRange(30f, 50f), gravity: 0.1f, curvature: 12f,
+                jointSmoothing: 0.3f, collar: 0.2f);
             species.Save();
         }
 
@@ -154,7 +160,8 @@ namespace LumberJack.Editor
 
             // Elementos novos de lista vêm zerados (sem os valores padrão da classe): preenche todos os campos
             public void BranchLevel(IBranchLayout layout, FloatRange lengthRatio, AnimationCurve lengthOverParent,
-                FloatRange radiusRatio, AnimationCurve radiusOverLength, FloatRange angle, float gravity, float curvature)
+                FloatRange radiusRatio, AnimationCurve radiusOverLength, FloatRange angle, float gravity, float curvature,
+                float jointSmoothing, float collar)
             {
                 SerializedProperty levels = _serialized.FindProperty("_branchLevels");
                 levels.arraySize++;
@@ -167,6 +174,8 @@ namespace LumberJack.Editor
                 SetRange(level.FindPropertyRelative("_angle"), angle);
                 level.FindPropertyRelative("_gravity").floatValue = gravity;
                 level.FindPropertyRelative("_curvature").floatValue = curvature;
+                level.FindPropertyRelative("_jointSmoothing").floatValue = jointSmoothing;
+                level.FindPropertyRelative("_collar").floatValue = collar;
             }
 
             public void Save()

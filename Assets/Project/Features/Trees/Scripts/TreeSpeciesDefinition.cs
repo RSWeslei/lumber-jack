@@ -18,8 +18,7 @@ namespace LumberJack.Trees
         [SerializeField] private Material _barkMaterial;
 
         [SerializeField] private TrunkSettings _trunk = new TrunkSettings();
-        [Tooltip("Primeiro item: galhos que nascem no tronco; cada item seguinte nasce nos galhos do anterior. " +
-                 "Lista vazia = só o tronco")]
+        [Tooltip("Cada nível nasce nos galhos do anterior; vazia = só o tronco")]
         [SerializeField] private List<BranchLevelSettings> _branchLevels = new List<BranchLevelSettings>();
         [SerializeField] private TreeMeshSettings _mesh = new TreeMeshSettings();
 

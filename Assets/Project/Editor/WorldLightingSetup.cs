@@ -1,3 +1,4 @@
+using System.Linq;
 using PolyverseSkiesAsset;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -64,11 +65,7 @@ namespace LumberJack.Editor
         {
             if (RenderSettings.sun != null) return RenderSettings.sun;
 
-            foreach (Light light in Object.FindObjectsByType<Light>(FindObjectsSortMode.None))
-            {
-                if (light.type == LightType.Directional) return light;
-            }
-            return null;
+            return Object.FindObjectsByType<Light>().FirstOrDefault(light => light.type == LightType.Directional);
         }
 
         private static void ApplyAmbientAndFog(Light sun)

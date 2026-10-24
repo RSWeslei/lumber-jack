@@ -113,6 +113,8 @@ MonoBehaviour:
       _max: 45
     _gravity: 0.05
     _curvature: 12
+    _jointSmoothing: 0.85
+    _collar: 0.4
   - _layout:
       rid: 3122415671311073352
     _lengthRatio:
@@ -174,6 +176,8 @@ MonoBehaviour:
       _max: 60
     _gravity: -0.05
     _curvature: 14
+    _jointSmoothing: 0.4
+    _collar: 0.3
   - _layout:
       rid: 3122415671311073353
     _lengthRatio:
@@ -235,6 +239,8 @@ MonoBehaviour:
       _max: 55
     _gravity: 0.05
     _curvature: 15
+    _jointSmoothing: 0.3
+    _collar: 0.25
   _mesh:
     _trunkSides: 8
     _branchSides: 5

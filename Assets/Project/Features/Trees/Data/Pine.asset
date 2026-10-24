@@ -113,6 +113,8 @@ MonoBehaviour:
       _max: 100
     _gravity: -0.12
     _curvature: 6
+    _jointSmoothing: 0.25
+    _collar: 0.35
   _mesh:
     _trunkSides: 7
     _branchSides: 4

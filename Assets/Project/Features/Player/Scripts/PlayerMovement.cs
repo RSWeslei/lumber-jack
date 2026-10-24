@@ -4,9 +4,8 @@ using UnityEngine;
 
 namespace LumberJack.Player
 {
-    // Movimento em primeira pessoa com CharacterController.
-    // Aceleração por vetor (troca de direção responsiva), controle no ar, coyote time,
-    // jump buffer, pulo variável (soltar o botão corta o pulo) e queda mais pesada que a subida.
+    // Movimento em primeira pessoa com CharacterController: aceleração, coyote time,
+    // jump buffer e pulo variável (soltar o botão corta o pulo).
     [RequireComponent(typeof(CharacterController))]
     public class PlayerMovement : MonoBehaviour
     {

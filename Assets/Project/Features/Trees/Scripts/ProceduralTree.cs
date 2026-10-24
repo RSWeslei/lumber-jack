@@ -111,7 +111,8 @@ namespace LumberJack.Trees
             TriangleCount = SharedMeshBuilder.TriangleCount;
 
             _meshRenderer.sharedMaterial = _species.BarkMaterial;
-            // Reatribuir faz o PhysX recalcular o colisor com a malha nova
+            // Malha gerada não tem colisão pré-calculada: calcula aqui (e reatribui para o PhysX usar a nova)
+            Physics.BakeMesh(_mesh.GetEntityId(), false, _meshCollider.cookingOptions);
             _meshCollider.sharedMesh = null;
             _meshCollider.sharedMesh = _mesh;
 

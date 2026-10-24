@@ -23,8 +23,7 @@ namespace LumberJack.Trees
         [Tooltip("Comprimento em relação ao pai")]
         [RangeLimits(MinLengthRatio, MaxLengthRatio)]
         [SerializeField] private FloatRange _lengthRatio = new FloatRange(0.3f, 0.5f);
-        [Tooltip("Multiplica o comprimento conforme onde o galho nasce no pai (0 = base, 1 = ponta). " +
-                 "Ex.: pinheiro tem galhos longos embaixo e curtos no topo")]
+        [Tooltip("Comprimento conforme onde nasce no pai (0 = base, 1 = ponta)")]
         [SerializeField] private AnimationCurve _lengthOverParent = AnimationCurve.Constant(0f, 1f, 1f);
         [Tooltip("Raio na base em relação ao raio do pai onde ele nasce")]
         [RangeLimits(MinRadiusRatio, MaxRadiusRatio)]
@@ -43,6 +42,14 @@ namespace LumberJack.Trees
         [Range(0f, 45f)]
         [SerializeField] private float _curvature = 8f;
 
+        [Header("Junção com o pai")]
+        [Tooltip("Quanto o galho sai alinhado com o pai antes de abrir (0 = já sai no ângulo)")]
+        [Range(0f, 1f)]
+        [SerializeField] private float _jointSmoothing = 0.5f;
+        [Tooltip("Raio extra na base do galho (0.3 = 30% mais grosso)")]
+        [Range(0f, 1.5f)]
+        [SerializeField] private float _collar = 0.3f;
+
         public IBranchLayout Layout => _layout;
         public FloatRange LengthRatio => _lengthRatio;
         public AnimationCurve LengthOverParent => _lengthOverParent;
@@ -51,6 +58,8 @@ namespace LumberJack.Trees
         public FloatRange Angle => _angle;
         public float Gravity => _gravity;
         public float Curvature => _curvature;
+        public float JointSmoothing => _jointSmoothing;
+        public float Collar => _collar;
 
         public void Validate()
         {

@@ -93,9 +93,7 @@ namespace LumberJack.Core
 
             PlayerInputs?.Dispose();
             _guiInputs?.Dispose();
-            // Instance NÃO é zerado: ao sair do Play/descarregar a cena este objeto pode ser destruído antes
-            // dos outros, e o OnDisable deles ainda precisa se desinscrever dos eventos daqui. Para o Unity,
-            // Instance == null já dá true para um objeto destruído, e o próximo Awake substitui a referência.
+            // Instance não é zerado: o OnDisable dos outros ainda se desinscreve daqui ao sair do Play
         }
 
         /// <summary>Nome da tecla que seleciona o slot da hotbar (começa em 0); vazio se não houver.</summary>

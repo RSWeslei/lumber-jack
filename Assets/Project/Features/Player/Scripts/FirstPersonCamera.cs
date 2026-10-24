@@ -5,9 +5,8 @@ using UnityEngine.InputSystem;
 
 namespace LumberJack.Player
 {
-    // Câmera em primeira pessoa: mouse cru (sem suavização/atraso), balanço da cabeça,
-    // "afundada" ao aterrissar, leve inclinação ao andar de lado e FOV maior ao correr.
-    // Roda antes do PlayerMovement para o movimento usar a rotação deste frame.
+    // Câmera em primeira pessoa (olhar, balanço, aterrissagem, FOV ao correr).
+    // Roda antes do PlayerMovement para ele usar a rotação deste frame.
     [DefaultExecutionOrder(-10)]
     [RequireComponent(typeof(PlayerMovement))]
     public class FirstPersonCamera : MonoBehaviour
@@ -21,8 +20,7 @@ namespace LumberJack.Player
         [SerializeField] private float _mouseSensitivity = 1f;
         [SerializeField] private float _gamepadSensitivity = 1f;
         [SerializeField] private float _pitchLimit = 89f;
-        [Tooltip("Espalha cada leitura do mouse por essa janela (s). Mouses de 125 Hz deixam frames sem " +
-                 "movimento e a câmera gira aos trancos; ~0.01 resolve com atraso mínimo. 0 = mouse cru")]
+        [Tooltip("Suaviza o mouse nessa janela (s); 0 = mouse cru")]
         [SerializeField] private float _mouseResampleWindow = 0.01f;
 
         [Header("Lente")]

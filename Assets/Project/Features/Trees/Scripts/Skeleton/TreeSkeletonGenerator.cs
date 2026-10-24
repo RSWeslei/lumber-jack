@@ -15,6 +15,11 @@ namespace LumberJack.Trees
         private const int MinSegments = 2;
         private const float MinRadiusMultiplier = 0.05f;
         private const float ParallelThreshold = 0.99f;
+        // Junção com o pai (medidas em raios do pai)
+        private const float MaxJointAlignment = 0.75f;
+        private const float EmbedInParentRadii = 1f;
+        private const float SteerLengthInParentRadii = 4f;
+        private const float CollarLengthInParentRadii = 3f;
 
         private readonly List<BranchAttachment> _attachments = new List<BranchAttachment>();
 
@@ -60,7 +65,7 @@ namespace LumberJack.Trees
             Vector3 direction = Quaternion.AngleAxis(leanAngle, leanAxis) * Vector3.up;
 
             var shape = new BranchShape(height, baseRadius, trunk.RadiusOverLength, trunk.Curvature, trunk.UpwardPull,
-                trunk.RootFlare, trunk.RootFlareHeight);
+                trunk.RootFlare, trunk.RootFlareHeight, direction, 0f);
             skeleton.BeginBranch(0, TreeBranch.NoParent);
             GrowAxis(skeleton, Vector3.zero, direction, shape, mesh.SegmentLength, ref random);
         }
@@ -86,10 +91,18 @@ namespace LumberJack.Trees
                 float angle = settings.Angle.Pick(ref random);
                 if (radius < mesh.MinBranchRadius || length < mesh.SegmentLength * 0.5f) continue;
 
-                Vector3 direction = BranchDirection(parentDirection, attachment.Azimuth, angle);
-                var shape = new BranchShape(length, radius, settings.RadiusOverLength, settings.Curvature, settings.Gravity, 0f, 0f);
+                // Nasce dentro do pai, alinhado com ele, e abre aos poucos: esconde a emenda
+                Vector3 targetDirection = BranchDirection(parentDirection, attachment.Azimuth, angle);
+                float joint = settings.JointSmoothing;
+                Vector3 startDirection = Vector3.Slerp(targetDirection, parentDirection, joint * MaxJointAlignment);
+                float embed = parentRadius * EmbedInParentRadii * joint;
+                Vector3 embeddedStart = start - parentDirection * embed;
+
+                var shape = new BranchShape(length + embed, radius, settings.RadiusOverLength, settings.Curvature, settings.Gravity,
+                    settings.Collar, embed + parentRadius * CollarLengthInParentRadii,
+                    targetDirection, embed + parentRadius * SteerLengthInParentRadii * joint);
                 skeleton.BeginBranch(level, parentIndex);
-                GrowAxis(skeleton, start, direction, shape, mesh.SegmentLength, ref random);
+                GrowAxis(skeleton, embeddedStart, startDirection, shape, mesh.SegmentLength, ref random);
             }
         }
 
@@ -106,23 +119,33 @@ namespace LumberJack.Trees
                 float distance = i * step;
                 float t = (float)i / segments;
                 float radius = shape.StartRadius * Mathf.Max(MinRadiusMultiplier, shape.RadiusOverLength.Evaluate(t)) *
-                               RootFlareMultiplier(shape, distance);
+                               BaseFlareMultiplier(shape, distance);
                 skeleton.AddNode(new TreeNode(position, direction, radius, distance));
                 if (i == segments) break;
 
+                direction = SteerTowardTarget(direction, shape, distance, step);
                 direction = Wander(direction, shape.Curvature * step, ref random);
                 direction = (direction + Vector3.up * (shape.UpwardPull * step)).normalized;
                 position += direction * step;
             }
         }
 
-        private static float RootFlareMultiplier(in BranchShape shape, float distance)
+        // Raiz do tronco ou colar do galho: máximo na base, some suave até BaseFlareLength
+        private static float BaseFlareMultiplier(in BranchShape shape, float distance)
         {
-            if (shape.RootFlare <= 0f) return 1f;
+            if (shape.BaseFlare <= 0f || shape.BaseFlareLength <= 0f) return 1f;
 
-            // Suave: máximo no pé, zero a partir de RootFlareHeight
-            float fade = 1f - Mathf.SmoothStep(0f, 1f, distance / shape.RootFlareHeight);
-            return 1f + shape.RootFlare * fade;
+            float fade = 1f - Mathf.SmoothStep(0f, 1f, distance / shape.BaseFlareLength);
+            return 1f + shape.BaseFlare * fade;
+        }
+
+        // Gira aos poucos até a direção alvo, chegando nela no fim do trecho SteerLength
+        private static Vector3 SteerTowardTarget(Vector3 direction, in BranchShape shape, float distance, float step)
+        {
+            float remaining = shape.SteerLength - distance;
+            if (remaining <= 0f) return direction;
+
+            return Vector3.Slerp(direction, shape.TargetDirection, Mathf.Clamp01(step / remaining));
         }
 
         // Gira a direção num ângulo aleatório (até maxDegrees) em volta de um eixo perpendicular aleatório
@@ -151,15 +174,17 @@ namespace LumberJack.Trees
         private readonly struct BranchShape
         {
             public BranchShape(float length, float startRadius, AnimationCurve radiusOverLength, float curvature,
-                float upwardPull, float rootFlare, float rootFlareHeight)
+                float upwardPull, float baseFlare, float baseFlareLength, Vector3 targetDirection, float steerLength)
             {
                 Length = length;
                 StartRadius = startRadius;
                 RadiusOverLength = radiusOverLength;
                 Curvature = curvature;
                 UpwardPull = upwardPull;
-                RootFlare = rootFlare;
-                RootFlareHeight = rootFlareHeight;
+                BaseFlare = baseFlare;
+                BaseFlareLength = baseFlareLength;
+                TargetDirection = targetDirection;
+                SteerLength = steerLength;
             }
 
             public float Length { get; }
@@ -167,8 +192,13 @@ namespace LumberJack.Trees
             public AnimationCurve RadiusOverLength { get; }
             public float Curvature { get; }
             public float UpwardPull { get; }
-            public float RootFlare { get; }
-            public float RootFlareHeight { get; }
+            /// <summary>Raio extra na base (raiz do tronco ou colar do galho).</summary>
+            public float BaseFlare { get; }
+            public float BaseFlareLength { get; }
+            public Vector3 TargetDirection { get; }
+
+            /// <summary>Distância (m) em que o eixo termina de girar até <see cref="TargetDirection"/>.</summary>
+            public float SteerLength { get; }
         }
     }
 }

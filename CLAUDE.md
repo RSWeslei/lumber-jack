@@ -28,7 +28,7 @@
 - New data ScriptableObjects use the `Definition` suffix.
 - Member order: constants, serialized fields (`[Header]`), private fields, properties/events, Unity callbacks in execution order, public methods, private methods.
 - `[SerializeField] private` instead of public fields; `[Tooltip]` on tunables; no magic numbers.
-- Comments explain *why*. No commented-out code.
+- Comments explain *why*, in one line when possible (two at most); tooltips are one short phrase. No commented-out code.
 - All project code follows this standard. Keep it that way: don't restyle code outside the feature you are working on, and keep large refactors in their own commit.
 
 ## Architecture
@@ -118,6 +118,7 @@ Target: **0 bytes of managed allocation per frame** during gameplay (Unity's GC 
 ## Verifying
 
 - Before asking the developer to open Unity, compile with Unity's bundled compiler: `C:\Program Files\Unity\Hub\Editor\6000.6.7f1\Editor\Data\DotNetSdk\dotnet.exe` running `...\DotNetSdk\sdk\8.0.318\Roslyn\bincore\csc.dll`, with `-langversion:9 -nostdlib -t:library -define:UNITY_EDITOR;ENABLE_INPUT_SYSTEM`, referencing `...\NetStandard\ref\2.1.0\netstandard.dll`, `...\Managed\UnityEngine\UnityEngine*.dll` and `Library/ScriptAssemblies/{Unity.InputSystem,Unity.TextMeshPro,UnityEngine.UI}.dll` (editor code also needs `UnityEditor*.dll` and the game dll). Pass arguments through a `.rsp` file with quoted Windows paths (the project path has a space).
+- The compile must have no errors and no obsolete-API warnings (`CS0618`/`CS0612`); use the replacement the warning names.
 - After Unity opens, check `Logs/Editor.log` inside the project for `error CS`, missing scripts and exceptions.
 - Editor-only hitching is Editor overhead: confirm performance problems in a build.
 
