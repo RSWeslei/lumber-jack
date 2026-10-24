@@ -93,7 +93,17 @@ namespace LumberJack.Core
 
             PlayerInputs?.Dispose();
             _guiInputs?.Dispose();
-            Instance = null;
+            // Instance NAO e zerado: ao sair do Play/descarregar a cena este objeto pode ser destruido antes
+            // dos outros, e o OnDisable deles ainda precisa se desinscrever dos eventos daqui. Para o Unity,
+            // Instance == null ja da true para um objeto destruido, e o proximo Awake substitui a referencia.
+        }
+
+        /// <summary>Nome da tecla que seleciona o slot da hotbar (comeca em 0); vazio se nao houver.</summary>
+        public string GetHotbarKeyLabel(int slotIndex)
+        {
+            // Cada binding de HotbarNumbers e um slot, na ordem
+            InputAction action = _guiInputs.PlayerUI.HotbarNumbers;
+            return slotIndex < action.bindings.Count ? GetKeyLabel(action, slotIndex) : string.Empty;
         }
 
         private void HandleAttackPerformed(InputAction.CallbackContext context) => AttackPressed?.Invoke();
@@ -116,10 +126,10 @@ namespace LumberJack.Core
             if (scroll != 0f) HotbarScrolled?.Invoke(Mathf.Sign(scroll));
         }
 
-        private static string GetKeyLabel(InputAction action)
+        private static string GetKeyLabel(InputAction action, int bindingIndex = 0)
         {
-            if (action.bindings.Count == 0) return string.Empty;
-            return InputControlPath.ToHumanReadableString(action.bindings[0].effectivePath,
+            if (bindingIndex >= action.bindings.Count) return string.Empty;
+            return InputControlPath.ToHumanReadableString(action.bindings[bindingIndex].effectivePath,
                 InputControlPath.HumanReadableStringOptions.OmitDevice);
         }
     }

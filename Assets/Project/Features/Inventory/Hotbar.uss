@@ -1,43 +1,107 @@
+/* Paleta: madeira escura translucida + ambar do por do sol */
+:root {
+    --hotbar-panel: rgba(20, 15, 11, 0.82);
+    --hotbar-panel-border: rgba(255, 228, 190, 0.14);
+    --hotbar-slot: rgba(255, 244, 228, 0.05);
+    --hotbar-slot-filled: rgba(255, 244, 228, 0.12);
+    --hotbar-slot-border: rgba(255, 244, 228, 0.10);
+    --hotbar-accent: rgb(255, 170, 51);
+    --hotbar-accent-soft: rgba(255, 170, 51, 0.22);
+    --hotbar-text: rgb(255, 246, 232);
+    --hotbar-text-dim: rgba(255, 246, 232, 0.5);
+}
+
+.hotbar-root {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 22px;
+    align-items: center;
+    -unity-font: url("project://database/Assets/Project/Shared/Fonts/coolvetica%20rg.otf");
+}
+
+.hotbar__item-name {
+    margin-bottom: 10px;
+    padding: 3px 12px;
+    font-size: 17px;
+    color: var(--hotbar-text);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+    opacity: 0;
+    translate: 0 6px;
+    transition-property: opacity, translate;
+    transition-duration: 0.25s, 0.25s;
+    transition-timing-function: ease-out-cubic, ease-out-cubic;
+}
+
+.hotbar__item-name--visible {
+    opacity: 1;
+    translate: 0 0;
+}
+
 .hotbar {
-    margin-left: 0;
-    margin-bottom: 0;
-    align-items: stretch;
-    justify-content: space-around;
-    flex-direction: column;
-    transform-origin: center;
+    flex-direction: row;
+    padding: 6px;
+    border-radius: 16px;
+    background-color: var(--hotbar-panel);
+    border-width: 1px;
+    border-color: var(--hotbar-panel-border);
 }
 
 .hotbar__slot {
-    margin-left: 25px;
-    width: 50px;
-    height: 50px;
-    min-width: 50px;
-    min-height: 50px;
-    margin-bottom: 0;
-    justify-content: flex-start;
-    align-items: stretch;
-    flex-direction: column;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-    background-color: rgba(221, 221, 221, 0.4);
-    border-left-color: rgb(255, 255, 255);
-    border-right-color: rgb(255, 255, 255);
-    border-top-color: rgb(255, 255, 255);
-    border-bottom-color: rgb(255, 255, 255);
-    border-left-width: 1px;
-    border-right-width: 1px;
-    border-top-width: 1px;
-    border-bottom-width: 1px;
+    width: 56px;
+    height: 56px;
+    margin: 0 3px;
+    border-radius: 11px;
+    border-width: 2px;
+    border-color: var(--hotbar-slot-border);
+    background-color: var(--hotbar-slot);
+    transition-property: background-color, border-color;
+    transition-duration: 0.14s, 0.14s;
+    transition-timing-function: ease-out, ease-out;
 }
 
-.hotbar__slot-icon {
-    padding: 3px;
-    flex-shrink: 0;
-    flex-grow: 1;
+.hotbar__slot--filled {
+    background-color: var(--hotbar-slot-filled);
 }
 
 .hotbar__slot--selected {
-    background-color: rgba(255, 124, 125, 0.53);
+    border-color: var(--hotbar-accent);
+    background-color: var(--hotbar-accent-soft);
+}
+
+.hotbar__slot-icon {
+    flex-grow: 1;
+    margin: 9px;
+}
+
+.hotbar__slot-key {
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    padding: 0;
+    margin: 0;
+    font-size: 12px;
+    color: var(--hotbar-text-dim);
+}
+
+.hotbar__slot--selected .hotbar__slot-key {
+    color: var(--hotbar-accent);
+}
+
+/* Tracinho embaixo do slot selecionado */
+.hotbar__slot-indicator {
+    position: absolute;
+    bottom: 4px;
+    left: 38%;
+    width: 24%;
+    height: 3px;
+    border-radius: 2px;
+    background-color: var(--hotbar-accent);
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 0.14s;
+}
+
+.hotbar__slot--selected .hotbar__slot-indicator {
+    opacity: 1;
 }

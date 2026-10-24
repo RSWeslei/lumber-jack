@@ -13,13 +13,13 @@ namespace LumberJack.Player
     /// </summary>
     public class WoodChopper : MonoBehaviour
     {
+        private const string WoodLayerName = "Wood";
         private const float WindUpDuration = 0.15f;
         private const float StrikeDuration = 0.08f;
         private const float RecoverDuration = 0.25f;
 
         [SerializeField] private Hand _hand;
         [SerializeField] private Material _previewMaterial;
-        [SerializeField] private float _reach = 2.5f;
 
         [Header("Inclinacao do corte")]
         [SerializeField] private float _maxTilt = 60f;
@@ -31,6 +31,8 @@ namespace LumberJack.Player
         [SerializeField] private float _strikeAngle = 40f;
 
         private Transform _camera;
+        private PlayerAim _aim;
+        private int _woodMask;
         private CutPreview _preview;
         private InputAction _tiltAction;
         private InputAction _straightenAction;
@@ -58,8 +60,9 @@ namespace LumberJack.Player
                 return;
             }
 
-            Camera parentCamera = GetComponentInParent<Camera>();
-            _camera = parentCamera != null ? parentCamera.transform : Camera.main.transform;
+            _aim = GetComponentInParent<PlayerAim>();
+            _camera = _aim.transform;
+            _woodMask = LayerMask.GetMask(WoodLayerName);
             _preview = CutPreview.Create(transform, _previewMaterial);
 
             PlayerInputs.PlayerActionsActions actions = InputManager.Instance.PlayerInputs.PlayerActions;
@@ -102,7 +105,7 @@ namespace LumberJack.Player
 
         private void UpdateTarget()
         {
-            if (!Physics.Raycast(_camera.position, _camera.forward, out RaycastHit hit, _reach)) return;
+            if (!_aim.TryFindTarget(_woodMask, out RaycastHit hit)) return;
 
             // ReferenceEquals compara so a referencia C#, sem a checagem nativa do == do Unity
             Collider hitCollider = hit.collider;

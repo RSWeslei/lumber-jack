@@ -14,10 +14,9 @@ namespace LumberJack.Core
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Apply()
         {
-            // No Editor a Game view ignora o vSync do projeto (tem um toggle proprio), entao limita sempre
-#if !UNITY_EDITOR
+            // O limite por targetFrameRate e feito por software e da micro-travadas; so serve de reserva
+            // quando nao ha vSync. No Editor o vSync e o da Game view (LumberJack.Editor.GameViewVSync)
             if (QualitySettings.vSyncCount > 0) return;
-#endif
 
             double refreshRate = Screen.currentResolution.refreshRateRatio.value;
             Application.targetFrameRate = refreshRate > 0 ? Mathf.RoundToInt((float)refreshRate) : FallbackFrameRate;

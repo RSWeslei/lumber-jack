@@ -36,6 +36,8 @@
 - Communication: direct reference inside a feature, C# event or interface across features, ScriptableObject event channel for global events. Singletons only as a last resort.
 - Split definition (ScriptableObject), state (plain serializable C# class) and view (thin MonoBehaviour). Put pure logic in plain C# so it can be tested.
 - Input: subscribe to `InputManager` events for one-shot actions; poll `MoveInput`/`LookInput`/`PlayerInputs.<Map>.<Action>` for continuous values. Show keys with `InteractKeyLabel` etc., never hardcoded.
+- Anything the player targets (interact, cut, grab, future tools) goes through `PlayerAim.TryFindTarget(layerMask, out hit)`; never cast separate rays from the camera. The thing that shows the hint must be the thing the action uses.
+- Layers: the player is on `Player`, wood (logs, pieces, boards) on `Wood`, usable objects on `Interactable`. Get masks with `LayerMask.GetMask("Name")` in `Awake`.
 - Keep gameplay actions as small deterministic commands with stable object IDs (multiplayer is planned).
 
 ## Unity rules
@@ -84,5 +86,5 @@ Target: **0 bytes of managed allocation per frame** during gameplay (Unity's GC 
 
 ## Git
 
-- Work on `main`. Commit only when asked; never push unless asked.
+- Work on `main`. Commit only when the developer explicitly asks for a commit in that request; a broad request ("do what's left", "migrate everything") is not permission to commit. Never push unless asked.
 - Commit message: imperative summary line, then a short bullet list of the changes, then the attribution line the harness provides.
