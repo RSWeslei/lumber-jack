@@ -1,4 +1,5 @@
-using System.Collections;
+using System;
+using System.Threading;
 using LumberJack.Core;
 using LumberJack.Tools;
 using LumberJack.Wood;
@@ -21,7 +22,7 @@ namespace LumberJack.Player
         [SerializeField] private Hand _hand;
         [SerializeField] private Material _previewMaterial;
 
-        [Header("Inclinacao do corte")]
+        [Header("Inclinação do corte")]
         [SerializeField] private float _maxTilt = 60f;
         [Tooltip("Graus por segundo segurando a tecla de inclinar")]
         [SerializeField] private float _tiltSpeed = 60f;
@@ -32,6 +33,9 @@ namespace LumberJack.Player
 
         private Transform _camera;
         private PlayerAim _aim;
+        private Transform _handTransform;
+        private Transform _handParent;
+        private bool _hasHandParent;
         private int _woodMask;
         private CutPreview _preview;
         private InputAction _tiltAction;
@@ -39,7 +43,7 @@ namespace LumberJack.Player
         private float _tilt;
         private bool _isSwinging;
 
-        // Cache do ultimo collider mirado: evita GetComponent a cada frame no mesmo tronco
+        // Cache do último collider mirado: evita GetComponent a cada frame no mesmo tronco
         private Collider _lastCollider;
         private CuttableWood _lastColliderWood;
         private bool _lastColliderIsWood;
@@ -55,11 +59,14 @@ namespace LumberJack.Player
         {
             if (_hand == null)
             {
-                Debug.LogError($"{nameof(WoodChopper)} sem referencia para a mao.", this);
+                Debug.LogError($"{nameof(WoodChopper)} sem referência para a mão.", this);
                 enabled = false;
                 return;
             }
 
+            _handTransform = _hand.transform;
+            _handParent = _handTransform.parent;
+            _hasHandParent = _handParent != null;
             _aim = GetComponentInParent<PlayerAim>();
             _camera = _aim.transform;
             _woodMask = LayerMask.GetMask(WoodLayerName);
@@ -107,7 +114,7 @@ namespace LumberJack.Player
         {
             if (!_aim.TryFindTarget(_woodMask, out RaycastHit hit)) return;
 
-            // ReferenceEquals compara so a referencia C#, sem a checagem nativa do == do Unity
+            // ReferenceEquals compara só a referência C#, sem a checagem nativa do == do Unity
             Collider hitCollider = hit.collider;
             if (!ReferenceEquals(hitCollider, _lastCollider))
             {
@@ -122,45 +129,52 @@ namespace LumberJack.Player
             _isTargetValid = _target.CanCut(_targetPlane);
         }
 
-        private void HandleAttackPressed()
+        private async void HandleAttackPressed()
         {
             if (!HasAxe || _isSwinging) return;
 
-            // Golpe no ar tambem anima, so nao corta nada
+            // Golpe no ar também anima, só não corta nada
             CuttableWood target = _hasTarget && _isTargetValid ? _target : null;
-            StartCoroutine(Swing(target, _targetPlane));
+            try
+            {
+                await SwingAsync(target, _targetPlane, destroyCancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                // O jogador foi destruído no meio do golpe (saiu do Play, trocou de cena)
+            }
         }
 
-        private IEnumerator Swing(CuttableWood wood, Plane localPlane)
+        private async Awaitable SwingAsync(CuttableWood wood, Plane localPlane, CancellationToken token)
         {
             _isSwinging = true;
-            Transform hand = _hand.transform;
-            Quaternion rest = hand.localRotation;
+            Quaternion rest = _handTransform.localRotation;
 
-            // Gira a mao em volta do eixo "direita" da camera: negativo levanta, positivo desce
-            Vector3 axis = hand.parent != null ? hand.parent.InverseTransformDirection(_camera.right) : _camera.right;
+            // Gira a mão em volta do eixo "direita" da câmera: negativo levanta, positivo desce
+            Vector3 axis = _hasHandParent ? _handParent.InverseTransformDirection(_camera.right) : _camera.right;
 
-            yield return RotateHand(hand, rest, axis, _windUpAngle, WindUpDuration);
-            yield return RotateHand(hand, rest, axis, _strikeAngle, StrikeDuration);
+            // Se for cancelado, o jogador está sendo destruído: não há estado para restaurar
+            await RotateHandAsync(rest, axis, _windUpAngle, WindUpDuration, token);
+            await RotateHandAsync(rest, axis, _strikeAngle, StrikeDuration, token);
 
-            // O pedaco pode ter sido destruido enquanto o machado descia
+            // O pedaço pode ter sido cortado/destruído enquanto o machado descia
             if (wood != null) wood.TryCut(localPlane);
 
-            yield return RotateHand(hand, rest, axis, 0f, RecoverDuration);
-            hand.localRotation = rest;
+            await RotateHandAsync(rest, axis, 0f, RecoverDuration, token);
+            _handTransform.localRotation = rest;
             _isSwinging = false;
         }
 
-        private IEnumerator RotateHand(Transform hand, Quaternion rest, Vector3 axis, float angle, float duration)
+        private async Awaitable RotateHandAsync(Quaternion rest, Vector3 axis, float angle, float duration, CancellationToken token)
         {
-            Quaternion from = hand.localRotation;
+            Quaternion from = _handTransform.localRotation;
             Quaternion to = Quaternion.AngleAxis(angle, axis) * rest;
             for (float time = 0f; time < duration; time += Time.deltaTime)
             {
-                hand.localRotation = Quaternion.Slerp(from, to, time / duration);
-                yield return null;
+                _handTransform.localRotation = Quaternion.Slerp(from, to, time / duration);
+                await Awaitable.NextFrameAsync(token);
             }
-            hand.localRotation = to;
+            _handTransform.localRotation = to;
         }
     }
 }

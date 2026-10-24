@@ -3,7 +3,7 @@
 ## Communication
 
 - Talk to the developer in Brazilian Portuguese.
-- Code identifiers in English. Code comments may be in Portuguese.
+- Code identifiers in English. Code comments, tooltips and editor/UI text may be in Portuguese, always with correct accents (`não`, `é`, `árvore`, `direção`); never strip accents. Strings used as keys (paths, object names looked up in code, bindings) stay unaccented.
 
 ## Constraints
 
@@ -40,11 +40,21 @@
 - Layers: the player is on `Player`, wood (logs, pieces, boards) on `Wood`, usable objects on `Interactable`. Get masks with `LayerMask.GetMask("Name")` in `Awake`.
 - Keep gameplay actions as small deterministic commands with stable object IDs (multiplayer is planned).
 
+## Code design
+
+- Tunables shared by many instances live in a `Definition` ScriptableObject, not in the MonoBehaviour. Group related settings in `[Serializable]` plain classes (`TrunkSettings`) with a `Validate()` that `OnValidate` calls to clamp values.
+- Use an interface where there are several interchangeable behaviors (strategy), and pick the implementation in the inspector with `[SerializeReference, SubclassSelector]`. Don't add an interface that has a single implementation.
+- Pure logic (generation, calculations, rules) lives in plain `sealed` C# classes that take their inputs as parameters; MonoBehaviours only wire Unity to it.
+- Value ranges are `FloatRange`/`IntRange` (with `[RangeLimits]`), never two loose min/max fields. Shape-over-length values are `AnimationCurve`s.
+- Randomness in gameplay and generation uses `SeededRandom` with an explicit seed (same seed, same result on every client). Never `UnityEngine.Random` or `System.Random` there.
+- Expose read-only state through properties and events; no public fields, no public setters on data a component owns.
+- Editor tooling for a feature (custom inspectors, drawers, builders) goes in `Assets/Project/Editor/<Feature>/`. Inspector buttons call the component's public methods and record `Undo`.
+
 ## Unity rules
 
 - Subscribe in `OnEnable`, unsubscribe in `OnDisable`. Never subscribe lambdas you cannot remove.
 - Never use `?.`, `??` or `is null` on `UnityEngine.Object`; use `== null` or `if (obj)` (and see Performance for hot paths).
-- Prefer `Awaitable` over coroutines in new async code. In coroutines, cache `WaitForSeconds` instead of allocating one per yield.
+- Timed sequences use `async Awaitable` methods (not coroutines) that pass `destroyCancellationToken` to every await. Start them from an `async void` event handler that catches `OperationCanceledException`.
 - Use `TryGetComponent` instead of `GetComponent` + null check.
 - Compare tags with `CompareTag`, never `gameObject.tag == "..."` (allocates a string).
 - No string-based calls: no `SendMessage`, `BroadcastMessage`, `Invoke("Name")`, `StartCoroutine("Name")`.
@@ -53,6 +63,22 @@
 - Prefer events over polling: react when something changes instead of checking it every frame.
 - Money in integer cents, never `float`.
 - When renaming or removing a serialized field, update every scene/prefab that stores it (the key inside the component's YAML block and any `propertyPath` overrides). Don't leave `[FormerlySerializedAs]` or orphaned keys behind. When renaming a class, rename its file too.
+
+## Procedural meshes
+
+- Build meshes in a plain C# builder that owns and reuses its `List` buffers; never allocate per vertex or per triangle.
+- Reuse the `Mesh` (`Clear()` then set vertices before triangles); destroy every mesh you create in `OnDestroy` (`DestroyImmediate` in edit mode). Edit-mode preview meshes use `HideFlags.DontSave`.
+- Use `IndexFormat.UInt32` only when the vertex count passes 65535.
+- Components that preview in the editor use `[ExecuteAlways]` and must have no per-frame callbacks. Never create, destroy or assign components inside `OnValidate`; defer with `EditorApplication.delayCall` and check the object still exists.
+
+## Art style
+
+- Low poly stylized (reference: Len's Island): simple silhouettes, faceted surfaces, detail through color and shape, not texture.
+- Generated meshes are flat shaded (each triangle has its own vertices and face normal).
+- Triangle budgets: tree up to 3000, prop up to 1000, character up to 5000.
+- Materials: URP Lit, smoothness at most 0.1, warm saturated colors, no photographic textures. Prefer few shared materials.
+- Scale: 1 unit = 1 m.
+- World lighting comes from `Lumber Jack > Aplicar iluminação do mundo` (`WorldLightingSetup`); change values there, not by hand in the scene.
 
 ## Performance
 
@@ -64,6 +90,7 @@ Target: **0 bytes of managed allocation per frame** during gameplay (Unity's GC 
   - Allocations: no `new` lists/arrays, LINQ, `foreach` over interfaces, string concatenation/interpolation, boxing, or lambdas/closures (pass a cached `IComparer` to `Sort`). Reuse buffers owned by the caller.
   - Unity APIs that copy: `Mesh.vertices`/`triangles`/`normals`/`uv`, `GetComponents`, `Physics.RaycastAll`... Cache arrays (an immutable mesh can be cached once) and use `NonAlloc`/`List<T>` overloads.
   - `Debug.Log` (wrap diagnostics in `[Conditional]` methods or remove them).
+  - Expensive one-off work (mesh slicing, generation): trigger it from an event or `Awaitable` code, never from `Update` or a coroutine.
   - UI updates that don't change anything: only touch UI when the value changes; use `TMP_Text.SetText` with format args for numbers.
 - Objects spawned and destroyed many times per second (effects, projectiles, UI entries) use `UnityEngine.Pool.ObjectPool<T>` instead of `Instantiate`/`Destroy`. Cut wood pieces are not pooled: each one gets a new unique mesh.
 - Physics queries: always pass a `LayerMask` and `QueryTriggerInteraction`; use `NonAlloc` variants.

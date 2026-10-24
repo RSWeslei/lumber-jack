@@ -1,0 +1,206 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84993b861f825aa4ca5b77d34858bfeb, type: 3}
+  m_Name: Birch
+  m_EditorClassIdentifier: LumberJack::LumberJack.Trees.TreeSpeciesDefinition
+  _displayName: Bétula
+  _wood: {fileID: 0}
+  _barkMaterial: {fileID: 2100000, guid: 84ca16681417c33499caaa033abc17a9, type: 2}
+  _trunk:
+    _height:
+      _min: 9
+      _max: 12
+    _baseRadius:
+      _min: 0.14
+      _max: 0.19
+    _radiusOverLength:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: -0.8
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0.2
+        inSlope: -0.8
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _maxLean: 7
+    _curvature: 5
+    _upwardPull: 0.08
+    _rootFlare: 0.2
+    _rootFlareHeight: 0.4
+  _branchLevels:
+  - _layout:
+      rid: 3122415671311073354
+    _lengthRatio:
+      _min: 0.2
+      _max: 0.32
+    _lengthOverParent:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: -0.6
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0.4
+        inSlope: -0.6
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _radiusRatio:
+      _min: 0.3
+      _max: 0.45
+    _radiusOverLength:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: -0.8
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0.2
+        inSlope: -0.8
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _angle:
+      _min: 30
+      _max: 50
+    _gravity: 0.12
+    _curvature: 10
+  - _layout:
+      rid: 3122415671311073355
+    _lengthRatio:
+      _min: 0.35
+      _max: 0.5
+    _lengthOverParent:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _radiusRatio:
+      _min: 0.5
+      _max: 0.6
+    _radiusOverLength:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: -0.8
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0.2
+        inSlope: -0.8
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _angle:
+      _min: 30
+      _max: 50
+    _gravity: 0.1
+    _curvature: 12
+  _mesh:
+    _trunkSides: 6
+    _branchSides: 4
+    _segmentLength: 0.7
+    _irregularity: 0.06
+    _minBranchRadius: 0.015
+    _barkTiling: 0.5
+  references:
+    version: 2
+    RefIds:
+    - rid: 3122415671311073354
+      type: {class: SpiralBranchLayout, ns: LumberJack.Trees, asm: LumberJack}
+      data:
+        _count:
+          _min: 5
+          _max: 8
+        _span:
+          _min: 0.45
+          _max: 0.95
+        _jitter: 0.3
+    - rid: 3122415671311073355
+      type: {class: SpiralBranchLayout, ns: LumberJack.Trees, asm: LumberJack}
+      data:
+        _count:
+          _min: 1
+          _max: 3
+        _span:
+          _min: 0.4
+          _max: 0.9
+        _jitter: 0.4
