@@ -4,7 +4,7 @@ using UnityEngine;
 namespace LumberJack.Player
 {
     /// <summary>
-    /// Toca a animacao "Use" do item equipado ao atacar.
+    /// Toca a animação "Use" do item equipado ao atacar.
     /// </summary>
     public class WieldManager : MonoBehaviour
     {

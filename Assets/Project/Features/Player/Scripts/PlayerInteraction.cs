@@ -5,8 +5,8 @@ using UnityEngine;
 namespace LumberJack.Player
 {
     /// <summary>
-    /// Mostra a dica do objeto interativo que o jogador esta mirando e interage com esse
-    /// mesmo objeto (o que aparece na dica e o que o botao usa).
+    /// Mostra a dica do objeto interativo que o jogador está mirando e interage com esse
+    /// mesmo objeto (o que aparece na dica é o que o botão usa).
     /// </summary>
     [RequireComponent(typeof(PlayerAim))]
     public class PlayerInteraction : MonoBehaviour
@@ -16,7 +16,7 @@ namespace LumberJack.Player
         private PlayerAim _aim;
         private int _interactableMask;
 
-        // Alvo atual; os componentes so sao buscados quando o collider mirado muda
+        // Alvo atual; os componentes só são buscados quando o collider mirado muda
         private Collider _targetCollider;
         private bool _hasTarget;
         private IDisplayable _displayable;
@@ -29,7 +29,7 @@ namespace LumberJack.Player
         {
             _aim = GetComponent<PlayerAim>();
             _interactableMask = LayerMask.GetMask(InteractableLayerName);
-            // Forca o primeiro frame sem alvo a esconder a dica, caso a UI comece visivel
+            // Força o primeiro frame sem alvo a esconder a dica, caso a UI comece visível
             _isHintVisible = true;
         }
 
@@ -46,7 +46,7 @@ namespace LumberJack.Player
                 return;
             }
 
-            // ReferenceEquals compara so a referencia C#, sem a checagem nativa do == do Unity
+            // ReferenceEquals compara só a referência C#, sem a checagem nativa do == do Unity
             Collider hitCollider = hit.collider;
             if (_hasTarget && ReferenceEquals(hitCollider, _targetCollider)) return;
 
@@ -75,7 +75,7 @@ namespace LumberJack.Player
         {
             if (!_hasTarget || !_hasInteractable) return;
 
-            // O alvo pode ter sido destruido desde o ultimo frame (ex.: item ja pego num clique anterior)
+            // O alvo pode ter sido destruído desde o último frame (ex.: item já pego num clique anterior)
             if (!_targetCollider)
             {
                 ClearTarget();

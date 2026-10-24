@@ -4,7 +4,7 @@ using UnityEngine;
 namespace LumberJack.Player
 {
     /// <summary>
-    /// Balanca o item na mao de leve na direcao oposta ao movimento.
+    /// Balança o item na mão de leve na direção oposta ao movimento.
     /// Adicionado em runtime pela <see cref="Hand"/>.
     /// </summary>
     public class EquippedItemSway : MonoBehaviour

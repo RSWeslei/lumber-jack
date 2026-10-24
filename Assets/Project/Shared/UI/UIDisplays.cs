@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 namespace LumberJack.Shared
 {
     /// <summary>
-    /// Dicas de tecla na tela ("Press E to...") e o painel de informacoes de um produto da loja.
+    /// Dicas de tecla na tela ("Press E to...") e o painel de informações de um produto da loja.
     /// </summary>
     public class UIDisplays : MonoBehaviour
     {
@@ -24,7 +24,7 @@ namespace LumberJack.Shared
 
         private VisualElement _keyInfoParent;
         private Label _keyInfoText;
-        // So mexe na UI quando a dica muda (as dicas sao strings montadas uma vez, entao comparar a referencia basta)
+        // Só mexe na UI quando a dica muda (as dicas são strings montadas uma vez, então comparar a referência basta)
         private string _shownKeyInfo;
         private bool _isKeyInfoVisible;
 

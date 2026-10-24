@@ -5,10 +5,10 @@ using UnityEngine.InputSystem;
 namespace LumberJack.Core
 {
     /// <summary>
-    /// Ponto central do input do jogador (a pe e hotbar). Valores continuos (mover, olhar)
-    /// sao lidos na hora; acoes pontuais viram eventos.
+    /// Ponto central do input do jogador (a pé e hotbar). Valores contínuos (mover, olhar)
+    /// são lidos na hora; ações pontuais viram eventos.
     /// </summary>
-    // Roda antes dos outros scripts para o Instance e as acoes ja existirem no OnEnable deles
+    // Roda antes dos outros scripts para o Instance e as ações já existirem no OnEnable deles
     [DefaultExecutionOrder(-100)]
     public class InputManager : MonoBehaviour
     {
@@ -33,7 +33,7 @@ namespace LumberJack.Core
         public event Action InteractPressed;
         public event Action GrabPressed;
         public event Action GrabReleased;
-        /// <summary>Slot escolhido pelas teclas numericas (comeca em 0).</summary>
+        /// <summary>Slot escolhido pelas teclas numéricas (começa em 0).</summary>
         public event Action<int> HotbarSlotSelected;
         /// <summary>+1 rolou para cima, -1 para baixo.</summary>
         public event Action<float> HotbarScrolled;
@@ -42,7 +42,7 @@ namespace LumberJack.Core
         {
             if (Instance != null && Instance != this)
             {
-                // Remove so o componente duplicado, nao o objeto (que e o proprio player)
+                // Remove só o componente duplicado, não o objeto (que é o próprio player)
                 Destroy(this);
                 return;
             }
@@ -93,15 +93,15 @@ namespace LumberJack.Core
 
             PlayerInputs?.Dispose();
             _guiInputs?.Dispose();
-            // Instance NAO e zerado: ao sair do Play/descarregar a cena este objeto pode ser destruido antes
+            // Instance NÃO é zerado: ao sair do Play/descarregar a cena este objeto pode ser destruído antes
             // dos outros, e o OnDisable deles ainda precisa se desinscrever dos eventos daqui. Para o Unity,
-            // Instance == null ja da true para um objeto destruido, e o proximo Awake substitui a referencia.
+            // Instance == null já dá true para um objeto destruído, e o próximo Awake substitui a referência.
         }
 
-        /// <summary>Nome da tecla que seleciona o slot da hotbar (comeca em 0); vazio se nao houver.</summary>
+        /// <summary>Nome da tecla que seleciona o slot da hotbar (começa em 0); vazio se não houver.</summary>
         public string GetHotbarKeyLabel(int slotIndex)
         {
-            // Cada binding de HotbarNumbers e um slot, na ordem
+            // Cada binding de HotbarNumbers é um slot, na ordem
             InputAction action = _guiInputs.PlayerUI.HotbarNumbers;
             return slotIndex < action.bindings.Count ? GetKeyLabel(action, slotIndex) : string.Empty;
         }
@@ -114,7 +114,7 @@ namespace LumberJack.Core
 
         private void HandleGrabCanceled(InputAction.CallbackContext context) => GrabReleased?.Invoke();
 
-        // As teclas 1-9 estao configuradas para devolver o proprio numero
+        // As teclas 1-9 estão configuradas para devolver o próprio número
         private void HandleHotbarNumberPerformed(InputAction.CallbackContext context)
         {
             HotbarSlotSelected?.Invoke(Mathf.RoundToInt(context.ReadValue<float>()) - 1);

@@ -4,11 +4,11 @@ namespace LumberJack.Player
 {
     /// <summary>
     /// Mira do jogador, usada por tudo que depende de "para onde estou olhando" (interagir,
-    /// cortar, agarrar). Primeiro um raio exato no centro da tela; se ele nao acertar um alvo
+    /// cortar, agarrar). Primeiro um raio exato no centro da tela; se ele não acertar um alvo
     /// aceito, uma ajuda de mira procura o alvo numa esfera fina em volta do raio, sem
-    /// atravessar o que o raio exato bateu (nada atras de parede).
+    /// atravessar o que o raio exato bateu (nada atrás de parede).
     /// </summary>
-    // Depois da rotacao da camera (-10) e antes de quem usa a mira (0)
+    // Depois da rotação da câmera (-10) e antes de quem usa a mira (0)
     [DefaultExecutionOrder(-5)]
     public class PlayerAim : MonoBehaviour
     {
@@ -16,7 +16,7 @@ namespace LumberJack.Player
         private const string PlayerLayer = "Player";
         private const int MaxAssistHits = 8;
 
-        [Tooltip("Distancia maxima (m) para interagir, cortar e agarrar")]
+        [Tooltip("Distância máxima (m) para interagir, cortar e agarrar")]
         [SerializeField] private float _reach = 2.5f;
         [Tooltip("Raio (m) da ajuda de mira quando o raio exato passa ao lado de um alvo")]
         [SerializeField] private float _assistRadius = 0.15f;
@@ -32,12 +32,12 @@ namespace LumberJack.Player
         private void Awake()
         {
             _transform = transform;
-            // Tudo bloqueia a mira, menos o proprio jogador e o que o Unity ja ignora
+            // Tudo bloqueia a mira, menos o próprio jogador e o que o Unity já ignora
             _solidMask = ~LayerMask.GetMask(IgnoreRaycastLayer, PlayerLayer);
         }
 
         /// <summary>
-        /// Procura um alvo nas camadas de <paramref name="targetMask"/> na direcao da mira.
+        /// Procura um alvo nas camadas de <paramref name="targetMask"/> na direção da mira.
         /// </summary>
         public bool TryFindTarget(int targetMask, out RaycastHit hit)
         {
@@ -48,7 +48,7 @@ namespace LumberJack.Player
             if (Physics.Raycast(origin, direction, out hit, _reach, _solidMask, QueryTriggerInteraction.Ignore))
             {
                 if (IsInMask(hit.collider.gameObject.layer, targetMask)) return true;
-                // A ajuda de mira nao pode ir alem do que o raio exato bateu
+                // A ajuda de mira não pode ir além do que o raio exato bateu
                 limit = hit.distance;
             }
 
@@ -59,7 +59,7 @@ namespace LumberJack.Player
             float bestDistance = float.MaxValue;
             for (int i = 0; i < count; i++)
             {
-                // distance 0 = a esfera ja comecou dentro do objeto; o raio exato cuidaria dele
+                // distance 0 = a esfera já começou dentro do objeto; o raio exato cuidaria dele
                 float distance = _assistHits[i].distance;
                 if (distance <= 0f || distance >= bestDistance) continue;
                 best = i;

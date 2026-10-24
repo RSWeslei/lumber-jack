@@ -4,12 +4,12 @@ using LumberJack.Shared;
 namespace LumberJack.Shop
 {
     /// <summary>
-    /// Botao do caixa que paga as caixas que estao no balcao.
+    /// Botão do caixa que paga as caixas que estão no balcão.
     /// </summary>
     public class CashierButton : InteractableButton, IDisplayable
     {
         private Cashier _cashier;
-        // Montada uma vez: a tecla nao muda durante o jogo e assim a dica nao aloca string
+        // Montada uma vez: a tecla não muda durante o jogo e assim a dica não aloca string
         private string _hint;
 
         private void Start()

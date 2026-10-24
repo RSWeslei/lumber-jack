@@ -4,8 +4,8 @@ using UnityEngine.InputSystem;
 namespace LumberJack.Wood
 {
     /// <summary>
-    /// So para a cena de teste: camera WASD + mouse, sem precisar do player inteiro.
-    /// Le o teclado direto porque a cena nao tem InputManager.
+    /// Só para a cena de teste: câmera WASD + mouse, sem precisar do player inteiro.
+    /// Lê o teclado direto porque a cena não tem InputManager.
     /// </summary>
     public class FlyCamera : MonoBehaviour
     {
@@ -43,7 +43,7 @@ namespace LumberJack.Wood
             _pitch = Mathf.Clamp(_pitch - look.y, -PitchLimit, PitchLimit);
             transform.rotation = Quaternion.Euler(_pitch, _yaw, 0f);
 
-            // Anda no plano horizontal, sobe/desce com Espaco/C
+            // Anda no plano horizontal, sobe/desce com Espaço/C
             Vector3 forward = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
             Vector3 right = Vector3.ProjectOnPlane(transform.right, Vector3.up).normalized;
             Vector3 move = Vector3.zero;

@@ -3,32 +3,32 @@ using UnityEngine;
 namespace LumberJack.Wood
 {
     /// <summary>
-    /// Qualquer pedaco de madeira que pode ser cortado com o machado.
-    /// Os pedacos gerados continuam no mesmo espaco local do tronco original,
-    /// por isso os aneis da madeira ficam no lugar certo em todos os cortes.
+    /// Qualquer pedaço de madeira que pode ser cortado com o machado.
+    /// Os pedaços gerados continuam no mesmo espaço local do tronco original,
+    /// por isso os anéis da madeira ficam no lugar certo em todos os cortes.
     /// </summary>
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public class CuttableWood : MonoBehaviour
     {
         private const float MinPieceMass = 0.5f;
-        // Abaixo disso a direcao de visao e paralela ao tronco e nao serve como eixo de inclinacao
+        // Abaixo disso a direção de visão é paralela ao tronco e não serve como eixo de inclinação
         private const float MinTiltAxisSqrMagnitude = 0.001f;
 
-        [Tooltip("Submesh/material usado na face de dentro (aneis da madeira)")]
+        [Tooltip("Submesh/material usado na face de dentro (anéis da madeira)")]
         [SerializeField] private int _innerSubmesh = 1;
-        [Tooltip("Raio do tronco original, usado para mapear os aneis no corte")]
+        [Tooltip("Raio do tronco original, usado para mapear os anéis no corte")]
         [SerializeField] private float _ringRadius = 0.3f;
-        [Tooltip("Pedacos mais finos que isso (m) nao podem ser cortados")]
+        [Tooltip("Pedaços mais finos que isso (m) não podem ser cortados")]
         [SerializeField] private float _minThickness = 0.08f;
-        [Tooltip("kg/m3, define a massa de cada pedaco")]
+        [Tooltip("kg/m3, define a massa de cada pedaço")]
         [SerializeField] private float _density = 600f;
-        [Tooltip("Velocidade (m/s) com que os dois pedacos se afastam ao cortar")]
+        [Tooltip("Velocidade (m/s) com que os dois pedaços se afastam ao cortar")]
         [SerializeField] private float _separationSpeed = 0.4f;
 
         private MeshFilter _meshFilter;
         private Rigidbody _rigidbody;
         private bool _hasRigidbody;
-        // A malha de um pedaco nunca muda (cortar cria pedacos novos), entao os arrays ficam em cache:
+        // A malha de um pedaço nunca muda (cortar cria pedaços novos), então os arrays ficam em cache:
         // Mesh.vertices/triangles copiam o array inteiro a cada acesso
         private Vector3[] _vertices;
         private int[] _triangles;
@@ -49,7 +49,7 @@ namespace LumberJack.Wood
 
         /// <summary>
         /// Plano de corte (local) perpendicular ao comprimento da madeira no ponto mirado,
-        /// inclinado em "tilt" graus no plano da tela de quem esta olhando.
+        /// inclinado em "tilt" graus no plano da tela de quem está olhando.
         /// </summary>
         public Plane GetCutPlane(Vector3 worldPoint, Vector3 viewForward, Vector3 viewUp, float tilt)
         {
@@ -61,7 +61,7 @@ namespace LumberJack.Wood
         }
 
         /// <summary>
-        /// Plano do mundo -> plano no espaco local deste pedaco.
+        /// Plano do mundo -> plano no espaço local deste pedaço.
         /// </summary>
         public Plane ToLocalPlane(Vector3 worldPoint, Vector3 worldNormal)
         {
@@ -70,7 +70,7 @@ namespace LumberJack.Wood
         }
 
         /// <summary>
-        /// Os dois pedacos ficariam grossos o suficiente com esse corte?
+        /// Os dois pedaços ficariam grossos o suficiente com esse corte?
         /// </summary>
         public bool CanCut(Plane localPlane)
         {
@@ -98,13 +98,13 @@ namespace LumberJack.Wood
             CreatePiece(positive, worldNormal);
             CreatePiece(negative, -worldNormal);
 
-            // Some na hora para os pedacos nao colidirem com o tronco antigo
+            // Some na hora para os pedaços não colidirem com o tronco antigo
             gameObject.SetActive(false);
             Destroy(gameObject);
             return true;
         }
 
-        // Os aneis sao uma textura circular centrada no eixo do tronco (eixo Y local)
+        // Os anéis são uma textura circular centrada no eixo do tronco (eixo Y local)
         private Vector2 RingUV(Vector3 localPoint)
         {
             return new Vector2(localPoint.x / (2f * _ringRadius) + 0.5f, localPoint.z / (2f * _ringRadius) + 0.5f);
@@ -135,7 +135,7 @@ namespace LumberJack.Wood
                 body.angularVelocity = _rigidbody.angularVelocity;
             }
 
-            // Copia as configuracoes deste componente para o pedaco novo
+            // Copia as configurações deste componente para o pedaço novo
             CuttableWood wood = piece.AddComponent<CuttableWood>();
             wood._innerSubmesh = _innerSubmesh;
             wood._ringRadius = _ringRadius;
@@ -144,7 +144,7 @@ namespace LumberJack.Wood
             wood._separationSpeed = _separationSpeed;
             wood.UpdateMass();
 
-            // Pedaco de madeira do jogo: herda o tipo de madeira e recalcula o preco pelo volume
+            // Pedaço de madeira do jogo: herda o tipo de madeira e recalcula o preço pelo volume
             if (TryGetComponent(out WoodPiece woodPiece)) piece.AddComponent<WoodPiece>().CopyFrom(woodPiece);
 
             body.AddForce(pushDirection * _separationSpeed, ForceMode.VelocityChange);

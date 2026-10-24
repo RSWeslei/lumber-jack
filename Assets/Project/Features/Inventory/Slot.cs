@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 namespace LumberJack.Inventory
 {
     /// <summary>
-    /// Um espaco da hotbar (elemento do UI Toolkit) que mostra o icone do item guardado,
+    /// Um espaço da hotbar (elemento do UI Toolkit) que mostra o ícone do item guardado,
     /// a tecla do slot e o tracinho de selecionado (o visual fica todo no Hotbar.uss).
     /// </summary>
     [UxmlElement]

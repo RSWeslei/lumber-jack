@@ -3,7 +3,7 @@ using UnityEngine;
 namespace LumberJack.Inventory
 {
     /// <summary>
-    /// Ponto de entrada para guardar itens no inventario do jogador (hoje so a hotbar).
+    /// Ponto de entrada para guardar itens no inventário do jogador (hoje só a hotbar).
     /// </summary>
     public class InventoryManager : MonoBehaviour
     {
@@ -27,7 +27,7 @@ namespace LumberJack.Inventory
         }
 
         /// <summary>
-        /// Guarda o item no primeiro espaco livre. Retorna false se o inventario estiver cheio.
+        /// Guarda o item no primeiro espaço livre. Retorna false se o inventário estiver cheio.
         /// </summary>
         public bool TryAddItem(ItemDefinition item)
         {

@@ -6,9 +6,9 @@ using UnityEngine.Rendering;
 namespace LumberJack.Wood
 {
     /// <summary>
-    /// Corta uma malha em duas usando um plano (em espaco local da malha) e fecha o buraco do corte
-    /// com uma "tampa". Funciona para malhas cuja secao de corte e convexa ou em formato de estrela
-    /// (troncos, tabuas, pedacos ja cortados).
+    /// Corta uma malha em duas usando um plano (em espaço local da malha) e fecha o buraco do corte
+    /// com uma "tampa". Funciona para malhas cuja seção de corte é convexa ou em formato de estrela
+    /// (troncos, tábuas, pedaços já cortados).
     /// </summary>
     public static class MeshSlicer
     {
@@ -56,7 +56,7 @@ namespace LumberJack.Wood
             }
         }
 
-        // Um vertice "solto" (com normal e uv) usado durante o corte de um triangulo
+        // Um vértice "solto" (com normal e uv) usado durante o corte de um triângulo
         private struct Vertex
         {
             public Vector3 Position;
@@ -76,8 +76,8 @@ namespace LumberJack.Wood
 
         /// <summary>
         /// Corta a malha. "positive" fica do lado para onde a normal do plano aponta.
-        /// capSubmesh e o submesh (material) usado na tampa do corte e capUV gera o uv dela.
-        /// Retorna false se o plano nao atravessa a malha.
+        /// capSubmesh é o submesh (material) usado na tampa do corte e capUV gera o uv dela.
+        /// Retorna false se o plano não atravessa a malha.
         /// </summary>
         public static bool Slice(Mesh mesh, Plane plane, int capSubmesh, Func<Vector3, Vector2> capUV,
             out Mesh positive, out Mesh negative)
@@ -126,7 +126,7 @@ namespace LumberJack.Wood
                         continue;
                     }
 
-                    // Acha o vertice que ficou sozinho de um lado e gira o triangulo
+                    // Acha o vértice que ficou sozinho de um lado e gira o triângulo
                     // para ele ficar em "a", mantendo a ordem (winding) original.
                     int lone = side[0] != side[1] && side[0] != side[2] ? 0 : side[1] != side[0] && side[1] != side[2] ? 1 : 2;
                     int ia = tri[lone], ib = tri[(lone + 1) % 3], ic = tri[(lone + 2) % 3];
@@ -167,9 +167,9 @@ namespace LumberJack.Wood
         }
 
         /// <summary>
-        /// Contorno do corte (pontos em ordem, espaco local) sem cortar nada. Usado no preview,
-        /// que roda todo frame: recebe os arrays da malha ja em cache e preenche <paramref name="outline"/>
-        /// (reaproveitada pelo chamador) sem alocar memoria.
+        /// Contorno do corte (pontos em ordem, espaço local) sem cortar nada. Usado no preview,
+        /// que roda todo frame: recebe os arrays da malha já em cache e preenche <paramref name="outline"/>
+        /// (reaproveitada pelo chamador) sem alocar memória.
         /// </summary>
         public static void GetCrossSection(Vector3[] vertices, int[] triangles, Plane plane, List<Vector3> outline)
         {
@@ -194,7 +194,7 @@ namespace LumberJack.Wood
         }
 
         /// <summary>
-        /// Volume da malha fechada (usado para calcular a massa dos pedacos).
+        /// Volume da malha fechada (usado para calcular a massa dos pedaços).
         /// </summary>
         public static float GetVolume(Mesh mesh)
         {
@@ -238,7 +238,7 @@ namespace LumberJack.Wood
             }
         }
 
-        // Junta pontos repetidos (cada ponto do corte aparece em dois triangulos vizinhos), na propria lista
+        // Junta pontos repetidos (cada ponto do corte aparece em dois triângulos vizinhos), na própria lista
         private static void WeldInPlace(List<Vector3> points)
         {
             float sqrDistance = WeldDistance * WeldDistance;
@@ -260,7 +260,7 @@ namespace LumberJack.Wood
             points.RemoveRange(count, points.Count - count);
         }
 
-        // Ordena os pontos do contorno pelo angulo em volta do centro, no plano do corte. Devolve o centro.
+        // Ordena os pontos do contorno pelo ângulo em volta do centro, no plano do corte. Devolve o centro.
         private static Vector3 SortAroundCenter(List<Vector3> points, Vector3 planeNormal)
         {
             if (points.Count == 0) return Vector3.zero;

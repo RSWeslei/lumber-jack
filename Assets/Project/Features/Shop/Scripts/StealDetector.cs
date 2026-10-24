@@ -3,7 +3,7 @@ using UnityEngine;
 namespace LumberJack.Shop
 {
     /// <summary>
-    /// Na saida da loja: caixa que passa por aqui sem ter sido paga e destruida.
+    /// Na saída da loja: caixa que passa por aqui sem ter sido paga é destruída.
     /// </summary>
     public class StealDetector : MonoBehaviour
     {

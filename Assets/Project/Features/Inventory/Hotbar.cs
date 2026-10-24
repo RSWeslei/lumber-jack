@@ -7,8 +7,8 @@ using UnityEngine.UIElements;
 namespace LumberJack.Inventory
 {
     /// <summary>
-    /// Hotbar do jogador: guarda itens nos slots do UI Toolkit e equipa na mao o item do slot
-    /// selecionado. Selecionar de novo o slot atual guarda o item (mao vazia). Ao trocar, mostra
+    /// Hotbar do jogador: guarda itens nos slots do UI Toolkit e equipa na mão o item do slot
+    /// selecionado. Selecionar de novo o slot atual guarda o item (mão vazia). Ao trocar, mostra
     /// o nome do item por um instante acima da barra.
     /// </summary>
     [RequireComponent(typeof(UIDocument))]
@@ -20,7 +20,7 @@ namespace LumberJack.Inventory
         private const string ItemNameVisibleClass = "hotbar__item-name--visible";
 
         [SerializeField] private Hand _hand;
-        [Tooltip("Quanto tempo (ms) o nome do item fica visivel depois de trocar de slot")]
+        [Tooltip("Quanto tempo (ms) o nome do item fica visível depois de trocar de slot")]
         [SerializeField] private long _itemNameDurationMs = 1500;
 
         private readonly List<Slot> _slots = new List<Slot>();
@@ -34,7 +34,7 @@ namespace LumberJack.Inventory
             VisualElement root = GetComponent<UIDocument>().rootVisualElement;
             root.Q<VisualElement>(SlotContainerName).Query<Slot>().ToList(_slots);
             _itemName = root.Q<Label>(ItemNameLabelName);
-            // Criado uma vez e so reagendado depois (sem alocar a cada troca)
+            // Criado uma vez e só reagendado depois (sem alocar a cada troca)
             _hideItemNameTask = _itemName.schedule.Execute(HideItemName);
             _hideItemNameTask.Pause();
 
@@ -67,7 +67,7 @@ namespace LumberJack.Inventory
                 if (!_slots[i].IsEmpty) continue;
 
                 _slots[i].SetItem(item);
-                // Caiu no slot que ja esta selecionado: equipa na hora
+                // Caiu no slot que já está selecionado: equipa na hora
                 if (_isSlotEquipped && i == _selectedIndex)
                 {
                     _hand.LoadItem(item);

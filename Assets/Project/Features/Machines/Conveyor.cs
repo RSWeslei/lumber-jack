@@ -3,7 +3,7 @@ using UnityEngine;
 namespace LumberJack.Machines
 {
     /// <summary>
-    /// Esteira: a superficie fica parada, mas empurra o que estiver em cima para frente.
+    /// Esteira: a superfície fica parada, mas empurra o que estiver em cima para frente.
     /// </summary>
     [RequireComponent(typeof(Rigidbody))]
     public class Conveyor : MonoBehaviour
@@ -20,8 +20,8 @@ namespace LumberJack.Machines
 
         private void FixedUpdate()
         {
-            // Volta a esteira um pouco e move de volta com MovePosition: a esteira nao sai do lugar,
-            // mas a fisica entende que ela andou para frente e arrasta os objetos em cima
+            // Volta a esteira um pouco e move de volta com MovePosition: a esteira não sai do lugar,
+            // mas a física entende que ela andou para frente e arrasta os objetos em cima
             Vector3 position = _body.position;
             _body.position += Vector3.back * _speed * Time.fixedDeltaTime;
             _body.MovePosition(position);

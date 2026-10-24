@@ -7,7 +7,7 @@ namespace LumberJack.Player
     /// </summary>
     public class BasicRigidBodyPush : MonoBehaviour
     {
-        // Abaixo disso o contato e com algo sob os pes, que nao deve ser empurrado
+        // Abaixo disso o contato é com algo sob os pés, que não deve ser empurrado
         private const float MinPushDirectionY = -0.3f;
 
         [SerializeField] private LayerMask _pushLayers;

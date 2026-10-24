@@ -8,17 +8,17 @@ using UnityEngine.Rendering.Universal;
 namespace LumberJack.Editor
 {
     /// <summary>
-    /// Iluminacao do mundo no estilo low poly "hora dourada": Menu "Lumber Jack > Aplicar iluminacao do mundo".
-    /// Ambiente em gradiente (nao depende de bake, entao o lado sem sol nunca fica preto), sol quente,
-    /// neblina, sol desenhado no ceu (Polyverse Skies) e pos-processamento. Gera so os reflexos do ceu
-    /// (sem GI, rapido). Pode rodar de novo.
+    /// Iluminação do mundo no estilo low poly "hora dourada": Menu "Lumber Jack > Aplicar iluminação do mundo".
+    /// Ambiente em gradiente (não depende de bake, então o lado sem sol nunca fica preto), sol quente,
+    /// neblina, sol desenhado no céu (Polyverse Skies) e pós-processamento. Gera só os reflexos do céu
+    /// (sem GI, rápido). Pode rodar de novo.
     /// </summary>
     public static class WorldLightingSetup
     {
         private const string VolumeProfilePath = "Assets/Project/Settings/MainVolumeProfile.asset";
         private const string LightingSettingsPath = "Assets/Project/Settings/MainLighting.lighting";
 
-        // Ambiente em gradiente: ceu (azulado), horizonte (quente) e chao (terra)
+        // Ambiente em gradiente: céu (azulado), horizonte (quente) e chão (terra)
         private static readonly Color AmbientSky = new Color(0.40f, 0.45f, 0.55f);
         private static readonly Color AmbientEquator = new Color(0.45f, 0.38f, 0.31f);
         private static readonly Color AmbientGround = new Color(0.20f, 0.17f, 0.14f);
@@ -28,7 +28,7 @@ namespace LumberJack.Editor
         private static readonly Color SunFilter = new Color(1f, 0.92f, 0.80f);
         private const float SunTemperatureKelvin = 4600f;
         private const float SunIntensity = 1.25f;
-        // Sombra nao totalmente opaca: o ambiente ainda clareia um pouco
+        // Sombra não totalmente opaca: o ambiente ainda clareia um pouco
         private const float SunShadowStrength = 0.85f;
 
         private static readonly Color FogColor = new Color(0.86f, 0.68f, 0.52f);
@@ -41,7 +41,7 @@ namespace LumberJack.Editor
         private const float BloomIntensity = 0.4f;
         private const float BloomThreshold = 1.1f;
 
-        [MenuItem("Lumber Jack/Aplicar iluminacao do mundo")]
+        [MenuItem("Lumber Jack/Aplicar iluminação do mundo")]
         public static void Apply()
         {
             Light sun = FindSun();
@@ -57,7 +57,7 @@ namespace LumberJack.Editor
             ApplyPostProcessing();
             EditorSceneManager.MarkSceneDirty(sun.gameObject.scene);
             BakeReflectionsOnly();
-            Debug.Log("Iluminacao do mundo aplicada. Salve a cena (Ctrl+S).");
+            Debug.Log("Iluminação do mundo aplicada. Salve a cena (Ctrl+S).");
         }
 
         private static Light FindSun()
@@ -87,7 +87,7 @@ namespace LumberJack.Editor
 
         private static void ApplySun(Light sun)
         {
-            Undo.RecordObjects(new Object[] { sun, sun.transform }, "Aplicar iluminacao do mundo");
+            Undo.RecordObjects(new Object[] { sun, sun.transform }, "Aplicar iluminação do mundo");
             sun.transform.rotation = Quaternion.Euler(SunRotation);
             sun.useColorTemperature = true;
             sun.colorTemperature = SunTemperatureKelvin;
@@ -97,12 +97,12 @@ namespace LumberJack.Editor
             sun.shadowStrength = SunShadowStrength;
         }
 
-        // O ceu (Polyverse Skies) so desenha o sol se um PolyverseSkies na cena apontar para a luz
+        // O céu (Polyverse Skies) só desenha o sol se um PolyverseSkies na cena apontar para a luz
         private static void ApplySkySun(Light sun)
         {
             if (!sun.TryGetComponent(out PolyverseSkies sky)) sky = Undo.AddComponent<PolyverseSkies>(sun.gameObject);
 
-            Undo.RecordObject(sky, "Aplicar iluminacao do mundo");
+            Undo.RecordObject(sky, "Aplicar iluminação do mundo");
             sky.sunDirection = sun.gameObject;
         }
 
@@ -111,7 +111,7 @@ namespace LumberJack.Editor
             VolumeProfile profile = AssetDatabase.LoadAssetAtPath<VolumeProfile>(VolumeProfilePath);
             if (profile == null)
             {
-                Debug.LogWarning($"Perfil de pos-processamento nao encontrado em {VolumeProfilePath}.");
+                Debug.LogWarning($"Perfil de pós-processamento não encontrado em {VolumeProfilePath}.");
                 return;
             }
 
@@ -142,7 +142,7 @@ namespace LumberJack.Editor
             return component;
         }
 
-        // Sem GI: so gera a sonda de ambiente e os reflexos do ceu (sem isso, superficies lisas refletem preto)
+        // Sem GI: só gera a sonda de ambiente e os reflexos do céu (sem isso, superfícies lisas refletem preto)
         private static void BakeReflectionsOnly()
         {
             LightingSettings settings = AssetDatabase.LoadAssetAtPath<LightingSettings>(LightingSettingsPath);

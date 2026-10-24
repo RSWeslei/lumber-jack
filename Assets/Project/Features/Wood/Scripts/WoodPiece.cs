@@ -3,16 +3,16 @@ using UnityEngine;
 namespace LumberJack.Wood
 {
     /// <summary>
-    /// Qualquer pedaco de madeira do jogo (tronco, pedaco cortado, tabua): o tipo de madeira
+    /// Qualquer pedaço de madeira do jogo (tronco, pedaço cortado, tábua): o tipo de madeira
     /// e o valor de venda, calculado pelo volume real da malha.
     /// </summary>
-    // ExecuteAlways: mostra o valor certo tambem fora do Play (prefabs e cena)
+    // ExecuteAlways: mostra o valor certo também fora do Play (prefabs e cena)
     [ExecuteAlways]
     [RequireComponent(typeof(MeshFilter))]
     public class WoodPiece : MonoBehaviour
     {
         [SerializeField] private WoodDefinition _definition;
-        [Tooltip("Ja passou pela refinaria (tabua)")]
+        [Tooltip("Já passou pela refinaria (tábua)")]
         [SerializeField] private bool _isRefined;
 
         private MeshFilter _meshFilter;
@@ -22,7 +22,7 @@ namespace LumberJack.Wood
         /// <summary>Valor de venda em centavos.</summary>
         public int ValueCents { get; private set; }
 
-        /// <summary>Volume real da malha em m3 (vale para cubos escalados e pedacos cortados).</summary>
+        /// <summary>Volume real da malha em m3 (vale para cubos escalados e pedaços cortados).</summary>
         public float Volume
         {
             get
@@ -50,7 +50,7 @@ namespace LumberJack.Wood
         }
 
         /// <summary>
-        /// Usado quando um pedaco e cortado: o pedaco novo herda o tipo de madeira.
+        /// Usado quando um pedaço é cortado: o pedaço novo herda o tipo de madeira.
         /// </summary>
         public void CopyFrom(WoodPiece other)
         {

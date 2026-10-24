@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 namespace LumberJack.Vehicles
 {
     /// <summary>
-    /// Um eixo do veiculo: as duas rodas e se ele traciona e/ou esterca.
+    /// Um eixo do veículo: as duas rodas e se ele traciona e/ou esterca.
     /// </summary>
     [Serializable]
     public class AxleInfo
@@ -16,7 +16,7 @@ namespace LumberJack.Vehicles
         [SerializeField] private WheelCollider _rightWheel;
         [Tooltip("Este eixo recebe o torque do motor")]
         [SerializeField] private bool _isMotor;
-        [Tooltip("Este eixo vira com a direcao")]
+        [Tooltip("Este eixo vira com a direção")]
         [SerializeField] private bool _isSteering;
 
         public WheelCollider LeftWheel => _leftWheel;
@@ -26,7 +26,7 @@ namespace LumberJack.Vehicles
     }
 
     /// <summary>
-    /// Dirige o veiculo com WheelColliders. Fica desligado ate o jogador entrar pela porta.
+    /// Dirige o veículo com WheelColliders. Fica desligado até o jogador entrar pela porta.
     /// </summary>
     public class VehicleController : MonoBehaviour
     {
@@ -36,17 +36,17 @@ namespace LumberJack.Vehicles
         [SerializeField] private float _maxMotorTorque = 400f;
         [Tooltip("Graus")]
         [SerializeField] private float _maxSteeringAngle = 30f;
-        [Tooltip("Graus por pixel de mouse ao girar a camera em volta do carro")]
+        [Tooltip("Graus por pixel de mouse ao girar a câmera em volta do carro")]
         [SerializeField] private float _cameraSensitivity = 0.1f;
 
-        [Header("Referencias")]
+        [Header("Referências")]
         [SerializeField] private Transform _playerTransform;
         [SerializeField] private Camera _vehicleCamera;
 
         private VehicleInputs _inputs;
         private Transform _cameraTransform;
         private bool _isHandbrakeOn;
-        // Rodas visuais (primeiro filho de cada WheelCollider), cacheadas para nao procurar a cada FixedUpdate
+        // Rodas visuais (primeiro filho de cada WheelCollider), cacheadas para não procurar a cada FixedUpdate
         private readonly List<(WheelCollider collider, Transform visual)> _wheelVisuals =
             new List<(WheelCollider, Transform)>();
 
@@ -54,7 +54,7 @@ namespace LumberJack.Vehicles
         {
             if (_vehicleCamera == null || _playerTransform == null)
             {
-                Debug.LogError($"{nameof(VehicleController)} sem camera ou sem referencia do player.", this);
+                Debug.LogError($"{nameof(VehicleController)} sem câmera ou sem referência do player.", this);
                 enabled = false;
                 return;
             }

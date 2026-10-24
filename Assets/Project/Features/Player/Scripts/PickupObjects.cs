@@ -5,7 +5,7 @@ namespace LumberJack.Player
 {
     /// <summary>
     /// Agarra rigidbodies com a tecla de pegar e leva o ponto agarrado para a frente da mira
-    /// pela fisica (colide normalmente). Objetos pesados vem mais devagar. Solta ao largar a
+    /// pela física (colide normalmente). Objetos pesados vêm mais devagar. Solta ao largar a
     /// tecla ou se o objeto ficar preso longe demais.
     /// </summary>
     public class PickupObjects : MonoBehaviour
@@ -14,17 +14,17 @@ namespace LumberJack.Player
 
         [Tooltip("Camada(s) que podem ser agarradas")]
         [SerializeField] private LayerMask _layerMask;
-        [Tooltip("Camera do jogador (com o PlayerAim)")]
+        [Tooltip("Câmera do jogador (com o PlayerAim)")]
         [SerializeField] private Transform _cameraTransform;
 
         [Header("Carregar")]
         [Tooltip("Solta o objeto se o ponto agarrado ficar mais longe que isso (m) de onde deveria estar")]
         [SerializeField] private float _maxDistance = 1.5f;
-        [Tooltip("Quanto mais alto, mais rapido o objeto alcanca a mira")]
+        [Tooltip("Quanto mais alto, mais rápido o objeto alcança a mira")]
         [SerializeField] private float _followStrength = 12f;
-        [Tooltip("Velocidade maxima (m/s) de um objeto leve")]
+        [Tooltip("Velocidade máxima (m/s) de um objeto leve")]
         [SerializeField] private float _maxCarrySpeed = 8f;
-        [Tooltip("Ate esta massa (kg) o objeto conta como leve; acima disso fica proporcionalmente mais lento")]
+        [Tooltip("Até esta massa (kg) o objeto conta como leve; acima disso fica proporcionalmente mais lento")]
         [SerializeField] private float _referenceMass = 50f;
 
         private PlayerAim _aim;
@@ -52,7 +52,7 @@ namespace LumberJack.Player
         {
             if (!_isCarrying) return;
 
-            // O objeto pode ter sido destruido enquanto era carregado (vendido, refinado, cortado)
+            // O objeto pode ter sido destruído enquanto era carregado (vendido, refinado, cortado)
             if (!_carriedBody)
             {
                 ClearCarried();

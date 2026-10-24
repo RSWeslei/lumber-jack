@@ -13,14 +13,14 @@ namespace LumberJack.Vehicles
     }
 
     /// <summary>
-    /// Porta do veiculo. A dianteira esquerda leva ao banco do motorista; as outras ainda nao fazem nada.
+    /// Porta do veículo. A dianteira esquerda leva ao banco do motorista; as outras ainda não fazem nada.
     /// </summary>
     public class VehicleDoor : MonoBehaviour, IInteractable, IDisplayable
     {
         [SerializeField] private DoorSide _side;
 
         private VehicleController _vehicle;
-        // Montada uma vez: a tecla nao muda durante o jogo e assim a dica nao aloca string
+        // Montada uma vez: a tecla não muda durante o jogo e assim a dica não aloca string
         private string _hint;
 
         private void Awake()

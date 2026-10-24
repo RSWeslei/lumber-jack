@@ -5,22 +5,22 @@ using UnityEngine;
 namespace LumberJack.Player
 {
     // Movimento em primeira pessoa com CharacterController.
-    // Aceleracao por vetor (troca de direcao responsiva), controle no ar, coyote time,
-    // jump buffer, pulo variavel (soltar o botao corta o pulo) e queda mais pesada que a subida.
+    // Aceleração por vetor (troca de direção responsiva), controle no ar, coyote time,
+    // jump buffer, pulo variável (soltar o botão corta o pulo) e queda mais pesada que a subida.
     [RequireComponent(typeof(CharacterController))]
     public class PlayerMovement : MonoBehaviour
     {
         [Header("Velocidade (m/s)")]
         [SerializeField] private float _walkSpeed = 4.5f;
         [SerializeField] private float _sprintSpeed = 7f;
-        [Tooltip("Andar de costas e mais lento")]
+        [Tooltip("Andar de costas é mais lento")]
         [SerializeField] private float _backwardMultiplier = 0.75f;
 
-        [Header("Aceleracao (m/s2)")]
+        [Header("Aceleração (m/s2)")]
         [SerializeField] private float _groundAcceleration = 45f;
         [SerializeField] private float _groundDeceleration = 55f;
         [SerializeField] private float _airAcceleration = 12f;
-        [Tooltip("Perda de velocidade no ar sem input (0 = mantem o embalo)")]
+        [Tooltip("Perda de velocidade no ar sem input (0 = mantém o embalo)")]
         [SerializeField] private float _airDrag = 1.5f;
 
         [Header("Pulo e gravidade")]
@@ -32,12 +32,12 @@ namespace LumberJack.Player
         [SerializeField] private float _jumpCutMultiplier = 0.5f;
         [Tooltip("Tempo para ainda pular depois de sair da beirada")]
         [SerializeField] private float _coyoteTime = 0.12f;
-        [Tooltip("Apertar pulo um pouco antes de tocar o chao ainda conta")]
+        [Tooltip("Apertar pulo um pouco antes de tocar o chão ainda conta")]
         [SerializeField] private float _jumpBufferTime = 0.15f;
         [SerializeField] private float _terminalVelocity = 50f;
 
-        [Header("Chao")]
-        [Tooltip("Velocidade para baixo que mantem o player grudado no chao e em rampas")]
+        [Header("Chão")]
+        [Tooltip("Velocidade para baixo que mantém o player grudado no chão e em rampas")]
         [SerializeField] private float _groundStickVelocity = -4f;
         [SerializeField] private float _groundProbeDistance = 0.2f;
 
@@ -49,7 +49,7 @@ namespace LumberJack.Player
         private float _jumpBufferTimer;
         private bool _isJumping;
         private readonly RaycastHit[] _probeHits = new RaycastHit[8];
-        // Colisores do proprio player, ignorados pela sonda do chao
+        // Colisores do próprio player, ignorados pela sonda do chão
         private Collider[] _ownColliders;
 
         private Vector2 _moveInput;
@@ -63,7 +63,7 @@ namespace LumberJack.Player
         public float WalkSpeed => _walkSpeed;
         public float HorizontalSpeed => new Vector3(_controller.velocity.x, 0f, _controller.velocity.z).magnitude;
 
-        /// <summary>Disparado ao tocar o chao, com a velocidade de queda (m/s, positiva).</summary>
+        /// <summary>Disparado ao tocar o chão, com a velocidade de queda (m/s, positiva).</summary>
         public event Action<float> OnLanded;
         public event Action OnJumped;
 
@@ -94,7 +94,7 @@ namespace LumberJack.Player
 
         private void UpdateHorizontalVelocity(float deltaTime)
         {
-            // Correr so para frente (nao de lado nem de costas)
+            // Correr só para frente (não de lado nem de costas)
             IsSprinting = _sprintHeld && _moveInput.y > 0.1f;
 
             float targetSpeed = IsSprinting ? _sprintSpeed : _walkSpeed;
@@ -108,7 +108,7 @@ namespace LumberJack.Player
             if (IsGrounded) rate = hasInput ? _groundAcceleration : _groundDeceleration;
             else rate = hasInput ? _airAcceleration : _airDrag;
 
-            // MoveTowards no vetor (e nao so na velocidade) deixa a troca de direcao firme
+            // MoveTowards no vetor (e não só na velocidade) deixa a troca de direção firme
             _horizontalVelocity = Vector3.MoveTowards(_horizontalVelocity, targetVelocity, rate * deltaTime);
         }
 
@@ -127,7 +127,7 @@ namespace LumberJack.Player
                 OnJumped?.Invoke();
             }
 
-            // Pulo variavel: soltar o botao durante a subida corta o pulo uma vez
+            // Pulo variável: soltar o botão durante a subida corta o pulo uma vez
             if (_isJumping && !_jumpHeld && _verticalVelocity > 0f)
             {
                 _verticalVelocity *= _jumpCutMultiplier;
@@ -149,7 +149,7 @@ namespace LumberJack.Player
         {
             Vector3 horizontal = _horizontalVelocity;
 
-            // No chao, segue a inclinacao da rampa: descer rampa nao fica "pulando"
+            // No chão, segue a inclinação da rampa: descer rampa não fica "pulando"
             if (IsGrounded && horizontal.sqrMagnitude > 0f)
             {
                 horizontal = Vector3.ProjectOnPlane(horizontal, _groundNormal).normalized * horizontal.magnitude;
@@ -158,7 +158,7 @@ namespace LumberJack.Player
             float fallSpeed = -_verticalVelocity;
             CollisionFlags flags = _controller.Move((horizontal + Vector3.up * _verticalVelocity) * deltaTime);
 
-            // Bateu a cabeca no teto: para de subir
+            // Bateu a cabeça no teto: para de subir
             if ((flags & CollisionFlags.Above) != 0 && _verticalVelocity > 0f)
             {
                 _verticalVelocity = 0f;
@@ -175,12 +175,12 @@ namespace LumberJack.Player
             }
             else if (wasGrounded && !IsGrounded && !_isJumping)
             {
-                // Saiu andando de uma beirada: comeca a cair do zero, sem o "grude" no chao
+                // Saiu andando de uma beirada: começa a cair do zero, sem o "grude" no chão
                 _verticalVelocity = 0f;
             }
         }
 
-        // Procura o chao logo abaixo dos pes (ignorando os proprios colisores) e guarda a normal
+        // Procura o chão logo abaixo dos pés (ignorando os próprios colisores) e guarda a normal
         private bool ProbeGround()
         {
             float radius = _controller.radius * 0.95f;

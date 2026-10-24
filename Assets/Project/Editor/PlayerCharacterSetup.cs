@@ -7,8 +7,8 @@ namespace LumberJack.Editor
 {
     /// <summary>
     /// Monta o personagem do jogador: Menu "Lumber Jack > Configurar personagem do jogador".
-    /// Corpo (Kenney) no lugar da capsula, so projetando sombra (em primeira pessoa voce ve a sombra,
-    /// os outros jogadores verao o corpo). Pode rodar de novo.
+    /// Corpo (Kenney) no lugar da cápsula, só projetando sombra (em primeira pessoa você vê a sombra,
+    /// os outros jogadores verão o corpo). Pode rodar de novo.
     /// </summary>
     public static class PlayerCharacterSetup
     {
@@ -31,7 +31,7 @@ namespace LumberJack.Editor
             int playerLayer = LayerMask.NameToLayer(PlayerLayerName);
             if (playerLayer < 0)
             {
-                Debug.LogError($"Camada '{PlayerLayerName}' nao existe (Project Settings > Tags and Layers).");
+                Debug.LogError($"Camada '{PlayerLayerName}' não existe (Project Settings > Tags and Layers).");
                 return;
             }
 
@@ -61,12 +61,12 @@ namespace LumberJack.Editor
                 if (idle != null) idle.SampleAnimation(body, 0f);
                 if (body.TryGetComponent(out Animator bodyAnimator)) Object.DestroyImmediate(bodyAnimator);
 
-                // Escala o modelo para a altura do CharacterController e coloca os pes na base dele
+                // Escala o modelo para a altura do CharacterController e coloca os pés na base dele
                 CharacterController controller = root.GetComponent<CharacterController>();
                 Bounds bounds = GetBounds(body);
                 if (bounds.size.y < MinModelHeight)
                 {
-                    Debug.LogError($"Nao consegui medir a altura do modelo {BodyModelPath}.");
+                    Debug.LogError($"Não consegui medir a altura do modelo {BodyModelPath}.");
                     return;
                 }
                 float scale = controller.height / bounds.size.y;
@@ -110,7 +110,7 @@ namespace LumberJack.Editor
         {
             foreach (Object asset in AssetDatabase.LoadAllAssetsAtPath(modelPath))
             {
-                // "__preview__" sao clips internos do importador
+                // "__preview__" são clips internos do importador
                 if (asset is AnimationClip clip && !clip.name.StartsWith("__preview__") && clip.name.StartsWith(namePrefix)) return clip;
             }
             return null;

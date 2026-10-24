@@ -5,14 +5,14 @@ using UnityEngine.InputSystem;
 
 namespace LumberJack.Player
 {
-    // Camera em primeira pessoa: mouse cru (sem suavizacao/atraso), balanco da cabeca,
-    // "afundada" ao aterrissar, leve inclinacao ao andar de lado e FOV maior ao correr.
-    // Roda antes do PlayerMovement para o movimento usar a rotacao deste frame.
+    // Câmera em primeira pessoa: mouse cru (sem suavização/atraso), balanço da cabeça,
+    // "afundada" ao aterrissar, leve inclinação ao andar de lado e FOV maior ao correr.
+    // Roda antes do PlayerMovement para o movimento usar a rotação deste frame.
     [DefaultExecutionOrder(-10)]
     [RequireComponent(typeof(PlayerMovement))]
     public class FirstPersonCamera : MonoBehaviour
     {
-        [Tooltip("Pivo da cabeca (altura dos olhos); gira no eixo X")]
+        [Tooltip("Pivô da cabeça (altura dos olhos); gira no eixo X")]
         [SerializeField] private Transform _cameraRoot;
         [Tooltip("Vazio = usa a Camera.main")]
         [SerializeField] private Camera _camera;
@@ -22,7 +22,7 @@ namespace LumberJack.Player
         [SerializeField] private float _gamepadSensitivity = 1f;
         [SerializeField] private float _pitchLimit = 89f;
         [Tooltip("Espalha cada leitura do mouse por essa janela (s). Mouses de 125 Hz deixam frames sem " +
-                 "movimento e a camera gira aos trancos; ~0.01 resolve com atraso minimo. 0 = mouse cru")]
+                 "movimento e a câmera gira aos trancos; ~0.01 resolve com atraso mínimo. 0 = mouse cru")]
         [SerializeField] private float _mouseResampleWindow = 0.01f;
 
         [Header("Lente")]
@@ -31,7 +31,7 @@ namespace LumberJack.Player
         [SerializeField] private float _fovSharpness = 8f;
         [SerializeField] private float _nearClip = 0.05f;
 
-        [Header("Balanco da cabeca")]
+        [Header("Balanço da cabeça")]
         [Tooltip("Passos por metro andado")]
         [SerializeField] private float _bobFrequency = 0.55f;
         [SerializeField] private float _bobVerticalAmplitude = 0.04f;
@@ -39,13 +39,13 @@ namespace LumberJack.Player
         [SerializeField] private float _bobSharpness = 10f;
 
         [Header("Aterrissagem")]
-        [Tooltip("Quanto a camera desce por m/s de queda")]
+        [Tooltip("Quanto a câmera desce por m/s de queda")]
         [SerializeField] private float _landingImpulse = 0.22f;
         [SerializeField] private float _maxLandingImpulse = 2.2f;
         [SerializeField] private float _springStiffness = 120f;
         [SerializeField] private float _springDamping = 16f;
 
-        [Header("Inclinacao ao andar de lado")]
+        [Header("Inclinação ao andar de lado")]
         [SerializeField] private float _strafeTilt = 1.2f;
         [SerializeField] private float _tiltSharpness = 8f;
 
@@ -98,7 +98,7 @@ namespace LumberJack.Player
             UpdateTilt(deltaTime);
             UpdateFov(deltaTime);
 
-            // A camera acompanha a cabeca exatamente, mais os efeitos
+            // A câmera acompanha a cabeça exatamente, mais os efeitos
             _cameraTransform.SetPositionAndRotation(
                 _cameraRoot.position + _cameraRoot.rotation * bob + Vector3.up * _landingOffset,
                 _cameraRoot.rotation * Quaternion.Euler(0f, 0f, _tilt));
@@ -111,7 +111,7 @@ namespace LumberJack.Player
             InputAction look = InputManager.Instance.PlayerInputs.PlayerMovement.Look;
             Vector2 delta = look.ReadValue<Vector2>();
 
-            // Mouse ja vem em "pixels deste frame"; o analogico e uma velocidade, entao usa deltaTime
+            // Mouse já vem em "pixels deste frame"; o analógico é uma velocidade, então usa deltaTime
             bool gamepad = look.activeControl != null && look.activeControl.device is Gamepad;
             if (gamepad) delta *= _gamepadSensitivity * Time.deltaTime;
             else delta = ResampleMouse(delta) * _mouseSensitivity;
@@ -121,13 +121,13 @@ namespace LumberJack.Player
             transform.Rotate(Vector3.up * delta.x);
         }
 
-        // Media movel da *velocidade* do mouse numa janela curta: cada leitura vira um giro continuo
+        // Média móvel da *velocidade* do mouse numa janela curta: cada leitura vira um giro contínuo
         // durante a janela, e o total girado continua igual ao do mouse (nada se perde nem sobra).
         private Vector2 ResampleMouse(Vector2 rawDelta)
         {
             if (_mouseResampleWindow <= 0f) return rawDelta;
 
-            // Com FPS baixo (frame maior que a janela) o resultado e o proprio delta, sem atraso
+            // Com FPS baixo (frame maior que a janela) o resultado é o próprio delta, sem atraso
             float deltaTime = Time.unscaledDeltaTime;
             float window = Mathf.Max(_mouseResampleWindow, deltaTime);
 
@@ -146,7 +146,7 @@ namespace LumberJack.Player
             float targetWeight = Mathf.Clamp01(speed / _movement.WalkSpeed);
             _bobWeight = Mathf.Lerp(_bobWeight, targetWeight, Sharpness(_bobSharpness, deltaTime));
 
-            // A fase avanca com a distancia andada, entao correr da passos mais rapidos naturalmente
+            // A fase avança com a distância andada, então correr dá passos mais rápidos naturalmente
             _bobPhase += speed * _bobFrequency * Mathf.PI * deltaTime;
 
             return new Vector3(
@@ -187,7 +187,7 @@ namespace LumberJack.Player
             Cursor.visible = false;
         }
 
-        // Suavizacao independente do framerate
+        // Suavização independente do framerate
         private static float Sharpness(float sharpness, float deltaTime)
         {
             return 1f - Mathf.Exp(-sharpness * deltaTime);

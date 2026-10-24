@@ -55,15 +55,15 @@ namespace LumberJack.Editor
         {
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
 
-            // Carrega o prefab so depois da cena nova: o NewScene descarrega assets que nao estao
-            // sendo usados e a referencia antiga viraria null
+            // Carrega o prefab só depois da cena nova: o NewScene descarrega assets que não estão
+            // sendo usados e a referência antiga viraria null
             CuttableWood logPrefab = AssetDatabase.LoadAssetAtPath<CuttableWood>(LogPrefabPath);
 
             GameObject light = GameObject.Find("Directional Light");
             light.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
             light.GetComponent<Light>().shadows = LightShadows.Soft;
 
-            // Chao e dois cavaletes para o tronco ficar em cima
+            // Chão e dois cavaletes para o tronco ficar em cima
             GameObject ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
             ground.name = "Ground";
             ground.transform.localScale = new Vector3(3f, 1f, 3f);
@@ -77,7 +77,7 @@ namespace LumberJack.Editor
             spawner.transform.position = new Vector3(0f, 0.4f + LogRadius + 0.05f, 0f);
             SetField(spawner.AddComponent<LogSpawner>(), "_logPrefab", logPrefab);
 
-            // Camera = jogador: anda, mira e corta
+            // Câmera = jogador: anda, mira e corta
             GameObject cameraObject = GameObject.Find("Main Camera");
             cameraObject.transform.SetPositionAndRotation(new Vector3(0f, 1.6f, -1.8f), Quaternion.Euler(25f, 0f, 0f));
             cameraObject.GetComponent<Camera>().nearClipPlane = 0.05f;
@@ -106,7 +106,7 @@ namespace LumberJack.Editor
 
         private static Transform BuildAxe(Transform parent, Material handleMaterial, Material headMaterial)
         {
-            // O pivo fica na mao; o cabo sobe (Y) e a lamina aponta para frente (Z)
+            // O pivô fica na mão; o cabo sobe (Y) e a lâmina aponta para frente (Z)
             GameObject pivot = new GameObject("Axe");
             pivot.transform.SetParent(parent, false);
             pivot.transform.localPosition = new Vector3(0.38f, -0.42f, 0.55f);
@@ -167,7 +167,7 @@ namespace LumberJack.Editor
             CuttableWood wood = log.AddComponent<CuttableWood>();
             SetField(wood, "_ringRadius", LogRadius);
 
-            // Madeira do jogo: tag usada pela refinaria e tipo de madeira para o preco
+            // Madeira do jogo: tag usada pela refinaria e tipo de madeira para o preço
             log.tag = "Wood";
             SetField(log.AddComponent<WoodPiece>(), "_definition", AssetDatabase.LoadAssetAtPath<WoodDefinition>(WoodTypePath));
 
@@ -175,7 +175,7 @@ namespace LumberJack.Editor
             Object.DestroyImmediate(log);
         }
 
-        // Cilindro com o comprimento no eixo Y. Submesh 0 = casca, submesh 1 = pontas (aneis)
+        // Cilindro com o comprimento no eixo Y. Submesh 0 = casca, submesh 1 = pontas (anéis)
         private static Mesh BuildLogMesh()
         {
             List<Vector3> vertices = new List<Vector3>();
@@ -249,7 +249,7 @@ namespace LumberJack.Editor
             }
         }
 
-        // Ponto da borda do tronco, com um pouco de irregularidade para nao ficar um cilindro perfeito
+        // Ponto da borda do tronco, com um pouco de irregularidade para não ficar um cilindro perfeito
         private static Vector3 RingPoint(float angle)
         {
             float radius = LogRadius * (1f + 0.03f * Mathf.Sin(angle * 3f + 1f) + 0.02f * Mathf.Sin(angle * 7f + 2f));
@@ -265,7 +265,7 @@ namespace LumberJack.Editor
             {
                 for (int x = 0; x < size; x++)
                 {
-                    // Mistura duas amostras de ruido para a textura repetir sem emenda na horizontal
+                    // Mistura duas amostras de ruído para a textura repetir sem emenda na horizontal
                     float t = x / (float)size;
                     float streaks = Mathf.Lerp(Mathf.PerlinNoise(x * 0.06f, y * 0.006f), Mathf.PerlinNoise((x - size) * 0.06f, y * 0.006f), t);
                     float detail = Mathf.Lerp(Mathf.PerlinNoise(x * 0.3f + 50f, y * 0.08f), Mathf.PerlinNoise((x - size) * 0.3f + 50f, y * 0.08f), t);
@@ -314,7 +314,7 @@ namespace LumberJack.Editor
             return material;
         }
 
-        // Cria a pasta (e as pastas pai) se ainda nao existir
+        // Cria a pasta (e as pastas pai) se ainda não existir
         private static void EnsureFolder(string folder)
         {
             if (AssetDatabase.IsValidFolder(folder)) return;
@@ -332,7 +332,7 @@ namespace LumberJack.Editor
             return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
         }
 
-        // Substitui o asset se ja existir, mantendo o mesmo GUID (referencias nao quebram)
+        // Substitui o asset se já existir, mantendo o mesmo GUID (referências não quebram)
         private static T SaveAsset<T>(T asset, string folder, string fileName) where T : Object
         {
             string path = folder + "/" + fileName;

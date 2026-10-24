@@ -5,7 +5,7 @@ using UnityEngine;
 namespace LumberJack.Shop
 {
     /// <summary>
-    /// Caixa de produto na loja: mostra as informacoes, e depois de paga no caixa pode ser aberta
+    /// Caixa de produto na loja: mostra as informações, e depois de paga no caixa pode ser aberta
     /// para soltar o item.
     /// </summary>
     [RequireComponent(typeof(MeshRenderer))]
@@ -17,7 +17,7 @@ namespace LumberJack.Shop
 
         private MeshRenderer _renderer;
         private bool _isBought;
-        // Montadas uma vez: a tecla nao muda durante o jogo e assim a dica nao aloca string
+        // Montadas uma vez: a tecla não muda durante o jogo e assim a dica não aloca string
         private string _checkHint;
         private string _openHint;
 

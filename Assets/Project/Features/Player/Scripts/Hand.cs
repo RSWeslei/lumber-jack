@@ -5,7 +5,7 @@ namespace LumberJack.Player
 {
     /// <summary>
     /// Segura o item equipado na hotbar: instancia o prefab do item como filho e o deixa
-    /// sem fisica e sem colisao.
+    /// sem física e sem colisão.
     /// </summary>
     public class Hand : MonoBehaviour
     {
@@ -35,7 +35,7 @@ namespace LumberJack.Player
             Rigidbody itemBody = itemObject.GetComponent<Rigidbody>();
             if (itemBody != null) itemBody.isKinematic = true;
 
-            // Item na mao nao colide nem bloqueia os raycasts da camera
+            // Item na mão não colide nem bloqueia os raycasts da câmera
             foreach (Collider itemCollider in itemObject.GetComponentsInChildren<Collider>())
             {
                 itemCollider.enabled = false;

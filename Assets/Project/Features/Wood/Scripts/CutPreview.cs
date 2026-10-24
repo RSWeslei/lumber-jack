@@ -12,7 +12,7 @@ namespace LumberJack.Wood
         private const int InitialOutlineCapacity = 64;
 
         private readonly LineRenderer _line;
-        // Reaproveitada a cada frame para nao alocar
+        // Reaproveitada a cada frame para não alocar
         private readonly List<Vector3> _outline = new List<Vector3>(InitialOutlineCapacity);
         private bool _isVisible;
 
@@ -29,7 +29,7 @@ namespace LumberJack.Wood
         }
 
         /// <summary>
-        /// Cria um LineRenderer filho de parent ja configurado para o preview.
+        /// Cria um LineRenderer filho de parent já configurado para o preview.
         /// </summary>
         public static CutPreview Create(Transform parent, Material material, float width = 0.012f)
         {
@@ -52,7 +52,7 @@ namespace LumberJack.Wood
                 return;
             }
 
-            // Empurra a linha um pouquinho para fora da madeira para nao sumir dentro da casca
+            // Empurra a linha um pouquinho para fora da madeira para não sumir dentro da casca
             Vector3 center = Vector3.zero;
             foreach (Vector3 point in _outline) center += point;
             center /= _outline.Count;
@@ -73,7 +73,7 @@ namespace LumberJack.Wood
 
         public void Hide()
         {
-            // Chamado todo frame quando nao ha alvo: so mexe no LineRenderer se estava visivel
+            // Chamado todo frame quando não há alvo: só mexe no LineRenderer se estava visível
             if (!_isVisible) return;
 
             _line.positionCount = 0;

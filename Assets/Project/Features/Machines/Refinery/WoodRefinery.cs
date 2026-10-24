@@ -11,9 +11,9 @@ namespace LumberJack.Machines
     }
 
     /// <summary>
-    /// Transforma madeira bruta em tabua. A largura e a altura da tabua sao ajustadas pelos botoes
-    /// da maquina; o comprimento sai do volume da madeira que entrou (menos a perda).
-    /// O estado fica aqui em passos inteiros: as telas so mostram o valor.
+    /// Transforma madeira bruta em tábua. A largura e a altura da tábua são ajustadas pelos botões
+    /// da máquina; o comprimento sai do volume da madeira que entrou (menos a perda).
+    /// O estado fica aqui em passos inteiros: as telas só mostram o valor.
     /// </summary>
     public class WoodRefinery : MonoBehaviour
     {
@@ -27,15 +27,15 @@ namespace LumberJack.Machines
         [SerializeField] private float _maxValue = 3f;
         [Tooltip("Valor inicial das telas; deve bater com o tamanho do preview na cena")]
         [SerializeField] private float _startValue = 3f;
-        [Tooltip("Fracao do comprimento perdida ao refinar (0.1 = 10%)")]
+        [Tooltip("Fração do comprimento perdida ao refinar (0.1 = 10%)")]
         [SerializeField] private float _lossFraction = 0.1f;
 
-        [Header("Referencias")]
+        [Header("Referências")]
         [SerializeField] private Transform _spawnPoint;
         [SerializeField] private GameObject _boardPrefab;
         [SerializeField] private TextMeshPro _widthText;
         [SerializeField] private TextMeshPro _heightText;
-        [Tooltip("Tabua de exemplo na maquina; o tamanho dela vira o tamanho da tabua gerada")]
+        [Tooltip("Tábua de exemplo na máquina; o tamanho dela vira o tamanho da tábua gerada")]
         [SerializeField] private GameObject _boardPreview;
 
         private Transform _previewTransform;
@@ -96,7 +96,7 @@ namespace LumberJack.Machines
             board.GetComponent<WoodPiece>().Initialize(definition, true);
         }
 
-        // A secao da tabua e a do preview; o comprimento conserva o volume (menos a perda)
+        // A seção da tábua é a do preview; o comprimento conserva o volume (menos a perda)
         private Vector3 GetBoardSize(float volume)
         {
             Vector3 preview = _previewTransform.localScale;

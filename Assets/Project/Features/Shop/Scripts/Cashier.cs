@@ -7,7 +7,7 @@ using UnityEngine;
 namespace LumberJack.Shop
 {
     /// <summary>
-    /// Balcao do caixa: soma as caixas colocadas em cima e cobra tudo de uma vez.
+    /// Balcão do caixa: soma as caixas colocadas em cima e cobra tudo de uma vez.
     /// </summary>
     public class Cashier : MonoBehaviour
     {
@@ -43,7 +43,7 @@ namespace LumberJack.Shop
         }
 
         /// <summary>
-        /// Cobra o total. Retorna false se nao ha nada no balcao ou falta dinheiro.
+        /// Cobra o total. Retorna false se não há nada no balcão ou falta dinheiro.
         /// </summary>
         public bool TryCheckout()
         {

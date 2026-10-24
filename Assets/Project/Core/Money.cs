@@ -1,7 +1,7 @@
 namespace LumberJack.Core
 {
     /// <summary>
-    /// Dinheiro do jogo e sempre em centavos inteiros (int): somar e subtrair nunca acumula
+    /// Dinheiro do jogo é sempre em centavos inteiros (int): somar e subtrair nunca acumula
     /// erro de arredondamento como float.
     /// </summary>
     public static class Money
@@ -9,7 +9,7 @@ namespace LumberJack.Core
         public const int CentsPerUnit = 100;
 
         /// <summary>
-        /// "$ 12.34", igual em qualquer idioma do sistema. Cria uma string: use so quando o valor muda.
+        /// "$ 12.34", igual em qualquer idioma do sistema. Cria uma string: use só quando o valor muda.
         /// </summary>
         public static string Format(int cents)
         {

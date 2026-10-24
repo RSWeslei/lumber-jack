@@ -5,7 +5,7 @@ using UnityEngine;
 namespace LumberJack.Machines
 {
     /// <summary>
-    /// Botao fisico da refinaria que aumenta ou diminui a largura ou a altura da tabua.
+    /// Botão físico da refinaria que aumenta ou diminui a largura ou a altura da tábua.
     /// </summary>
     public class RefineryButton : InteractableButton, IDisplayable
     {
@@ -13,7 +13,7 @@ namespace LumberJack.Machines
         [SerializeField] private bool _isDecrease;
 
         private WoodRefinery _refinery;
-        // Montada uma vez: a tecla nao muda durante o jogo e assim a dica nao aloca string
+        // Montada uma vez: a tecla não muda durante o jogo e assim a dica não aloca string
         private string _hint;
 
         private void Start()

@@ -1,4 +1,4 @@
-/* Paleta: madeira escura translucida + ambar do por do sol */
+/* Paleta: madeira escura translúcida + âmbar do pôr do sol */
 :root {
     --hotbar-panel: rgba(20, 15, 11, 0.82);
     --hotbar-panel-border: rgba(255, 228, 190, 0.14);

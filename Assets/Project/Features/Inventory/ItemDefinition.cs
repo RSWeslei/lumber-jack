@@ -3,14 +3,14 @@ using UnityEngine;
 namespace LumberJack.Inventory
 {
     /// <summary>
-    /// Dados de um item que vai para a hotbar: nome, icone e o prefab que a mao segura.
+    /// Dados de um item que vai para a hotbar: nome, ícone e o prefab que a mão segura.
     /// </summary>
     [CreateAssetMenu(fileName = "NewItem", menuName = "Lumber Jack/Inventory/Item")]
     public class ItemDefinition : ScriptableObject
     {
         [SerializeField] private string _displayName;
         [SerializeField] private Texture2D _icon;
-        [Tooltip("Prefab instanciado na mao quando o item esta selecionado na hotbar")]
+        [Tooltip("Prefab instanciado na mão quando o item está selecionado na hotbar")]
         [SerializeField] private GameObject _prefab;
         [TextArea]
         [SerializeField] private string _description;

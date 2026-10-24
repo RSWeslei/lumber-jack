@@ -5,15 +5,15 @@ using UnityEngine;
 namespace LumberJack.Editor
 {
     /// <summary>
-    /// A Game view ignora o vSync do projeto e tem um toggle proprio ("VSync (Game view only)"),
-    /// desligado por padrao. Sem ele o Play roda sem sincronia com o monitor e a camera da
+    /// A Game view ignora o vSync do projeto e tem um toggle próprio ("VSync (Game view only)"),
+    /// desligado por padrão. Sem ele o Play roda sem sincronia com o monitor e a câmera dá
     /// micro-travadas. Liga o toggle em todas as Game views ao entrar no Play.
     /// </summary>
     [InitializeOnLoad]
     public static class GameViewVSync
     {
         private const string GameViewTypeName = "UnityEditor.GameView";
-        // Propriedade interna do Unity (sem API publica); se mudar de nome, so avisa no Console
+        // Propriedade interna do Unity (sem API pública); se mudar de nome, só avisa no Console
         private const string VSyncPropertyName = "vSyncEnabled";
         private const BindingFlags InstanceMembers = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
@@ -30,7 +30,7 @@ namespace LumberJack.Editor
             PropertyInfo vSync = gameViewType != null ? gameViewType.GetProperty(VSyncPropertyName, InstanceMembers) : null;
             if (vSync == null || !vSync.CanWrite)
             {
-                Debug.LogWarning("Nao consegui ligar o VSync da Game view; ligue a mao no menu da Game view.");
+                Debug.LogWarning("Não consegui ligar o VSync da Game view; ligue à mão no menu da Game view.");
                 return;
             }
 
