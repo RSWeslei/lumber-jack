@@ -8,19 +8,20 @@ namespace LumberJack.Trees
     /// </summary>
     public sealed class TreeFellingState
     {
+        private float _maxHealth;
+        private float _health;
+
         public bool IsActive { get; private set; }
-        public float MaxHealth { get; private set; }
-        public float Health { get; private set; }
 
         /// <summary>0 = começando, 1 = cortado.</summary>
-        public float Progress => IsActive && MaxHealth > 0f ? 1f - Health / MaxHealth : 0f;
+        public float Progress => IsActive && _maxHealth > 0f ? 1f - _health / _maxHealth : 0f;
 
         /// <summary>Começa um corte novo que precisa desse dano total.</summary>
         public void Begin(float maxHealth)
         {
             IsActive = true;
-            MaxHealth = maxHealth;
-            Health = maxHealth;
+            _maxHealth = maxHealth;
+            _health = maxHealth;
         }
 
         /// <summary>Aplica um golpe. Retorna true no golpe que termina o corte.</summary>
@@ -28,15 +29,15 @@ namespace LumberJack.Trees
         {
             if (!IsActive || damage <= 0f) return false;
 
-            Health = Mathf.Max(0f, Health - damage);
-            return Health <= 0f;
+            _health = Mathf.Max(0f, _health - damage);
+            return _health <= 0f;
         }
 
         public void Clear()
         {
             IsActive = false;
-            MaxHealth = 0f;
-            Health = 0f;
+            _maxHealth = 0f;
+            _health = 0f;
         }
     }
 }

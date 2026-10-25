@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using UnityEngine;
 
@@ -25,8 +26,8 @@ namespace LumberJack.Trees
         // Consultas acontecem uma por vez na thread principal: um buffer para todas as árvores
         private static readonly Collider[] HitBuffer = new Collider[MaxHits];
 
-        private readonly TreeFallMotion _motion = new TreeFallMotion();
-        private readonly List<Segment> _segments = new List<Segment>();
+        private readonly TreeFallMotion _motion = new();
+        private readonly List<Segment> _segments = new();
         private TreePiece _piece;
         private Rigidbody _body;
         private Collider[] _ignored;
@@ -44,7 +45,7 @@ namespace LumberJack.Trees
         /// </summary>
         public static void Begin(TreePiece piece, Vector3 pivot, Vector3 axis, float startSpeed, Collider[] ignored)
         {
-            var fall = piece.gameObject.AddComponent<FallingTree>();
+            FallingTree fall = piece.gameObject.AddComponent<FallingTree>();
             fall.Run(piece, pivot, axis, startSpeed, ignored);
         }
 
@@ -218,11 +219,7 @@ namespace LumberJack.Trees
             // attachedRigidbody devolve null de verdade quando não há corpo: ReferenceEquals basta
             if (!ReferenceEquals(hitBody, null) && (ReferenceEquals(hitBody, _body) || !hitBody.isKinematic)) return false;
 
-            for (int i = 0; i < _ignored.Length; i++)
-            {
-                if (ReferenceEquals(hit, _ignored[i])) return false;
-            }
-            return true;
+            return _ignored.All(ignored => !ReferenceEquals(hit, ignored));
         }
 
         // Trechos do eixo entre nós, de todos os galhos que o tronco ainda tem (até os finos, que não têm colisor)

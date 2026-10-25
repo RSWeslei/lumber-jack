@@ -21,7 +21,7 @@ namespace LumberJack.Trees
         private const float SteerLengthInParentRadii = 4f;
         private const float CollarLengthInParentRadii = 3f;
 
-        private readonly List<BranchAttachment> _attachments = new List<BranchAttachment>();
+        private readonly List<BranchAttachment> _attachments = new();
 
         public void Generate(TreeSpeciesDefinition species, int seed, TreeSkeleton skeleton)
         {
@@ -77,11 +77,10 @@ namespace LumberJack.Trees
             _attachments.Clear();
             settings.Layout.Layout(parent.Length, ref random, _attachments);
 
-            for (int i = 0; i < _attachments.Count; i++)
+            foreach (BranchAttachment attachment in _attachments)
             {
                 if (skeleton.BranchCount >= MaxBranches) return;
 
-                BranchAttachment attachment = _attachments[i];
                 skeleton.Sample(parentIndex, attachment.Position, out Vector3 start, out Vector3 parentDirection, out float parentRadius);
 
                 // Sorteia tudo antes de decidir pular, para um galho pulado não mudar o sorteio dos próximos

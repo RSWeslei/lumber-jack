@@ -17,7 +17,7 @@ namespace LumberJack.Shop
         [SerializeField] private PlayerStats _playerStats;
         [SerializeField] private TextMeshPro _totalCostText;
 
-        private readonly List<Buyable> _pendingItems = new List<Buyable>();
+        private readonly List<Buyable> _pendingItems = new();
         private int _totalCents;
 
         private void Start()

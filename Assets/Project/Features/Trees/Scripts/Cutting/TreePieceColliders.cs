@@ -47,9 +47,9 @@ namespace LumberJack.Trees
             min = float.MaxValue;
             max = float.MinValue;
             int[] triangles = part.TrianglesOf(branch);
-            for (int i = 0; i < triangles.Length; i++)
+            foreach (int index in triangles)
             {
-                skeleton.ClosestPoint(branch, part.Vertices[triangles[i]], out _, out _, out _, out float distance);
+                skeleton.ClosestPoint(branch, part.Vertices[index], out _, out _, out _, out float distance);
                 min = Mathf.Min(min, distance);
                 max = Mathf.Max(max, distance);
             }
@@ -72,7 +72,7 @@ namespace LumberJack.Trees
             colliderTransform.localRotation = Quaternion.LookRotation(TreeSkeletonGenerator.Perpendicular(direction), direction);
 
             // Comprimento exato do trecho: a caixa não passa do corte nem nasce dentro do toco ou da outra metade
-            var box = colliderObject.AddComponent<BoxCollider>();
+            BoxCollider box = colliderObject.AddComponent<BoxCollider>();
             float width = Mathf.Max(radius * 2f, MinBoxSize);
             box.size = new Vector3(width, length, width);
             box.sharedMaterial = material;

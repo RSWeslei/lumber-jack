@@ -19,15 +19,9 @@ namespace LumberJack.Core
         public PlayerInputs PlayerInputs { get; private set; }
 
         public Vector2 MoveInput => PlayerInputs.PlayerMovement.Move.ReadValue<Vector2>();
-        public Vector2 LookInput => PlayerInputs.PlayerMovement.Look.ReadValue<Vector2>();
-        public bool IsJumpHeld => PlayerInputs.PlayerMovement.Jump.IsPressed();
-        public bool IsGrabHeld => PlayerInputs.PlayerActions.Grab.IsPressed();
 
         // Nome da tecla para mostrar na UI ("E", "Left Shift"...)
         public string InteractKeyLabel { get; private set; }
-        public string GrabKeyLabel { get; private set; }
-        public string JumpKeyLabel { get; private set; }
-        public string SprintKeyLabel { get; private set; }
 
         public event Action AttackPressed;
         public event Action InteractPressed;
@@ -52,9 +46,6 @@ namespace LumberJack.Core
             _guiInputs = new GUIInputs();
 
             InteractKeyLabel = GetKeyLabel(PlayerInputs.PlayerActions.Interact);
-            GrabKeyLabel = GetKeyLabel(PlayerInputs.PlayerActions.Grab);
-            JumpKeyLabel = GetKeyLabel(PlayerInputs.PlayerMovement.Jump);
-            SprintKeyLabel = GetKeyLabel(PlayerInputs.PlayerMovement.Sprint);
         }
 
         private void OnEnable()

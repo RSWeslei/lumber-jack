@@ -19,11 +19,11 @@ namespace LumberJack.Trees
         [Tooltip("Material da face cortada (anéis da madeira)")]
         [SerializeField] private Material _cutFaceMaterial;
 
-        [SerializeField] private TrunkSettings _trunk = new TrunkSettings();
+        [SerializeField] private TrunkSettings _trunk = new();
         [Tooltip("Cada nível nasce nos galhos do anterior; vazia = só o tronco")]
-        [SerializeField] private List<BranchLevelSettings> _branchLevels = new List<BranchLevelSettings>();
-        [SerializeField] private TreeMeshSettings _mesh = new TreeMeshSettings();
-        [SerializeField] private TreeFellingSettings _felling = new TreeFellingSettings();
+        [SerializeField] private List<BranchLevelSettings> _branchLevels = new();
+        [SerializeField] private TreeMeshSettings _mesh = new();
+        [SerializeField] private TreeFellingSettings _felling = new();
 
         public string DisplayName => _displayName;
         public WoodDefinition Wood => _wood;
@@ -42,9 +42,9 @@ namespace LumberJack.Trees
         {
             _trunk.Validate();
             _felling.Validate();
-            for (int i = 0; i < _branchLevels.Count; i++)
+            foreach (BranchLevelSettings level in _branchLevels)
             {
-                _branchLevels[i]?.Validate();
+                level?.Validate();
             }
             Changed?.Invoke();
         }

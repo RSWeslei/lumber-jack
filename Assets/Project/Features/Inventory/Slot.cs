@@ -52,12 +52,5 @@ namespace LumberJack.Inventory
             _icon.image = item.Icon;
             EnableInClassList(FilledClass, true);
         }
-
-        public void ClearItem()
-        {
-            Item = null;
-            _icon.image = null;
-            EnableInClassList(FilledClass, false);
-        }
     }
 }

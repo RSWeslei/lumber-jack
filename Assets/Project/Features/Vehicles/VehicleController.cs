@@ -32,7 +32,7 @@ namespace LumberJack.Vehicles
     {
         private const float HandbrakeTorque = 1000f;
 
-        [SerializeField] private List<AxleInfo> _axles = new List<AxleInfo>();
+        [SerializeField] private List<AxleInfo> _axles = new();
         [SerializeField] private float _maxMotorTorque = 400f;
         [Tooltip("Graus")]
         [SerializeField] private float _maxSteeringAngle = 30f;
@@ -48,7 +48,7 @@ namespace LumberJack.Vehicles
         private bool _isHandbrakeOn;
         // Rodas visuais (primeiro filho de cada WheelCollider), cacheadas para não procurar a cada FixedUpdate
         private readonly List<(WheelCollider collider, Transform visual)> _wheelVisuals =
-            new List<(WheelCollider, Transform)>();
+            new();
 
         private void Awake()
         {

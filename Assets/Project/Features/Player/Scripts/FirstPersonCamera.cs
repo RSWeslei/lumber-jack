@@ -49,7 +49,7 @@ namespace LumberJack.Player
 
         private PlayerMovement _movement;
         private Transform _cameraTransform;
-        private readonly Queue<(float time, Vector2 delta)> _mouseSamples = new Queue<(float, Vector2)>();
+        private readonly Queue<(float time, Vector2 delta)> _mouseSamples = new();
         private float _pitch;
         private float _bobPhase;
         private float _bobWeight;
@@ -61,6 +61,12 @@ namespace LumberJack.Player
         {
             _movement = GetComponent<PlayerMovement>();
             if (_camera == null) _camera = Camera.main;
+            if (_camera == null)
+            {
+                Debug.LogError("[FirstPersonCamera] Sem câmera: atribua uma ou tenha uma Main Camera na cena.", this);
+                enabled = false;
+                return;
+            }
             _cameraTransform = _camera.transform;
             _camera.nearClipPlane = _nearClip;
             _camera.fieldOfView = _baseFov;

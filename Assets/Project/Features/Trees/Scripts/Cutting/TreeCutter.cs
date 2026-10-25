@@ -12,14 +12,14 @@ namespace LumberJack.Trees
     /// </summary>
     public sealed class TreeCutter
     {
-        public const int CutFaceSubmesh = 1;
+        private const int CutFaceSubmesh = 1;
 
         private const int OuterSide = 1;
         private const int InnerSide = -1;
         private const int PlaneDecides = 0;
         private const float MinAxisSqrMagnitude = 0.0001f;
 
-        private readonly List<int> _branchSides = new List<int>();
+        private readonly List<int> _branchSides = new();
         // Delegates criados uma vez (passar o método direto alocaria um delegate novo a cada corte)
         private readonly Func<int, int> _forcedSide;
         private readonly Func<Vector3, Vector2> _cutFaceUV;

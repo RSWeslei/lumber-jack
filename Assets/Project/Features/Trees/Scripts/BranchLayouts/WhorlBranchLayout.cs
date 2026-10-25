@@ -18,13 +18,13 @@ namespace LumberJack.Trees
         private const float HeightJitterFraction = 0.3f;
 
         [Tooltip("Galhos em cada anel")]
-        [SerializeField] private IntRange _branchesPerWhorl = new IntRange(3, 5);
+        [SerializeField] private IntRange _branchesPerWhorl = new(3, 5);
         [Tooltip("Distância (m) entre os anéis")]
         [Min(MinWhorlSpacing)]
         [SerializeField] private float _whorlSpacing = 0.9f;
         [Tooltip("Trecho do pai com anéis (0 = base, 1 = ponta)")]
         [RangeLimits(0f, 1f)]
-        [SerializeField] private FloatRange _span = new FloatRange(0.3f, 0.95f);
+        [SerializeField] private FloatRange _span = new(0.3f, 0.95f);
         [Tooltip("Variação da altura e da direção dos galhos (0 = anéis perfeitos)")]
         [Range(0f, 1f)]
         [SerializeField] private float _jitter = 0.25f;

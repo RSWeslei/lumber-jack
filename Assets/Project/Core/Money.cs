@@ -6,7 +6,7 @@ namespace LumberJack.Core
     /// </summary>
     public static class Money
     {
-        public const int CentsPerUnit = 100;
+        private const int CentsPerUnit = 100;
 
         /// <summary>
         /// "$ 12.34", igual em qualquer idioma do sistema. Cria uma string: use só quando o valor muda.

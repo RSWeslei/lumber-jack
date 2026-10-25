@@ -16,46 +16,46 @@ namespace LumberJack.Wood
 
         private class MeshBuilder
         {
-            public readonly List<Vector3> Vertices = new List<Vector3>();
-            public readonly List<Vector3> Normals = new List<Vector3>();
-            public readonly List<Vector2> UVs = new List<Vector2>();
-            public readonly List<Vector2> UV2s = new List<Vector2>();
-            public readonly List<int>[] Submeshes;
+            public readonly List<Vector3> Vertices = new();
+            private readonly List<Vector3> _normals = new();
+            private readonly List<Vector2> _uvs = new();
+            private readonly List<Vector2> _uv2s = new();
+            private readonly List<int>[] _submeshes;
             private readonly bool _hasUV2;
 
             public MeshBuilder(int submeshCount, bool hasUV2)
             {
                 _hasUV2 = hasUV2;
-                Submeshes = new List<int>[submeshCount];
-                for (int i = 0; i < submeshCount; i++) Submeshes[i] = new List<int>();
+                _submeshes = new List<int>[submeshCount];
+                for (int i = 0; i < submeshCount; i++) _submeshes[i] = new List<int>();
             }
 
             public int AddVertex(Vector3 position, Vector3 normal, Vector2 uv, Vector2 uv2)
             {
                 Vertices.Add(position);
-                Normals.Add(normal);
-                UVs.Add(uv);
-                UV2s.Add(uv2);
+                _normals.Add(normal);
+                _uvs.Add(uv);
+                _uv2s.Add(uv2);
                 return Vertices.Count - 1;
             }
 
             public void AddTriangle(int submesh, int a, int b, int c)
             {
-                Submeshes[submesh].Add(a);
-                Submeshes[submesh].Add(b);
-                Submeshes[submesh].Add(c);
+                _submeshes[submesh].Add(a);
+                _submeshes[submesh].Add(b);
+                _submeshes[submesh].Add(c);
             }
 
             public Mesh ToMesh(string name)
             {
-                Mesh mesh = new Mesh { name = name };
+                Mesh mesh = new() { name = name };
                 if (Vertices.Count > 65535) mesh.indexFormat = IndexFormat.UInt32;
                 mesh.SetVertices(Vertices);
-                mesh.SetNormals(Normals);
-                mesh.SetUVs(0, UVs);
-                if (_hasUV2) mesh.SetUVs(1, UV2s);
-                mesh.subMeshCount = Submeshes.Length;
-                for (int i = 0; i < Submeshes.Length; i++) mesh.SetTriangles(Submeshes[i], i);
+                mesh.SetNormals(_normals);
+                mesh.SetUVs(0, _uvs);
+                if (_hasUV2) mesh.SetUVs(1, _uv2s);
+                mesh.subMeshCount = _submeshes.Length;
+                for (int i = 0; i < _submeshes.Length; i++) mesh.SetTriangles(_submeshes[i], i);
                 mesh.RecalculateBounds();
                 return mesh;
             }
@@ -112,14 +112,14 @@ namespace LumberJack.Wood
             bool hasUV2s = uv2s.Length == vertices.Length;
 
             int submeshCount = Mathf.Max(mesh.subMeshCount, capSubmesh + 1);
-            MeshBuilder positiveBuilder = new MeshBuilder(submeshCount, hasUV2s);
-            MeshBuilder negativeBuilder = new MeshBuilder(submeshCount, hasUV2s);
-            List<Vector3> cutPoints = new List<Vector3>();
+            MeshBuilder positiveBuilder = new(submeshCount, hasUV2s);
+            MeshBuilder negativeBuilder = new(submeshCount, hasUV2s);
+            List<Vector3> cutPoints = new();
 
             float[] distances = new float[vertices.Length];
             for (int i = 0; i < vertices.Length; i++) distances[i] = plane.GetDistanceToPoint(vertices[i]);
 
-            Vertex GetVertex(int index) => new Vertex
+            Vertex GetVertex(int index) => new() 
             {
                 Position = vertices[index],
                 Normal = hasNormals ? normals[index] : Vector3.up,
@@ -302,7 +302,7 @@ namespace LumberJack.Wood
         // Comparador reaproveitado: uma lambda no Sort criaria uma closure nova a cada chamada
         private sealed class AngleComparer : IComparer<Vector3>
         {
-            public static readonly AngleComparer Shared = new AngleComparer();
+            public static readonly AngleComparer Shared = new();
 
             private Vector3 _origin;
             private Vector3 _axisU;

@@ -11,8 +11,6 @@ namespace LumberJack.Shared
         private Mesh _mesh;
         private bool _hasMesh;
 
-        public Mesh Mesh => _mesh;
-
         private void OnDestroy()
         {
             DestroyMesh();

@@ -48,7 +48,9 @@ namespace LumberJack.Trees
         [Tooltip("Quanto (m) o pé do pedaço pode subir acima de onde nasceu (o chute do tronco ao cair)")]
         [SerializeField] private float _maxRise = 0.5f;
 
-        private readonly Dictionary<TreePiece, PieceStats> _stats = new Dictionary<TreePiece, PieceStats>();
+        private static readonly Collider[] ContactBuffer = new Collider[32];
+
+        private readonly Dictionary<TreePiece, PieceStats> _stats = new();
         private float _startTime;
         private int _strikes;
         private int _blockedStrikes;
@@ -106,16 +108,16 @@ namespace LumberJack.Trees
         private void CutBranches()
         {
             ChoppableTree[] trees = FindObjectsByType<ChoppableTree>();
-            for (int i = 0; i < trees.Length; i++)
+            foreach (ChoppableTree tree in trees)
             {
-                TreeSkeleton skeleton = trees[i].GetComponent<ProceduralTree>().Skeleton;
+                TreeSkeleton skeleton = tree.GetComponent<ProceduralTree>().Skeleton;
                 int cut = 0;
                 for (int b = 1; b < skeleton.BranchCount && cut < _branchesToCut; b++)
                 {
                     if (skeleton.GetBranch(b).Level != 1) continue;
 
                     skeleton.Sample(b, 0.4f, out Vector3 localPoint, out _, out _);
-                    Strike(trees[i], trees[i].transform.TransformPoint(localPoint), Vector3.forward, 0f);
+                    Strike(tree, tree.transform.TransformPoint(localPoint), Vector3.forward, 0f);
                     cut++;
                 }
             }
@@ -136,13 +138,13 @@ namespace LumberJack.Trees
         private void CutFallenPieces(float tilt)
         {
             TreePiece[] pieces = FindObjectsByType<TreePiece>();
-            for (int i = 0; i < pieces.Length; i++)
+            foreach (TreePiece piece in pieces)
             {
                 // O centro de massa pode ficar fora do galho (no ar entre galhos): mira então no meio de uma caixa
-                if (Strike(pieces[i], pieces[i].Body.worldCenterOfMass, Vector3.forward, tilt)) continue;
+                if (Strike(piece, piece.Body.worldCenterOfMass, Vector3.forward, tilt)) continue;
 
-                BoxCollider[] boxes = pieces[i].GetComponentsInChildren<BoxCollider>();
-                Strike(pieces[i], boxes[boxes.Length / 2].bounds.center, Vector3.forward, tilt);
+                BoxCollider[] boxes = piece.GetComponentsInChildren<BoxCollider>();
+                Strike(piece, boxes[boxes.Length / 2].bounds.center, Vector3.forward, tilt);
             }
         }
 
@@ -164,9 +166,8 @@ namespace LumberJack.Trees
         {
             float now = Time.time;
             TreePiece[] pieces = FindObjectsByType<TreePiece>();
-            for (int i = 0; i < pieces.Length; i++)
+            foreach (TreePiece piece in pieces)
             {
-                TreePiece piece = pieces[i];
                 if (!_stats.TryGetValue(piece, out PieceStats stats))
                 {
                     stats = new PieceStats(piece.name, now - _startTime, piece.Body.mass, piece.transform,
@@ -222,20 +223,21 @@ namespace LumberJack.Trees
         {
             var names = new HashSet<string>();
             Collider[] own = piece.GetComponentsInChildren<Collider>();
-            for (int i = 0; i < own.Length; i++)
+            foreach (Collider ownCollider in own)
             {
-                if (!(own[i] is BoxCollider box)) continue;
+                if (!(ownCollider is BoxCollider box)) continue;
 
                 Transform t = box.transform;
                 Vector3 halfExtents = Vector3.Scale(box.size, t.lossyScale) * 0.5f + Vector3.one * 0.03f;
-                Collider[] hits = Physics.OverlapBox(t.TransformPoint(box.center), halfExtents, t.rotation, Physics.AllLayers,
-                    QueryTriggerInteraction.Ignore);
-                for (int h = 0; h < hits.Length; h++)
+                int count = Physics.OverlapBoxNonAlloc(t.TransformPoint(box.center), halfExtents, ContactBuffer, t.rotation,
+                    Physics.AllLayers, QueryTriggerInteraction.Ignore);
+                for (int h = 0; h < count; h++)
                 {
-                    if (ReferenceEquals(hits[h].attachedRigidbody, piece.Body)) continue;
+                    Collider hit = ContactBuffer[h];
+                    if (ReferenceEquals(hit.attachedRigidbody, piece.Body)) continue;
 
-                    string owner = hits[h].attachedRigidbody != null ? hits[h].attachedRigidbody.name : hits[h].name;
-                    names.Add(owner + (Physics.GetIgnoreCollision(own[i], hits[h]) ? " (ignorado)" : string.Empty));
+                    string owner = hit.attachedRigidbody != null ? hit.attachedRigidbody.name : hit.name;
+                    names.Add(owner + (Physics.GetIgnoreCollision(ownCollider, hit) ? " (ignorado)" : string.Empty));
                 }
             }
             return $"y={piece.transform.position.y:F2} " + string.Join(", ", names);

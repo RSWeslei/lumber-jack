@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using UnityEngine;
 
@@ -18,7 +19,7 @@ namespace LumberJack.Trees
         private const int MaxOverlaps = 32;
 
         private static readonly Collider[] OverlapBuffer = new Collider[MaxOverlaps];
-        private static readonly List<Collider> Overlapping = new List<Collider>();
+        private static readonly List<Collider> Overlapping = new();
 
         public static async void IgnoreUntilApart(Collider[] first, Collider[] second, CancellationToken token)
         {
@@ -47,9 +48,9 @@ namespace LumberJack.Trees
         public static void IgnoreSpawnOverlaps(Rigidbody body, Collider[] colliders, int layerMask, CancellationToken token)
         {
             Overlapping.Clear();
-            for (int i = 0; i < colliders.Length; i++)
+            foreach (Collider collider in colliders)
             {
-                if (colliders[i] is BoxCollider box) CollectDeepOverlaps(body, box, layerMask);
+                if (collider is BoxCollider box) CollectDeepOverlaps(body, box, layerMask);
             }
             if (Overlapping.Count == 0) return;
 
@@ -88,15 +89,15 @@ namespace LumberJack.Trees
 
         private static bool AnyOverlap(Collider[] first, Collider[] second)
         {
-            for (int i = 0; i < first.Length; i++)
+            foreach (Collider firstCollider in first)
             {
                 // Pedaços podem ter sido cortados (destruídos) enquanto esperavam
-                if (first[i] == null) continue;
+                if (firstCollider == null) continue;
 
-                Bounds bounds = first[i].bounds;
-                for (int j = 0; j < second.Length; j++)
+                Bounds bounds = firstCollider.bounds;
+                if (second.Any(secondCollider => secondCollider != null && bounds.Intersects(secondCollider.bounds)))
                 {
-                    if (second[j] != null && bounds.Intersects(second[j].bounds)) return true;
+                    return true;
                 }
             }
             return false;
@@ -104,12 +105,12 @@ namespace LumberJack.Trees
 
         private static void SetIgnored(Collider[] first, Collider[] second, bool isIgnored)
         {
-            for (int i = 0; i < first.Length; i++)
+            foreach (Collider firstCollider in first)
             {
-                if (first[i] == null) continue;
-                for (int j = 0; j < second.Length; j++)
+                if (firstCollider == null) continue;
+                foreach (Collider secondCollider in second)
                 {
-                    if (second[j] != null) Physics.IgnoreCollision(first[i], second[j], isIgnored);
+                    if (secondCollider != null) Physics.IgnoreCollision(firstCollider, secondCollider, isIgnored);
                 }
             }
         }

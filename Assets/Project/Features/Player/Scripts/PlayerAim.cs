@@ -26,8 +26,6 @@ namespace LumberJack.Player
         private int _solidMask;
 
         public float Reach => _reach;
-        public Vector3 Origin => _transform.position;
-        public Vector3 Forward => _transform.forward;
 
         private void Awake()
         {

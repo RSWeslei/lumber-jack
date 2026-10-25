@@ -20,19 +20,19 @@ namespace LumberJack.Editor
         private const string LightingSettingsPath = "Assets/Project/Settings/MainLighting.lighting";
 
         // Ambiente em gradiente: céu (azulado), horizonte (quente) e chão (terra)
-        private static readonly Color AmbientSky = new Color(0.40f, 0.45f, 0.55f);
-        private static readonly Color AmbientEquator = new Color(0.45f, 0.38f, 0.31f);
-        private static readonly Color AmbientGround = new Color(0.20f, 0.17f, 0.14f);
+        private static readonly Color AmbientSky = new(0.40f, 0.45f, 0.55f);
+        private static readonly Color AmbientEquator = new(0.45f, 0.38f, 0.31f);
+        private static readonly Color AmbientGround = new(0.20f, 0.17f, 0.14f);
 
         // Sol baixo e quente: sombras compridas e luz dourada
-        private static readonly Vector3 SunRotation = new Vector3(38f, -35f, 0f);
-        private static readonly Color SunFilter = new Color(1f, 0.92f, 0.80f);
+        private static readonly Vector3 SunRotation = new(38f, -35f, 0f);
+        private static readonly Color SunFilter = new(1f, 0.92f, 0.80f);
         private const float SunTemperatureKelvin = 4600f;
         private const float SunIntensity = 1.25f;
         // Sombra não totalmente opaca: o ambiente ainda clareia um pouco
         private const float SunShadowStrength = 0.85f;
 
-        private static readonly Color FogColor = new Color(0.86f, 0.68f, 0.52f);
+        private static readonly Color FogColor = new(0.86f, 0.68f, 0.52f);
         private const float FogDensity = 0.0045f;
 
         private const float PostExposure = 0f;

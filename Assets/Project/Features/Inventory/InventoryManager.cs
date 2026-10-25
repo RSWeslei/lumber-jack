@@ -11,7 +11,7 @@ namespace LumberJack.Inventory
     {
         [SerializeField] private Hotbar _hotbar;
         [Tooltip("Itens que o jogador já tem ao começar, na ordem dos slots")]
-        [SerializeField] private List<ItemDefinition> _startingItems = new List<ItemDefinition>();
+        [SerializeField] private List<ItemDefinition> _startingItems = new();
 
         public static InventoryManager Instance { get; private set; }
 

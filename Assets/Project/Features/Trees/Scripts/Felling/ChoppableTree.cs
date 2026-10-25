@@ -19,10 +19,10 @@ namespace LumberJack.Trees
         private const string PieceSuffix = " (cortada)";
 
         // Cortes acontecem um por vez na thread principal: um cortador para todas as árvores
-        private static readonly TreeCutter SharedCutter = new TreeCutter();
+        private static readonly TreeCutter SharedCutter = new();
 
-        private readonly TreeFellingState _state = new TreeFellingState();
-        private readonly TreePartMesh _part = new TreePartMesh();
+        private readonly TreeFellingState _state = new();
+        private readonly TreePartMesh _part = new();
         private ProceduralTree _tree;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;

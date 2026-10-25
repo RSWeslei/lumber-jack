@@ -12,7 +12,7 @@ namespace LumberJack.Player
         private GameObject _equippedObject;
 
         public ItemDefinition EquippedItem { get; private set; }
-        public bool IsItemEquipped => _equippedObject != null;
+        private bool IsItemEquipped => _equippedObject != null;
 
         public void LoadItem(ItemDefinition item)
         {
@@ -49,16 +49,16 @@ namespace LumberJack.Player
             return IsItemEquipped ? _equippedObject.GetComponent<Animator>() : null;
         }
 
-        public void UnloadItem()
-        {
-            EquippedItem = null;
-            if (_equippedObject != null) _equippedObject.SetActive(false);
-        }
-
         public void UnloadItemAndDestroy()
         {
             EquippedItem = null;
             if (_equippedObject != null) Destroy(_equippedObject);
+        }
+
+        private void UnloadItem()
+        {
+            EquippedItem = null;
+            if (_equippedObject != null) _equippedObject.SetActive(false);
         }
     }
 }

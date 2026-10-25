@@ -18,10 +18,10 @@ namespace LumberJack.Trees
 
         [Tooltip("Altura do tronco (m)")]
         [RangeLimits(MinHeight, MaxHeight)]
-        [SerializeField] private FloatRange _height = new FloatRange(6f, 9f);
+        [SerializeField] private FloatRange _height = new(6f, 9f);
         [Tooltip("Raio na base (m)")]
         [RangeLimits(MinRadius, MaxRadius)]
-        [SerializeField] private FloatRange _baseRadius = new FloatRange(0.2f, 0.3f);
+        [SerializeField] private FloatRange _baseRadius = new(0.2f, 0.3f);
         [Tooltip("Multiplica o raio da base ao longo do tronco (0 = base, 1 = topo)")]
         [SerializeField] private AnimationCurve _radiusOverLength = AnimationCurve.Linear(0f, 1f, 1f, 0.25f);
 

@@ -28,8 +28,8 @@ namespace LumberJack.Editor
         // Perto o bastante para umas caírem sobre as outras
         private const float TreeSpacing = 7f;
         private const float GroundScale = 20f;
-        private static readonly Vector3 CameraPosition = new Vector3(10f, 16f, -16f);
-        private static readonly Vector3 CameraLookAt = new Vector3(10f, 0f, 7f);
+        private static readonly Vector3 CameraPosition = new(10f, 16f, -16f);
+        private static readonly Vector3 CameraLookAt = new(10f, 0f, 7f);
 
         private static double _nextPoll;
 
@@ -120,7 +120,7 @@ namespace LumberJack.Editor
             trees.SetParent(environment, false);
             for (int row = 0; row < speciesPaths.Length; row++)
             {
-                var species = AssetDatabase.LoadAssetAtPath<TreeSpeciesDefinition>(speciesPaths[row]);
+                TreeSpeciesDefinition species = AssetDatabase.LoadAssetAtPath<TreeSpeciesDefinition>(speciesPaths[row]);
                 for (int i = 0; i < SeedsPerSpecies; i++)
                 {
                     // Camada Wood, como no jogo

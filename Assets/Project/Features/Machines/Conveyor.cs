@@ -23,7 +23,7 @@ namespace LumberJack.Machines
             // Volta a esteira um pouco e move de volta com MovePosition: a esteira não sai do lugar,
             // mas a física entende que ela andou para frente e arrasta os objetos em cima
             Vector3 position = _body.position;
-            _body.position += Vector3.back * _speed * Time.fixedDeltaTime;
+            _body.position += Vector3.back * (_speed * Time.fixedDeltaTime);
             _body.MovePosition(position);
         }
     }

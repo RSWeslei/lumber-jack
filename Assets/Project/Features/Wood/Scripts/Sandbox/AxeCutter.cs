@@ -20,9 +20,9 @@ namespace LumberJack.Wood
         private const string WoodLayerName = "Wood";
         private const string CutBinding = "<Mouse>/leftButton";
 
-        private static readonly Color ValidColor = new Color(0.2f, 1f, 0.3f);
-        private static readonly Color InvalidColor = new Color(1f, 0.25f, 0.2f);
-        private static readonly Rect HelpRect = new Rect(16, 16, 520, 140);
+        private static readonly Color ValidColor = new(0.2f, 1f, 0.3f);
+        private static readonly Color InvalidColor = new(1f, 0.25f, 0.2f);
+        private static readonly Rect HelpRect = new(16, 16, 520, 140);
 
         [SerializeField] private float _reach = 4f;
         [Tooltip("Inclinação máxima do corte (Q/E ou scroll)")]
@@ -95,7 +95,7 @@ namespace LumberJack.Wood
 
         private void OnGUI()
         {
-            Vector2 center = new Vector2(Screen.width / 2f, Screen.height / 2f);
+            Vector2 center = new(Screen.width / 2f, Screen.height / 2f);
             GUI.color = !_hasTarget ? Color.white : _isTargetValid ? ValidColor : InvalidColor;
             GUI.DrawTexture(new Rect(center.x - CrosshairSize / 2f, center.y - CrosshairSize / 2f, CrosshairSize, CrosshairSize),
                 Texture2D.whiteTexture);

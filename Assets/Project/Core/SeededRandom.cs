@@ -21,28 +21,10 @@ namespace LumberJack.Core
             if (_state == 0u) _state = ZeroSeedReplacement;
         }
 
-        public SeededRandom(int seed) : this(unchecked((uint)seed))
-        {
-        }
-
-        public uint NextUInt()
-        {
-            _state ^= _state << 13;
-            _state ^= _state >> 17;
-            _state ^= _state << 5;
-            return _state;
-        }
-
         /// <summary>Valor em [0, 1).</summary>
         public float NextFloat()
         {
             return (NextUInt() >> 8) * UIntToUnitFloat;
-        }
-
-        /// <summary>Valor em [min, max).</summary>
-        public float Range(float min, float max)
-        {
-            return min + (max - min) * NextFloat();
         }
 
         /// <summary>Inteiro em [min, max] (max incluso).</summary>
@@ -68,6 +50,14 @@ namespace LumberJack.Core
         public static uint Combine(uint seed, uint index)
         {
             return Hash(seed ^ (index * 0x27D4EB2Du));
+        }
+
+        private uint NextUInt()
+        {
+            _state ^= _state << 13;
+            _state ^= _state >> 17;
+            _state ^= _state << 5;
+            return _state;
         }
 
         // Wang hash

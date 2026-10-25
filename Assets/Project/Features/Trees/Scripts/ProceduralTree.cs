@@ -23,14 +23,13 @@ namespace LumberJack.Trees
 
         // Geradores compartilhados: as árvores são geradas uma por vez na thread principal, então
         // reaproveitar os buffers evita lixo para o GC a cada árvore criada
-        private static readonly TreeSkeletonGenerator SharedSkeletonGenerator = new TreeSkeletonGenerator();
-        private static readonly TreeMeshBuilder SharedMeshBuilder = new TreeMeshBuilder();
+        private static readonly TreeSkeletonGenerator SharedSkeletonGenerator = new();
+        private static readonly TreeMeshBuilder SharedMeshBuilder = new();
 
-        private readonly TreeSkeleton _skeleton = new TreeSkeleton();
+        private readonly TreeSkeleton _skeleton = new();
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
         private MeshCollider _meshCollider;
-        private Mesh _mesh;
         private bool _hasMesh;
         private bool _hasComponents;
         // Atualizado quando a espécie muda (OnEnable, Configure, inspector): Generate roda a partir do
@@ -43,11 +42,10 @@ namespace LumberJack.Trees
 #endif
 
         public TreeSpeciesDefinition Species => _species;
-        public int Seed => _seed;
         public TreeSkeleton Skeleton => _skeleton;
 
         /// <summary>Malha gerada (a árvore inteira, antes de qualquer corte).</summary>
-        public Mesh Mesh => _mesh;
+        public Mesh Mesh { get; private set; }
         public bool IsGenerated { get; private set; }
         public int VertexCount { get; private set; }
         public int TriangleCount { get; private set; }
@@ -109,15 +107,15 @@ namespace LumberJack.Trees
 
             EnsureMesh();
             SharedSkeletonGenerator.Generate(_species, _seed, _skeleton);
-            SharedMeshBuilder.Build(_skeleton, _species.Mesh, _seed, _mesh);
+            SharedMeshBuilder.Build(_skeleton, _species.Mesh, _seed, Mesh);
             VertexCount = SharedMeshBuilder.VertexCount;
             TriangleCount = SharedMeshBuilder.TriangleCount;
 
             _meshRenderer.sharedMaterial = _species.BarkMaterial;
             // Malha gerada não tem colisão pré-calculada: calcula aqui (e reatribui para o PhysX usar a nova)
-            Physics.BakeMesh(_mesh.GetEntityId(), false, _meshCollider.cookingOptions);
+            Physics.BakeMesh(Mesh.GetEntityId(), false, _meshCollider.cookingOptions);
             _meshCollider.sharedMesh = null;
-            _meshCollider.sharedMesh = _mesh;
+            _meshCollider.sharedMesh = Mesh;
 
             IsGenerated = true;
             Generated?.Invoke();
@@ -138,8 +136,8 @@ namespace LumberJack.Trees
             if (_hasMesh) return;
 
             // DontSave: a malha é sempre gerada, nunca gravada na cena
-            _mesh = new Mesh { name = MeshName, hideFlags = HideFlags.DontSave };
-            _meshFilter.sharedMesh = _mesh;
+            Mesh = new Mesh { name = MeshName, hideFlags = HideFlags.DontSave };
+            _meshFilter.sharedMesh = Mesh;
             _hasMesh = true;
         }
 
@@ -149,16 +147,16 @@ namespace LumberJack.Trees
             VertexCount = 0;
             TriangleCount = 0;
             IsGenerated = false;
-            if (_hasMesh) _mesh.Clear();
+            if (_hasMesh) Mesh.Clear();
         }
 
         private void DestroyMesh()
         {
             if (!_hasMesh) return;
 
-            if (Application.isPlaying) Destroy(_mesh);
-            else DestroyImmediate(_mesh);
-            _mesh = null;
+            if (Application.isPlaying) Destroy(Mesh);
+            else DestroyImmediate(Mesh);
+            Mesh = null;
             _hasMesh = false;
             IsGenerated = false;
         }

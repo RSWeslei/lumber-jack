@@ -33,7 +33,7 @@ namespace LumberJack.Player
 
             if (hit.moveDirection.y < MinPushDirectionY) return;
 
-            Vector3 pushDirection = new Vector3(hit.moveDirection.x, 0f, hit.moveDirection.z);
+            Vector3 pushDirection = new(hit.moveDirection.x, 0f, hit.moveDirection.z);
             body.AddForce(pushDirection * _strength, ForceMode.Impulse);
         }
     }

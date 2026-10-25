@@ -16,13 +16,12 @@ namespace LumberJack.Shop
         [SerializeField] private Color _boughtColor = Color.green;
 
         private MeshRenderer _renderer;
-        private bool _isBought;
         // Montadas uma vez: a tecla não muda durante o jogo e assim a dica não aloca string
         private string _checkHint;
         private string _openHint;
 
         public BuyableDefinition Definition => _definition;
-        public bool IsBought => _isBought;
+        public bool IsBought { get; private set; }
 
         private void Awake()
         {
@@ -38,18 +37,18 @@ namespace LumberJack.Shop
 
         public void MarkAsBought()
         {
-            _isBought = true;
+            IsBought = true;
             _renderer.material.color = _boughtColor;
         }
 
         public void Display()
         {
-            UIDisplays.Instance.ShowKeyInfo(_isBought ? _openHint : _checkHint);
+            UIDisplays.Instance.ShowKeyInfo(IsBought ? _openHint : _checkHint);
         }
 
         public void Interact()
         {
-            if (_isBought) OpenBox();
+            if (IsBought) OpenBox();
             else UIDisplays.Instance.ShowBuyableInfo(_definition);
         }
 

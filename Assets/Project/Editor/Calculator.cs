@@ -14,11 +14,11 @@ namespace LumberJack.Editor
         private float _windowHeight;
         private float _dividedWidth;
         private float _dividedHeight;
-        private readonly List<char> _digits = new List<char>(11) { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.' };
-        private readonly List<char> _operators = new List<char>(4) { '+', '-', '×', '÷' };
-        private bool _enteredOperator = false;
-        private bool _enteredDot = false;
-        private bool _resetUponDigitInput = false;
+        private readonly List<char> _digits = new(11) { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.' };
+        private readonly List<char> _operators = new(4) { '+', '-', '×', '÷' };
+        private bool _enteredOperator;
+        private bool _enteredDot;
+        private bool _resetUponDigitInput;
 
         [MenuItem("Editor Windows/Calculator")]
         public static void ShowWindow()
@@ -117,7 +117,7 @@ namespace LumberJack.Editor
                 _resetUponDigitInput = false;
                 _display = "0";
             }
-            if (_enteredDot == true && digit == ".")
+            if (_enteredDot && digit == ".")
                 return;
             if (digit == ".")
                 _enteredDot = true;
@@ -129,7 +129,7 @@ namespace LumberJack.Editor
 
         private void OperatorPushed(string operation)
         {
-            if (_enteredOperator == true)
+            if (_enteredOperator)
                 return;
             _display += operation;
             _enteredOperator = true;
@@ -154,8 +154,8 @@ namespace LumberJack.Editor
         {
             string entry = string.Empty;
             int expressionLength = _display.Length;
-            List<float> expressionEntries = new List<float>();
-            List<float> expressionOperators = new List<float>();
+            List<float> expressionEntries = new();
+            List<char> expressionOperators = new();
             int mdNumber = 0;
 
             for (int x = 0; x < expressionLength; x++)
@@ -179,7 +179,7 @@ namespace LumberJack.Editor
 
             for (int y = 0; y < mdNumber; y++)
             {
-                for (int w = 0; w < Mathf.Infinity; w++)
+                for (int w = 0; ; w++)
                 {
                     float orderOfOperationResult;
                     if (expressionOperators[w] == '×')
@@ -210,7 +210,7 @@ namespace LumberJack.Editor
                     result -= expressionEntries[z + 1];
             }
 
-            _display = result.ToString();
+            _display = result.ToString(System.Globalization.CultureInfo.InvariantCulture);
             _resetUponDigitInput = true;
         }
 
@@ -224,7 +224,7 @@ namespace LumberJack.Editor
 
         private void ClearCurrentEntry() // CE
         {
-            for (int x = 0; x < Mathf.Infinity; x++)
+            while (true)
             {
                 if (_operators.Contains(_display[_display.Length - 1]))
                     break;
@@ -244,10 +244,10 @@ namespace LumberJack.Editor
         private float ReturnEndEntry() // find and return the entry at the end
         {
             string entryString = string.Empty;
-            for (int x = 0; x < _display.Length; x++)
+            foreach (char character in _display)
             {
-                entryString += _display[x];
-                if (_operators.Contains(_display[x]))
+                entryString += character;
+                if (_operators.Contains(character))
                     entryString = string.Empty;
             }
             float entry = float.Parse(entryString, System.Globalization.CultureInfo.InvariantCulture);
@@ -258,10 +258,10 @@ namespace LumberJack.Editor
         {
             if (_display == "0")
             {
-                _display = calculation.ToString();
+                _display = calculation.ToString(System.Globalization.CultureInfo.InvariantCulture);
                 return;
             }
-            _display += calculation.ToString();
+            _display += calculation.ToString(System.Globalization.CultureInfo.InvariantCulture);
         }
 
         private void EnterPI()

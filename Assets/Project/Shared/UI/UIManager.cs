@@ -15,18 +15,18 @@ namespace LumberJack.Shared
 
         [SerializeField] private PlayerStats _playerStats;
 
-        private Label _moneyText;
+        private static UIManager _instance;
 
-        public static UIManager Instance { get; private set; }
+        private Label _moneyText;
 
         private void Awake()
         {
-            if (Instance != null && Instance != this)
+            if (_instance != null && _instance != this)
             {
                 Destroy(this);
                 return;
             }
-            Instance = this;
+            _instance = this;
             _moneyText = GetComponent<UIDocument>().rootVisualElement.Q<Label>(MoneyLabelName);
         }
 
@@ -47,7 +47,7 @@ namespace LumberJack.Shared
 
         private void OnDestroy()
         {
-            if (Instance == this) Instance = null;
+            if (_instance == this) _instance = null;
         }
 
         private void HandleMoneyChanged(int cents)

@@ -23,7 +23,7 @@ namespace LumberJack.Inventory
         [Tooltip("Quanto tempo (ms) o nome do item fica visível depois de trocar de slot")]
         [SerializeField] private long _itemNameDurationMs = 1500;
 
-        private readonly List<Slot> _slots = new List<Slot>();
+        private readonly List<Slot> _slots = new();
         private Label _itemName;
         private IVisualElementScheduledItem _hideItemNameTask;
         private int _selectedIndex;

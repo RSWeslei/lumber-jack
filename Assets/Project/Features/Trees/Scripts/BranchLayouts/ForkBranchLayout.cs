@@ -16,7 +16,7 @@ namespace LumberJack.Trees
         private const float TipPosition = 1f;
 
         [Tooltip("Em quantos galhos o pai se divide")]
-        [SerializeField] private IntRange _forkCount = new IntRange(2, 3);
+        [SerializeField] private IntRange _forkCount = new(2, 3);
         [Tooltip("Variação da direção de cada divisão (0 = simétrica)")]
         [Range(0f, 1f)]
         [SerializeField] private float _jitter = 0.3f;

@@ -16,10 +16,10 @@ namespace LumberJack.Trees
         private const int MaxCount = 32;
 
         [Tooltip("Quantos galhos nascem em cada galho pai")]
-        [SerializeField] private IntRange _count = new IntRange(3, 5);
+        [SerializeField] private IntRange _count = new(3, 5);
         [Tooltip("Trecho do pai onde os galhos nascem (0 = base, 1 = ponta)")]
         [RangeLimits(0f, 1f)]
-        [SerializeField] private FloatRange _span = new FloatRange(0.4f, 0.95f);
+        [SerializeField] private FloatRange _span = new(0.4f, 0.95f);
         [Tooltip("Variação da altura de cada galho (0 = espaçamento regular)")]
         [Range(0f, 1f)]
         [SerializeField] private float _jitter = 0.3f;

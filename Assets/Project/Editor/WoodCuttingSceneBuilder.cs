@@ -18,8 +18,10 @@ namespace LumberJack.Editor
         private const string WoodFolder = "Assets/Project/Features/Wood";
         private const string ArtFolder = WoodFolder + "/Art";
         private const string SandboxArtFolder = ArtFolder + "/Sandbox";
-        private const string ScenePath = "Assets/Project/Scenes/Sandbox/WoodCuttingTest.unity";
-        private const string LogPrefabPath = WoodFolder + "/Prefabs/Log.prefab";
+        private const string SceneFolder = "Assets/Project/Scenes/Sandbox";
+        private const string ScenePath = SceneFolder + "/WoodCuttingTest.unity";
+        private const string PrefabFolder = WoodFolder + "/Prefabs";
+        private const string LogPrefabPath = PrefabFolder + "/Log.prefab";
         private const string WoodTypePath = WoodFolder + "/Data/ElmWood.asset";
         private const string GroundMaterialPath = "Assets/ThirdParty/Gridbox Prototype Materials/Materials/URP/Prototype_512x512_Grey2.mat";
 
@@ -27,14 +29,19 @@ namespace LumberJack.Editor
         private const float LogLength = 3f;
         private const int LogSides = 32;
 
+        private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+        private static readonly int BaseMapId = Shader.PropertyToID("_BaseMap");
+        private static readonly int SmoothnessId = Shader.PropertyToID("_Smoothness");
+        private static readonly int MetallicId = Shader.PropertyToID("_Metallic");
+
         [MenuItem("Lumber Jack/Criar cena de corte de madeira")]
         public static void BuildScene()
         {
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
 
             EnsureFolder(SandboxArtFolder);
-            EnsureFolder(Path.GetDirectoryName(LogPrefabPath).Replace('\\', '/'));
-            EnsureFolder(Path.GetDirectoryName(ScenePath).Replace('\\', '/'));
+            EnsureFolder(PrefabFolder);
+            EnsureFolder(SceneFolder);
 
             Texture2D barkTexture = SaveTexture(GenerateBarkTexture(512), ArtFolder, "BarkTexture");
             Texture2D ringsTexture = SaveTexture(GenerateRingsTexture(512), ArtFolder, "RingsTexture");
@@ -73,7 +80,7 @@ namespace LumberJack.Editor
             CreateBlock("Support Left", new Vector3(-0.9f, 0.2f, 0f), new Vector3(0.3f, 0.4f, 1f), groundMaterial);
             CreateBlock("Support Right", new Vector3(0.9f, 0.2f, 0f), new Vector3(0.3f, 0.4f, 1f), groundMaterial);
 
-            GameObject spawner = new GameObject("Log Spawner");
+            GameObject spawner = new("Log Spawner");
             spawner.transform.position = new Vector3(0f, 0.4f + LogRadius + 0.05f, 0f);
             SetField(spawner.AddComponent<LogSpawner>(), "_logPrefab", logPrefab);
 
@@ -83,7 +90,7 @@ namespace LumberJack.Editor
             cameraObject.GetComponent<Camera>().nearClipPlane = 0.05f;
             cameraObject.AddComponent<FlyCamera>();
 
-            GameObject previewObject = new GameObject("Cut Preview");
+            GameObject previewObject = new("Cut Preview");
             previewObject.transform.SetParent(cameraObject.transform, false);
             LineRenderer line = previewObject.AddComponent<LineRenderer>();
             line.sharedMaterial = preview;
@@ -107,7 +114,7 @@ namespace LumberJack.Editor
         private static Transform BuildAxe(Transform parent, Material handleMaterial, Material headMaterial)
         {
             // O pivô fica na mão; o cabo sobe (Y) e a lâmina aponta para frente (Z)
-            GameObject pivot = new GameObject("Axe");
+            GameObject pivot = new("Axe");
             pivot.transform.SetParent(parent, false);
             pivot.transform.localPosition = new Vector3(0.38f, -0.42f, 0.55f);
             pivot.transform.localRotation = Quaternion.Euler(-25f, -12f, 0f);
@@ -150,7 +157,7 @@ namespace LumberJack.Editor
 
         private static void BuildLogPrefab(Mesh mesh, Material bark, Material rings)
         {
-            GameObject log = new GameObject("Log");
+            GameObject log = new("Log");
             // A malha tem o comprimento no eixo Y; deita o tronco
             log.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
             log.AddComponent<MeshFilter>().sharedMesh = mesh;
@@ -178,11 +185,11 @@ namespace LumberJack.Editor
         // Cilindro com o comprimento no eixo Y. Submesh 0 = casca, submesh 1 = pontas (anéis)
         private static Mesh BuildLogMesh()
         {
-            List<Vector3> vertices = new List<Vector3>();
-            List<Vector3> normals = new List<Vector3>();
-            List<Vector2> uvs = new List<Vector2>();
-            List<int> barkTriangles = new List<int>();
-            List<int> endTriangles = new List<int>();
+            List<Vector3> vertices = new();
+            List<Vector3> normals = new();
+            List<Vector2> uvs = new();
+            List<int> barkTriangles = new();
+            List<int> endTriangles = new();
 
             float half = LogLength / 2f;
             float circumference = 2f * Mathf.PI * LogRadius;
@@ -191,7 +198,7 @@ namespace LumberJack.Editor
             {
                 float angle = i / (float)LogSides * Mathf.PI * 2f;
                 Vector3 point = RingPoint(angle);
-                Vector3 normal = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
+                Vector3 normal = new(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
                 float u = i / (float)LogSides;
 
                 vertices.Add(new Vector3(point.x, -half, point.z));
@@ -212,7 +219,7 @@ namespace LumberJack.Editor
             AddEndCap(vertices, normals, uvs, endTriangles, half, Vector3.up);
             AddEndCap(vertices, normals, uvs, endTriangles, -half, Vector3.down);
 
-            Mesh mesh = new Mesh { name = "Log" };
+            Mesh mesh = new() { name = "Log" };
             mesh.SetVertices(vertices);
             mesh.SetNormals(normals);
             mesh.SetUVs(0, uvs);
@@ -258,9 +265,9 @@ namespace LumberJack.Editor
 
         private static Texture2D GenerateBarkTexture(int size)
         {
-            Texture2D texture = new Texture2D(size, size, TextureFormat.RGB24, true);
-            Color dark = new Color(0.22f, 0.14f, 0.08f);
-            Color light = new Color(0.42f, 0.3f, 0.19f);
+            Texture2D texture = new(size, size, TextureFormat.RGB24, true);
+            Color dark = new(0.22f, 0.14f, 0.08f);
+            Color light = new(0.42f, 0.3f, 0.19f);
             for (int y = 0; y < size; y++)
             {
                 for (int x = 0; x < size; x++)
@@ -279,10 +286,10 @@ namespace LumberJack.Editor
 
         private static Texture2D GenerateRingsTexture(int size)
         {
-            Texture2D texture = new Texture2D(size, size, TextureFormat.RGB24, true);
-            Color early = new Color(0.86f, 0.7f, 0.48f);
-            Color late = new Color(0.66f, 0.46f, 0.27f);
-            Color bark = new Color(0.3f, 0.2f, 0.12f);
+            Texture2D texture = new(size, size, TextureFormat.RGB24, true);
+            Color early = new(0.86f, 0.7f, 0.48f);
+            Color late = new(0.66f, 0.46f, 0.27f);
+            Color bark = new(0.3f, 0.2f, 0.12f);
             for (int y = 0; y < size; y++)
             {
                 for (int x = 0; x < size; x++)
@@ -305,12 +312,13 @@ namespace LumberJack.Editor
 
         private static Material CreateLitMaterial(Color color, Texture texture, float smoothness, float metallic = 0f)
         {
-            Shader shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
-            Material material = new Material(shader);
-            material.SetColor("_BaseColor", color);
-            if (texture != null) material.SetTexture("_BaseMap", texture);
-            material.SetFloat("_Smoothness", smoothness);
-            material.SetFloat("_Metallic", metallic);
+            Shader shader = Shader.Find("Universal Render Pipeline/Lit");
+            if (shader == null) shader = Shader.Find("Standard");
+            Material material = new(shader);
+            material.SetColor(BaseColorId, color);
+            if (texture != null) material.SetTexture(BaseMapId, texture);
+            material.SetFloat(SmoothnessId, smoothness);
+            material.SetFloat(MetallicId, metallic);
             return material;
         }
 
@@ -318,7 +326,8 @@ namespace LumberJack.Editor
         private static void EnsureFolder(string folder)
         {
             if (AssetDatabase.IsValidFolder(folder)) return;
-            string parent = Path.GetDirectoryName(folder).Replace('\\', '/');
+            string parent = Path.GetDirectoryName(folder)?.Replace('\\', '/');
+            if (string.IsNullOrEmpty(parent)) return;
             EnsureFolder(parent);
             AssetDatabase.CreateFolder(parent, Path.GetFileName(folder));
         }
@@ -350,7 +359,7 @@ namespace LumberJack.Editor
 
         private static void SetField(Object target, string field, object value)
         {
-            SerializedObject serialized = new SerializedObject(target);
+            SerializedObject serialized = new(target);
             SerializedProperty property = serialized.FindProperty(field);
             if (value is Object reference) property.objectReferenceValue = reference;
             else if (value is float number) property.floatValue = number;

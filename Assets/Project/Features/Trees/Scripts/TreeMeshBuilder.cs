@@ -12,7 +12,7 @@ namespace LumberJack.Trees
     public sealed class TreeMeshBuilder
     {
         /// <summary>Canal de UV com o índice do galho de cada vértice (x), usado para cortar galho a galho.</summary>
-        public const int BranchChannel = 1;
+        private const int BranchChannel = 1;
 
         private const int MaxUInt16Vertices = 65535;
         // Altura da ponta cônica de cada galho, em raios
@@ -21,13 +21,13 @@ namespace LumberJack.Trees
         // Sal da seed da malha: a irregularidade dos anéis não repete o sorteio do esqueleto
         private const uint MeshSeedSalt = 0x5EEDu;
 
-        private readonly List<Vector3> _vertices = new List<Vector3>();
-        private readonly List<Vector3> _normals = new List<Vector3>();
-        private readonly List<Vector2> _uvs = new List<Vector2>();
-        private readonly List<int> _triangles = new List<int>();
-        private readonly List<Vector2> _branchIds = new List<Vector2>();
+        private readonly List<Vector3> _vertices = new();
+        private readonly List<Vector3> _normals = new();
+        private readonly List<Vector2> _uvs = new();
+        private readonly List<int> _triangles = new();
+        private readonly List<Vector2> _branchIds = new();
         // Pontos dos anéis do galho sendo construído (NodeCount x lados)
-        private readonly List<Vector3> _ringPoints = new List<Vector3>();
+        private readonly List<Vector3> _ringPoints = new();
 
         private Vector2 _currentBranchId;
 

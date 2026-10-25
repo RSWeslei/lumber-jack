@@ -25,6 +25,10 @@ namespace LumberJack.Editor
         private const string BodyName = "Body";
         private const float MinModelHeight = 0.0001f;
 
+        private static readonly int BaseMapId = Shader.PropertyToID("_BaseMap");
+        private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+        private static readonly int SmoothnessId = Shader.PropertyToID("_Smoothness");
+
         [MenuItem("Lumber Jack/Configurar personagem do jogador")]
         public static void Setup()
         {
@@ -99,9 +103,9 @@ namespace LumberJack.Editor
                 material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
                 AssetDatabase.CreateAsset(material, path);
             }
-            material.SetTexture("_BaseMap", texture);
-            material.SetColor("_BaseColor", color);
-            material.SetFloat("_Smoothness", 0.1f);
+            material.SetTexture(BaseMapId, texture);
+            material.SetColor(BaseColorId, color);
+            material.SetFloat(SmoothnessId, 0.1f);
             EditorUtility.SetDirty(material);
             return material;
         }
@@ -139,7 +143,8 @@ namespace LumberJack.Editor
         private static void EnsureFolder(string folder)
         {
             if (AssetDatabase.IsValidFolder(folder)) return;
-            string parent = Path.GetDirectoryName(folder).Replace('\\', '/');
+            string parent = Path.GetDirectoryName(folder)?.Replace('\\', '/');
+            if (string.IsNullOrEmpty(parent)) return;
             EnsureFolder(parent);
             AssetDatabase.CreateFolder(parent, Path.GetFileName(folder));
         }

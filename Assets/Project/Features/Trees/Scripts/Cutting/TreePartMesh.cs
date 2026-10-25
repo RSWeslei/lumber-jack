@@ -11,14 +11,14 @@ namespace LumberJack.Trees
     {
         private int[][] _branchTriangles = Array.Empty<int[]>();
         private int[] _branchCounts = Array.Empty<int>();
+        private Vector2[] _branchIds = Array.Empty<Vector2>();
 
         public Vector3[] Vertices { get; private set; } = Array.Empty<Vector3>();
-        public Vector2[] BranchIds { get; private set; } = Array.Empty<Vector2>();
 
         public void Load(Mesh mesh, int branchCount)
         {
             Vertices = mesh.vertices;
-            BranchIds = mesh.uv2;
+            _branchIds = mesh.uv2;
             int[] triangles = mesh.triangles;
 
             if (_branchCounts.Length != branchCount) _branchCounts = new int[branchCount];
@@ -43,7 +43,7 @@ namespace LumberJack.Trees
 
         public int BranchOf(int vertex)
         {
-            return Mathf.RoundToInt(BranchIds[vertex].x);
+            return Mathf.RoundToInt(_branchIds[vertex].x);
         }
 
         public bool HasBranch(int branch)

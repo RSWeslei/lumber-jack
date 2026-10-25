@@ -9,11 +9,10 @@ namespace LumberJack.Trees
     /// </summary>
     public sealed class TreeSkeleton
     {
-        private readonly List<TreeNode> _nodes = new List<TreeNode>();
-        private readonly List<TreeBranch> _branches = new List<TreeBranch>();
+        private readonly List<TreeNode> _nodes = new();
+        private readonly List<TreeBranch> _branches = new();
 
         public int BranchCount => _branches.Count;
-        public int NodeCount => _nodes.Count;
 
         /// <summary>Ponto mais alto do eixo (m), em relação ao pé da árvore.</summary>
         public float Height { get; private set; }

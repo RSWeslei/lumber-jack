@@ -35,8 +35,6 @@ namespace LumberJack.Player
         private bool _previousUseGravity;
         private bool _previousFreezeRotation;
 
-        public bool IsCarrying => _isCarrying;
-
         private void Awake()
         {
             _aim = _cameraTransform.GetComponent<PlayerAim>();

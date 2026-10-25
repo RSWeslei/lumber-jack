@@ -37,7 +37,7 @@ namespace LumberJack.Wood
         private Vector3[] _vertices;
         private int[] _triangles;
 
-        public Mesh Mesh => _meshFilter.sharedMesh;
+        private Mesh Mesh => _meshFilter.sharedMesh;
         public Transform Transform => transform;
 
         /// <summary>Tora corta num golpe só: não tem progresso.</summary>
@@ -46,7 +46,7 @@ namespace LumberJack.Wood
         public int[] Triangles => _triangles ??= Mesh.triangles;
 
         /// <summary>Eixo do tronco (comprimento) em coordenadas do mundo.</summary>
-        public Vector3 WorldAxis => transform.TransformDirection(Vector3.up);
+        private Vector3 WorldAxis => transform.TransformDirection(Vector3.up);
 
         private void Awake()
         {
@@ -71,7 +71,7 @@ namespace LumberJack.Wood
         /// <summary>
         /// Plano do mundo -> plano no espaço local deste pedaço.
         /// </summary>
-        public Plane ToLocalPlane(Vector3 worldPoint, Vector3 worldNormal)
+        private Plane ToLocalPlane(Vector3 worldPoint, Vector3 worldNormal)
         {
             return new Plane(transform.InverseTransformDirection(worldNormal).normalized,
                 transform.InverseTransformPoint(worldPoint));
@@ -125,9 +125,7 @@ namespace LumberJack.Wood
                 return;
             }
 
-            GameObject piece = new GameObject(name);
-            piece.layer = gameObject.layer;
-            piece.tag = gameObject.tag;
+            GameObject piece = new(name) { layer = gameObject.layer, tag = gameObject.tag };
             piece.transform.SetParent(transform.parent, false);
             piece.transform.SetPositionAndRotation(transform.position, transform.rotation);
             piece.transform.localScale = transform.localScale;

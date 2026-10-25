@@ -14,7 +14,8 @@ namespace LumberJack.Editor
     /// </summary>
     public static class TreeSandboxBuilder
     {
-        private const string ScenePath = "Assets/Project/Scenes/Sandbox/TreeSandbox.unity";
+        private const string SceneFolder = "Assets/Project/Scenes/Sandbox";
+        private const string ScenePath = SceneFolder + "/TreeSandbox.unity";
         private const string SandboxArtFolder = "Assets/Project/Features/Trees/Art/Sandbox";
         private const string GroundMaterialPath = SandboxArtFolder + "/SandboxGround.mat";
         private const string SkyMaterialPath = "Assets/ThirdParty/Low Poly Sky/Polyverse Skies/Core/Presets/Sky 03.mat";
@@ -27,9 +28,9 @@ namespace LumberJack.Editor
         private const float GroundScale = 10f;
         private const float GroundSmoothness = 0f;
 
-        private static readonly Color GroundColor = new Color(0.42f, 0.55f, 0.28f);
-        private static readonly Vector3 CameraPosition = new Vector3(14f, 7f, -16f);
-        private static readonly Vector3 CameraLookAt = new Vector3(14f, 4f, 12f);
+        private static readonly Color GroundColor = new(0.42f, 0.55f, 0.28f);
+        private static readonly Vector3 CameraPosition = new(14f, 7f, -16f);
+        private static readonly Vector3 CameraLookAt = new(14f, 4f, 12f);
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
         private static readonly int SmoothnessId = Shader.PropertyToID("_Smoothness");
 
@@ -40,14 +41,14 @@ namespace LumberJack.Editor
 
             TreeSpeciesPresets.EnsureDefaults();
             EnsureFolder(SandboxArtFolder);
-            EnsureFolder(Path.GetDirectoryName(ScenePath).Replace('\\', '/'));
+            EnsureFolder(SceneFolder);
             CreateGroundMaterial();
 
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
 
             // Assets carregados só depois da cena nova: o NewScene descarrega os que não estão em uso
             string[] speciesPaths = { TreeSpeciesPresets.PinePath, TreeSpeciesPresets.OakPath, TreeSpeciesPresets.BirchPath };
-            var sky = AssetDatabase.LoadAssetAtPath<Material>(SkyMaterialPath);
+            Material sky = AssetDatabase.LoadAssetAtPath<Material>(SkyMaterialPath);
             if (sky != null) RenderSettings.skybox = sky;
 
             // Grupos da raiz no padrão do projeto (CLAUDE.md > Scene hierarchy)
@@ -74,7 +75,7 @@ namespace LumberJack.Editor
             trees.SetParent(environment, false);
             for (int row = 0; row < speciesPaths.Length; row++)
             {
-                var species = AssetDatabase.LoadAssetAtPath<TreeSpeciesDefinition>(speciesPaths[row]);
+                TreeSpeciesDefinition species = AssetDatabase.LoadAssetAtPath<TreeSpeciesDefinition>(speciesPaths[row]);
                 for (int i = 0; i < TreesPerSpecies; i++)
                 {
                     CreateTree(species, i + 1, new Vector3(i * TreeSpacing, 0f, row * RowSpacing), trees);
@@ -114,7 +115,8 @@ namespace LumberJack.Editor
         private static void EnsureFolder(string folder)
         {
             if (AssetDatabase.IsValidFolder(folder)) return;
-            string parent = Path.GetDirectoryName(folder).Replace('\\', '/');
+            string parent = Path.GetDirectoryName(folder)?.Replace('\\', '/');
+            if (string.IsNullOrEmpty(parent)) return;
             EnsureFolder(parent);
             AssetDatabase.CreateFolder(parent, Path.GetFileName(folder));
         }

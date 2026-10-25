@@ -98,7 +98,7 @@ namespace LumberJack.Editor
         private static Material CreateBark(string name, Color color)
         {
             string path = ArtFolder + "/" + name + ".mat";
-            var material = AssetDatabase.LoadAssetAtPath<Material>(path);
+            Material material = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (material != null) return material;
 
             material = new Material(Shader.Find(LitShader));
@@ -111,7 +111,8 @@ namespace LumberJack.Editor
         private static void EnsureFolder(string folder)
         {
             if (AssetDatabase.IsValidFolder(folder)) return;
-            string parent = Path.GetDirectoryName(folder).Replace('\\', '/');
+            string parent = Path.GetDirectoryName(folder)?.Replace('\\', '/');
+            if (string.IsNullOrEmpty(parent)) return;
             EnsureFolder(parent);
             AssetDatabase.CreateFolder(parent, Path.GetFileName(folder));
         }

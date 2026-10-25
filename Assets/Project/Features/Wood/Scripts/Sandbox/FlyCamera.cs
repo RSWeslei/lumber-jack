@@ -55,7 +55,7 @@ namespace LumberJack.Wood
             if (keyboard.cKey.isPressed) move -= Vector3.up;
 
             float speed = _moveSpeed * (keyboard.leftShiftKey.isPressed ? _sprintMultiplier : 1f);
-            transform.position += move.normalized * speed * Time.deltaTime;
+            transform.position += move.normalized * (speed * Time.deltaTime);
         }
 
         private static void LockCursor(bool locked)

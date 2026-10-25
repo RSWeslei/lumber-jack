@@ -23,7 +23,7 @@ namespace LumberJack.Player
         private void Update()
         {
             Vector2 move = InputManager.Instance.MoveInput;
-            Vector3 sway = new Vector3(
+            Vector3 sway = new(
                 Mathf.Clamp(-move.x * SwayAmount, -MaxSway, MaxSway),
                 Mathf.Clamp(-move.y * SwayAmount, -MaxSway, MaxSway),
                 0f);

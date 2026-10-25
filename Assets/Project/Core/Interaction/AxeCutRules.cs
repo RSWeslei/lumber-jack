@@ -14,9 +14,9 @@ namespace LumberJack.Core
 
             float min = float.MaxValue;
             float max = float.MinValue;
-            for (int i = 0; i < triangles.Length; i++)
+            foreach (int index in triangles)
             {
-                float distance = localPlane.GetDistanceToPoint(vertices[triangles[i]]);
+                float distance = localPlane.GetDistanceToPoint(vertices[index]);
                 min = Mathf.Min(min, distance);
                 max = Mathf.Max(max, distance);
             }
