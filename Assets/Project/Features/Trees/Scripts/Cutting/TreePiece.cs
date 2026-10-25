@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
+using LumberJack.Audio;
 using LumberJack.Core;
 using LumberJack.Shared;
 using LumberJack.Wood;
@@ -36,6 +37,10 @@ namespace LumberJack.Trees
         private Mesh _mesh;
         private WoodPiece _woodPiece;
         private bool _hasWoodPiece;
+        private AudioSource _audio;
+        private TreeSoundsDefinition _sounds;
+        private bool _hasSounds;
+        private float _nextImpactSound;
         private int _aimBranch = -1;
         private Vector3 _aimCenter;
         private float _aimRadius;
@@ -61,6 +66,17 @@ namespace LumberJack.Trees
 
         /// <summary>False quando, depois de quebrar galhos, sobrou só graveto (nada que colida).</summary>
         public bool HasColliders { get; private set; } = true;
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            if (!_hasSounds || Time.time < _nextImpactSound) return;
+
+            float volume = _sounds.ImpactVolume(collision.relativeVelocity.magnitude);
+            if (volume <= 0f) return;
+
+            _nextImpactSound = Time.time + _sounds.ImpactInterval;
+            _sounds.Impact.Play(_audio, volume);
+        }
 
         private void OnDestroy()
         {
@@ -150,14 +166,26 @@ namespace LumberJack.Trees
             Destroy(gameObject);
         }
 
-        /// <summary>
-        /// Quebra o galho no ponto <paramref name="localPoint"/> do eixo dele: a ponta some (galho fino que bateu
-        /// no chão). False se não deu para cortar ali.
-        /// </summary>
         public void AppendDebugInfo(StringBuilder text)
         {
             text.Append("Pedaço de árvore: ").AppendLine(Species.name);
             text.Append("Corte: ").Append((CutProgress * 100f).ToString("0")).AppendLine("%");
+        }
+
+        /// <summary>
+        /// Quebra o galho no ponto <paramref name="localPoint"/> do eixo dele: a ponta some (galho fino que bateu
+        /// no chão). False se não deu para cortar ali.
+        /// </summary>
+        /// <summary>Rangido do tronco começando a tombar.</summary>
+        public void PlayFallSound()
+        {
+            if (_hasSounds) _sounds.Creak.Play(_audio);
+        }
+
+        /// <summary>Pancada do tronco deitando no chão.</summary>
+        public void PlayLandSound()
+        {
+            if (_hasSounds) _sounds.Land.Play(_audio);
         }
 
         public bool BreakBranch(int branch, Vector3 localPoint, Vector3 localDirection, float radius)
@@ -173,6 +201,7 @@ namespace LumberJack.Trees
             HasColliders = BuildColliders() > 0;
             UpdateMass();
             if (_hasWoodPiece) _woodPiece.RecalculateValue();
+            if (_hasSounds) _sounds.BranchBreak.Play(_audio);
             return true;
         }
 
@@ -196,6 +225,9 @@ namespace LumberJack.Trees
             body.maxDepenetrationVelocity = species.Felling.MaxSeparationSpeed;
             Body = body;
             UpdateMass();
+            _audio = SpatialAudio.AddSource(gameObject);
+            _sounds = species.Sounds;
+            _hasSounds = _sounds != null;
 
             if (wood != null)
             {

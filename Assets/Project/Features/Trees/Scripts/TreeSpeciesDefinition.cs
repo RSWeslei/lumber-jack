@@ -24,6 +24,8 @@ namespace LumberJack.Trees
         [SerializeField] private List<BranchLevelSettings> _branchLevels = new();
         [SerializeField] private TreeMeshSettings _mesh = new();
         [SerializeField] private TreeFellingSettings _felling = new();
+        [Tooltip("Sons da queda e dos pedaços; vazio = sem som")]
+        [SerializeField] private TreeSoundsDefinition _sounds;
 
         public string DisplayName => _displayName;
         public WoodDefinition Wood => _wood;
@@ -33,6 +35,7 @@ namespace LumberJack.Trees
         public IReadOnlyList<BranchLevelSettings> BranchLevels => _branchLevels;
         public TreeMeshSettings Mesh => _mesh;
         public TreeFellingSettings Felling => _felling;
+        public TreeSoundsDefinition Sounds => _sounds;
 
 #if UNITY_EDITOR
         /// <summary>Só no editor: avisa as árvores da cena para se regenerarem quando a espécie é editada.</summary>

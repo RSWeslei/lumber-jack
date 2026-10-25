@@ -47,6 +47,8 @@ GameObject:
   - component: {fileID: 1004265936}
   - component: {fileID: 1004265937}
   - component: {fileID: 1004265938}
+  - component: {fileID: 7496624763777830167}
+  - component: {fileID: 2632538344263808201}
   m_Layer: 9
   m_Name: PlayerCapsule
   m_TagString: Player
@@ -191,10 +193,13 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   _cameraTransform: {fileID: 0}
+  _hand: {fileID: 0}
   _maxDistance: 1.5
   _followStrength: 12
   _maxCarrySpeed: 8
   _fullLoadSpeedFraction: 0.35
+  _audio: {fileID: 7496624763777830167}
+  _grabSound: {fileID: 11400000, guid: 8af28fed80343ab4384c0503135015ff, type: 2}
   _turnStrength: 10
   _maxTurnSpeed: 270
 --- !u!114 &1004265937
@@ -225,6 +230,121 @@ MonoBehaviour:
   _maxLife: 0
   _moneyCents: 100000
   _carryCapacityKg: 600
+--- !u!82 &7496624763777830167
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8616685848737228372}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 0
+  MinDistance: 3
+  MaxDistance: 40
+  Pan2D: 0
+  rolloffMode: 1
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &2632538344263808201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8616685848737228372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 133884681f536504dbe5dabdcb6480f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: LumberJack::LumberJack.Player.Footsteps
+  _audio: {fileID: 7496624763777830167}
+  _surfaces: {fileID: 11400000, guid: bc5d29c8fd002494986c81fbdab6b9d5, type: 2}
+  _stepDistance: 2
+  _groundProbeDistance: 0.5
+  _minLandingSpeed: 3
+  _fullLandingSpeed: 10
 --- !u!1001 &8871364825188179180
 PrefabInstance:
   m_ObjectHideFlags: 0

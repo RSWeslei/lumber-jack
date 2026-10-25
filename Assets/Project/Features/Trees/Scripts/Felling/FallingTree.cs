@@ -80,6 +80,7 @@ namespace LumberJack.Trees
             _motion.Begin(pivot, axis, _body.position, _body.rotation, _body.worldCenterOfMass,
                 InertiaPerMass(_body, pivot, axis), startSpeed, Physics.gravity);
             BuildSegments();
+            piece.PlayFallSound();
             _isCollectingStartContacts = true;
             Touches(0f, false);
             _isCollectingStartContacts = false;
@@ -144,6 +145,7 @@ namespace LumberJack.Trees
             _body.position = position;
             _body.rotation = rotation;
             _body.isKinematic = false;
+            _piece.PlayLandSound();
             _body.collisionDetectionMode = CollisionDetectionMode.Continuous;
             Vector3 spin = _motion.Axis * (_motion.Speed * _landingSpinKeep);
             _body.angularVelocity = spin;

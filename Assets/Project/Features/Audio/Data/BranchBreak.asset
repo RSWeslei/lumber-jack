@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0215efe30dd26c349b926fba66eb902d, type: 3}
+  m_Name: BranchBreak
+  m_EditorClassIdentifier: LumberJack::LumberJack.Audio.SoundDefinition
+  _clips:
+  - {fileID: 8300000, guid: 76df9f048ae04a5098e8d601112f8570, type: 3}
+  - {fileID: 8300000, guid: 3562b8a3e8da4fcf8ce204ce0bfa8abb, type: 3}
+  - {fileID: 8300000, guid: c485ff2c91884aebac03021aff8abcae, type: 3}
+  - {fileID: 8300000, guid: 4f96f0ad47954cbd8fcf3506f3a85b2e, type: 3}
+  - {fileID: 8300000, guid: 11b845d7c05a46479465b158becbf12d, type: 3}
+  - {fileID: 8300000, guid: 0671817d399348d8abd5aaad2272dea8, type: 3}
+  _volume:
+    _min: 0.4
+    _max: 0.5
+  _pitch:
+    _min: 0.95
+    _max: 1.1

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13640b1db774a4648ad965fa0c9b42d1, type: 3}
+  m_Name: FootstepSurfaces
+  m_EditorClassIdentifier: LumberJack::LumberJack.Audio.SurfaceSoundsDefinition
+  _defaultSound: {fileID: 11400000, guid: 04f35559dedf833479a8fc5b7f2a77c6, type: 2}
+  _surfaces:
+  - _material: {fileID: 13400000, guid: 85e6978e761145140ae271d36cebe6fa, type: 2}
+    _tag: 
+    _sound: {fileID: 11400000, guid: c46f1a542120d784ba580921691cdbfd, type: 2}
+  - _material: {fileID: 0}
+    _tag: Wood
+    _sound: {fileID: 11400000, guid: ed41a06af510539479c035574fcbdae1, type: 2}

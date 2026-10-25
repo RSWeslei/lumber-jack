@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using LumberJack.Audio;
 using LumberJack.Core;
 using LumberJack.Player;
 using LumberJack.Wood;
@@ -22,6 +23,9 @@ namespace LumberJack.Shop
         [SerializeField] private PickupObjects _carrier;
         [Tooltip("Placa com o valor da última venda")]
         [SerializeField] private TextMeshPro _lastSaleText;
+        [SerializeField] private AudioSource _audio;
+        [Tooltip("Moedas ao vender")]
+        [SerializeField] private SoundDefinition _saleSound;
 
         // Pedaços dentro da área e quantos colliders de cada um estão dentro (pedaço de árvore tem vários cascos)
         private readonly Dictionary<Rigidbody, int> _inside = new();
@@ -86,6 +90,7 @@ namespace LumberJack.Shop
             _inside.Remove(body);
             _playerStats.AddMoney(wood.ValueCents);
             _lastSaleText.SetText(LastSaleFormat, Money.ToUnits(wood.ValueCents));
+            _saleSound.Play(_audio);
             Destroy(body.gameObject);
         }
 

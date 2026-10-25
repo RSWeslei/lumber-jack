@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0215efe30dd26c349b926fba66eb902d, type: 3}
+  m_Name: AxeSwing
+  m_EditorClassIdentifier: LumberJack::LumberJack.Audio.SoundDefinition
+  _clips:
+  - {fileID: 8300000, guid: b63f8d0ac30041c182401256d951ca84, type: 3}
+  - {fileID: 8300000, guid: c6da68a97dc144b8be87f40837dcc2f9, type: 3}
+  - {fileID: 8300000, guid: 15bcc25939f848439bef674a44852615, type: 3}
+  - {fileID: 8300000, guid: ca65e1784dc54170a8465a7d66ca213f, type: 3}
+  - {fileID: 8300000, guid: 86da96806abc4f35b3ff20cfafd82742, type: 3}
+  _volume:
+    _min: 0.25
+    _max: 0.3
+  _pitch:
+    _min: 0.9
+    _max: 1.1

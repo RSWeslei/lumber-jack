@@ -1,3 +1,4 @@
+using LumberJack.Audio;
 using LumberJack.Core;
 using LumberJack.Tools;
 using LumberJack.Wood;
@@ -27,6 +28,13 @@ namespace LumberJack.Player
         [Tooltip("Força da tremida da câmera (0 a 1)")]
         [Range(0f, 1f)]
         [SerializeField] private float _hitShake = 0.35f;
+
+        [Header("Sons")]
+        [SerializeField] private AudioSource _audio;
+        [Tooltip("Vento do machado ao começar o golpe")]
+        [SerializeField] private SoundDefinition _swingSound;
+        [Tooltip("Machado batendo na madeira")]
+        [SerializeField] private SoundDefinition _hitSound;
 
         [Header("Inclinação do corte")]
         [SerializeField] private float _maxTilt = 60f;
@@ -68,9 +76,9 @@ namespace LumberJack.Player
 
         private void Awake()
         {
-            if (_hand == null || _arms == null || _chipsPrefab == null)
+            if (_hand == null || _arms == null || _chipsPrefab == null || _audio == null || _swingSound == null || _hitSound == null)
             {
-                Debug.LogError($"{nameof(WoodChopper)} sem referência para a mão, os braços ou as lascas.", this);
+                Debug.LogError($"{nameof(WoodChopper)} sem referência para a mão, os braços, as lascas ou os sons.", this);
                 enabled = false;
                 return;
             }
@@ -174,6 +182,7 @@ namespace LumberJack.Player
             _swingPoint = _targetPoint;
             _swingNormal = _targetNormal;
             _arms.Swing(tool.SwingSpeed);
+            _swingSound.Play(_audio);
         }
 
         private void HandleImpacted()
@@ -186,6 +195,7 @@ namespace LumberJack.Player
 
             _swingTarget.Strike(_swingPlane, _swingDirection, _swingDamage);
             _arms.HitStop();
+            _hitSound.Play(_audio);
             _shake.Shake(_hitShake);
             // As lascas saem da madeira para fora, na direção de quem bateu
             _chips.transform.SetPositionAndRotation(_swingPoint, Quaternion.LookRotation(_swingNormal));

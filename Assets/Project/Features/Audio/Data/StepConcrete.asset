@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0215efe30dd26c349b926fba66eb902d, type: 3}
+  m_Name: StepConcrete
+  m_EditorClassIdentifier: LumberJack::LumberJack.Audio.SoundDefinition
+  _clips:
+  - {fileID: 8300000, guid: 2dca7f48aedaad34aac1d1ba3b8e2048, type: 3}
+  - {fileID: 8300000, guid: 0604b53abf5cabf4197325c0f30878cb, type: 3}
+  - {fileID: 8300000, guid: e9fc31903decd544f9a8eeb6c8d129d6, type: 3}
+  - {fileID: 8300000, guid: 13dc9493f13e5364085b33a07bb24c78, type: 3}
+  - {fileID: 8300000, guid: bfa01b84245ab3e448be18649de63161, type: 3}
+  _volume:
+    _min: 0.18
+    _max: 0.24
+  _pitch:
+    _min: 0.95
+    _max: 1.05

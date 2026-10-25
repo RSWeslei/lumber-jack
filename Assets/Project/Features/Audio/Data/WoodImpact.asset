@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0215efe30dd26c349b926fba66eb902d, type: 3}
+  m_Name: WoodImpact
+  m_EditorClassIdentifier: LumberJack::LumberJack.Audio.SoundDefinition
+  _clips:
+  - {fileID: 8300000, guid: 948e4c50df4f9514bb90898dfc93865b, type: 3}
+  - {fileID: 8300000, guid: ee67f2d598c7b024c9e10f48f4062536, type: 3}
+  - {fileID: 8300000, guid: 5dd1a4b31c1af5e47ace3d23b022131b, type: 3}
+  - {fileID: 8300000, guid: 297c80c3166edc442884700607c0e6a6, type: 3}
+  - {fileID: 8300000, guid: 312602dd6cb71d84cafb04dded52c779, type: 3}
+  - {fileID: 8300000, guid: c542e45294170344f9225000f143c3dc, type: 3}
+  - {fileID: 8300000, guid: 191ec60e01226574c8c0ddeace2be72c, type: 3}
+  - {fileID: 8300000, guid: a24eb4711975f7847b2d304ca5f6179d, type: 3}
+  - {fileID: 8300000, guid: 155200ad19547b243b2795211a77f726, type: 3}
+  - {fileID: 8300000, guid: 53fa819c65766fc43bace2b929f41ddb, type: 3}
+  _volume:
+    _min: 0.3
+    _max: 0.45
+  _pitch:
+    _min: 0.9
+    _max: 1.05

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using LumberJack.Audio;
 using LumberJack.Core;
 using UnityEngine;
 
@@ -34,6 +35,11 @@ namespace LumberJack.Player
         [Tooltip("Fração da velocidade máxima com o peso no limite da força")]
         [Range(0.05f, 1f)]
         [SerializeField] private float _fullLoadSpeedFraction = 0.35f;
+
+        [Header("Sons")]
+        [SerializeField] private AudioSource _audio;
+        [Tooltip("Mãos pegando o objeto")]
+        [SerializeField] private SoundDefinition _grabSound;
 
         [Header("Giro")]
         [Tooltip("Quanto mais alto, mais rápido o objeto acompanha o giro do jogador")]
@@ -182,6 +188,7 @@ namespace LumberJack.Player
             // O objeto não empurra nem levanta o próprio jogador
             _heldBody.GetComponentsInChildren(_carriedColliders);
             SetIgnoreOwnColliders(true);
+            _grabSound.Play(_audio);
         }
 
         private void HandleGrabReleased()

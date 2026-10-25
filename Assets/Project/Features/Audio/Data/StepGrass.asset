@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0215efe30dd26c349b926fba66eb902d, type: 3}
+  m_Name: StepGrass
+  m_EditorClassIdentifier: LumberJack::LumberJack.Audio.SoundDefinition
+  _clips:
+  - {fileID: 8300000, guid: 42ff017e391a6614aab6e5fef7556d8c, type: 3}
+  - {fileID: 8300000, guid: 540351dcb3785be48bafb93ec14ecedd, type: 3}
+  - {fileID: 8300000, guid: 8032ca0db0c0f23469c1f038c56c5bbd, type: 3}
+  - {fileID: 8300000, guid: fd733844c68196f42b57dbb7614a4316, type: 3}
+  - {fileID: 8300000, guid: ecdc4b702b42f8c4196eb730f0d69089, type: 3}
+  _volume:
+    _min: 0.18
+    _max: 0.24
+  _pitch:
+    _min: 0.95
+    _max: 1.05

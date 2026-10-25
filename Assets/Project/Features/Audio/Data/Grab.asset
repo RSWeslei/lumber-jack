@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0215efe30dd26c349b926fba66eb902d, type: 3}
+  m_Name: Grab
+  m_EditorClassIdentifier: LumberJack::LumberJack.Audio.SoundDefinition
+  _clips:
+  - {fileID: 8300000, guid: e279579437fd1e740a7a66c33e3cb852, type: 3}
+  - {fileID: 8300000, guid: 6038e3ad74cc53b41a246dbdeb299f44, type: 3}
+  - {fileID: 8300000, guid: 1628346fb03842c40aab9e3519248f70, type: 3}
+  - {fileID: 8300000, guid: 1b9b42eb68b69ca48a1b5cc708ba7bdb, type: 3}
+  _volume:
+    _min: 0.22
+    _max: 0.28
+  _pitch:
+    _min: 0.9
+    _max: 1.1

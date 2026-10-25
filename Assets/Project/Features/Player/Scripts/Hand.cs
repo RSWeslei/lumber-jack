@@ -1,3 +1,4 @@
+using LumberJack.Audio;
 using LumberJack.Inventory;
 using UnityEngine;
 
@@ -9,6 +10,10 @@ namespace LumberJack.Player
     /// </summary>
     public class Hand : MonoBehaviour
     {
+        [SerializeField] private AudioSource _audio;
+        [Tooltip("Som ao equipar um item")]
+        [SerializeField] private SoundDefinition _equipSound;
+
         private GameObject _equippedObject;
 
         public ItemDefinition EquippedItem { get; private set; }
@@ -45,6 +50,7 @@ namespace LumberJack.Player
 
             _equippedObject = itemObject;
             HasItem = true;
+            _equipSound.Play(_audio);
         }
 
         public void UnloadItemAndDestroy()
