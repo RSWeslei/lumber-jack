@@ -1,5 +1,3 @@
-using System;
-using System.Threading;
 using LumberJack.Core;
 using LumberJack.Tools;
 using LumberJack.Wood;
@@ -9,16 +7,15 @@ using UnityEngine.InputSystem;
 namespace LumberJack.Player
 {
     /// <summary>
-    /// Machado equipado na hotbar: corta toras (com a linha do corte) e golpeia árvores em pé.
+    /// Machado equipado na hotbar: mira o que dá para cortar (com a linha do corte), toca o golpe nos braços e
+    /// aplica o dano no instante em que o machado chega na madeira.
     /// </summary>
     public class WoodChopper : MonoBehaviour
     {
         private const string WoodLayerName = "Wood";
-        private const float WindUpDuration = 0.15f;
-        private const float StrikeDuration = 0.08f;
-        private const float RecoverDuration = 0.25f;
 
         [SerializeField] private Hand _hand;
+        [SerializeField] private FirstPersonArms _arms;
         [SerializeField] private Material _previewMaterial;
 
         [Header("Inclinação do corte")]
@@ -26,21 +23,13 @@ namespace LumberJack.Player
         [Tooltip("Graus por segundo segurando a tecla de inclinar")]
         [SerializeField] private float _tiltSpeed = 60f;
 
-        [Header("Golpe")]
-        [SerializeField] private float _windUpAngle = -60f;
-        [SerializeField] private float _strikeAngle = 40f;
-
         private Transform _camera;
         private PlayerAim _aim;
-        private Transform _handTransform;
-        private Transform _handParent;
-        private bool _hasHandParent;
         private int _woodMask;
         private CutPreview _preview;
         private InputAction _tiltAction;
         private InputAction _straightenAction;
         private float _tilt;
-        private bool _isSwinging;
 
         // Cache do último collider mirado: evita GetComponent a cada frame no mesmo tronco
         private Collider _lastCollider;
@@ -52,20 +41,24 @@ namespace LumberJack.Player
         private Plane _targetPlane;
         private bool _isTargetValid;
 
+        // Alvo travado no clique: o dano entra na batida, mesmo que a mira tenha saído
+        private IAxeTarget _swingTarget;
+        private bool _hasSwingTarget;
+        private Plane _swingPlane;
+        private Vector3 _swingDirection;
+        private float _swingDamage;
+
         private bool HasAxe => _hand.EquippedItem is ToolDefinition tool && tool.CanCutWood;
 
         private void Awake()
         {
-            if (_hand == null)
+            if (_hand == null || _arms == null)
             {
-                Debug.LogError($"{nameof(WoodChopper)} sem referência para a mão.", this);
+                Debug.LogError($"{nameof(WoodChopper)} sem referência para a mão ou para os braços.", this);
                 enabled = false;
                 return;
             }
 
-            _handTransform = _hand.transform;
-            _handParent = _handTransform.parent;
-            _hasHandParent = _handParent != null;
             _aim = GetComponentInParent<PlayerAim>();
             _camera = _aim.transform;
             _woodMask = LayerMask.GetMask(WoodLayerName);
@@ -79,17 +72,19 @@ namespace LumberJack.Player
         private void OnEnable()
         {
             InputManager.Instance.AttackPressed += HandleAttackPressed;
+            _arms.Impacted += HandleImpacted;
         }
 
         private void OnDisable()
         {
             InputManager.Instance.AttackPressed -= HandleAttackPressed;
+            _arms.Impacted -= HandleImpacted;
         }
 
         private void Update()
         {
             _hasTarget = false;
-            if (!HasAxe || _isSwinging)
+            if (!HasAxe || _arms.IsSwinging)
             {
                 _preview.Hide();
                 return;
@@ -128,8 +123,8 @@ namespace LumberJack.Player
             _isTargetValid = _target.CanCut(_targetPlane);
         }
 
-        // O alvo pode estar no próprio collider (tora, árvore em pé) ou no corpo dele: pedaços de árvore
-        // colidem com cápsulas filhas e o alvo fica no objeto do Rigidbody
+        // O alvo pode estar no próprio collider (árvore em pé) ou no corpo dele: pedaços de árvore
+        // colidem com cascos filhos e o alvo fica no objeto do Rigidbody
         private static bool TryGetAxeTarget(Collider hitCollider, out IAxeTarget target)
         {
             if (hitCollider.TryGetComponent(out target)) return true;
@@ -139,56 +134,30 @@ namespace LumberJack.Player
             return !ReferenceEquals(body, null) && body.TryGetComponent(out target);
         }
 
-        private async void HandleAttackPressed()
+        private void HandleAttackPressed()
         {
-            if (!HasAxe || _isSwinging) return;
+            if (!HasAxe || _arms.IsSwinging) return;
 
             // Golpe no ar também anima, só não corta nada
-            IAxeTarget target = _hasTarget && _isTargetValid ? _target : null;
-            float damage = ((ToolDefinition)_hand.EquippedItem).ChopDamage;
-            try
-            {
-                await SwingAsync(target, _targetPlane, damage, destroyCancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                // O jogador foi destruído no meio do golpe (saiu do Play, trocou de cena)
-            }
+            ToolDefinition tool = (ToolDefinition)_hand.EquippedItem;
+            _hasSwingTarget = _hasTarget && _isTargetValid;
+            _swingTarget = _hasSwingTarget ? _target : null;
+            _swingPlane = _targetPlane;
+            _swingDirection = _camera.forward;
+            _swingDamage = tool.ChopDamage;
+            _arms.Swing(tool.SwingSpeed);
         }
 
-        private async Awaitable SwingAsync(IAxeTarget target, Plane localPlane, float damage, CancellationToken token)
+        private void HandleImpacted()
         {
-            _isSwinging = true;
-            Quaternion rest = _handTransform.localRotation;
+            if (!_hasSwingTarget) return;
 
-            // Gira a mão em volta do eixo "direita" da câmera: negativo levanta, positivo desce
-            Vector3 axis = _hasHandParent ? _handParent.InverseTransformDirection(_camera.right) : _camera.right;
-
-            // Se for cancelado, o jogador está sendo destruído: não há estado para restaurar
-            await RotateHandAsync(rest, axis, _windUpAngle, WindUpDuration, token);
-            await RotateHandAsync(rest, axis, _strikeAngle, StrikeDuration, token);
-
+            _hasSwingTarget = false;
             // O alvo pode ter sido cortado/destruído enquanto o machado descia
-            if (target is UnityEngine.Object targetObject && targetObject != null && target.CanCut(localPlane))
-            {
-                target.Strike(localPlane, _camera.forward, damage);
-            }
+            if (!(_swingTarget is Object targetObject) || targetObject == null || !_swingTarget.CanCut(_swingPlane)) return;
 
-            await RotateHandAsync(rest, axis, 0f, RecoverDuration, token);
-            _handTransform.localRotation = rest;
-            _isSwinging = false;
-        }
-
-        private async Awaitable RotateHandAsync(Quaternion rest, Vector3 axis, float angle, float duration, CancellationToken token)
-        {
-            Quaternion from = _handTransform.localRotation;
-            Quaternion to = Quaternion.AngleAxis(angle, axis) * rest;
-            for (float time = 0f; time < duration; time += Time.deltaTime)
-            {
-                _handTransform.localRotation = Quaternion.Slerp(from, to, time / duration);
-                await Awaitable.NextFrameAsync(token);
-            }
-            _handTransform.localRotation = to;
+            _swingTarget.Strike(_swingPlane, _swingDirection, _swingDamage);
+            _arms.HitStop();
         }
     }
 }

@@ -30,7 +30,8 @@ namespace LumberJack.Player
             itemObject.transform.localPosition = Vector3.zero;
             itemObject.transform.localRotation = Quaternion.identity;
             itemObject.transform.localScale = Vector3.one;
-            itemObject.AddComponent<EquippedItemSway>();
+            // Na camada da mão: a câmera dos braços desenha o item por cima do cenário
+            SetLayerRecursively(itemObject.transform, gameObject.layer);
 
             Rigidbody itemBody = itemObject.GetComponent<Rigidbody>();
             if (itemBody != null) itemBody.isKinematic = true;
@@ -44,11 +45,6 @@ namespace LumberJack.Player
             _equippedObject = itemObject;
         }
 
-        public Animator GetEquippedAnimator()
-        {
-            return IsItemEquipped ? _equippedObject.GetComponent<Animator>() : null;
-        }
-
         public void UnloadItemAndDestroy()
         {
             EquippedItem = null;
@@ -59,6 +55,12 @@ namespace LumberJack.Player
         {
             EquippedItem = null;
             if (_equippedObject != null) _equippedObject.SetActive(false);
+        }
+
+        private static void SetLayerRecursively(Transform root, int layer)
+        {
+            root.gameObject.layer = layer;
+            foreach (Transform child in root) SetLayerRecursively(child, layer);
         }
     }
 }

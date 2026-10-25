@@ -14,8 +14,12 @@ namespace LumberJack.Tools
         [Tooltip("Dano por golpe em árvores em pé")]
         [Min(0f)]
         [SerializeField] private float _chopDamage = 1f;
+        [Tooltip("Velocidade do golpe (1 = a do clipe)")]
+        [Min(0.1f)]
+        [SerializeField] private float _swingSpeed = 1f;
 
         public bool CanCutWood => _canCutWood;
         public float ChopDamage => _chopDamage;
+        public float SwingSpeed => _swingSpeed;
     }
 }
