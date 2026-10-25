@@ -79,7 +79,7 @@
 - Triangle budgets: tree up to 3000, prop up to 1000, character up to 5000.
 - Materials: URP Lit, smoothness at most 0.1, warm saturated colors, no photographic textures. Prefer few shared materials.
 - Scale: 1 unit = 1 m.
-- World lighting comes from `Lumber Jack > Aplicar iluminação do mundo` (`WorldLightingSetup`); change values there, not by hand in the scene.
+- World lighting comes from `Lumber Jack > Aplicar iluminação do mundo` (`WorldLightingSetup`); change values there, not by hand in the scene. Colors and intensities that change over the day live in the `DayNight` asset (`DayNightDefinition`), driven by the `WorldClock`.
 
 ## Performance
 
@@ -122,6 +122,10 @@ Target: **0 bytes of managed allocation per frame** during gameplay (Unity's GC 
 - The compile must have no errors and no obsolete-API warnings (`CS0618`/`CS0612`); use the replacement the warning names.
 - After Unity opens, check `Logs/Editor.log` inside the project for `error CS`, missing scripts and exceptions.
 - Editor-only hitching is Editor overhead: confirm performance problems in a build.
+
+## Ideas
+
+- When the developer sends an idea for later, add it to `Ideias.md` under its topic, in Portuguese, with the date. Don't implement it unless asked.
 
 ## Git
 
