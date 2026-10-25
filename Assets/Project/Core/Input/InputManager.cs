@@ -22,6 +22,7 @@ namespace LumberJack.Core
 
         // Nome da tecla para mostrar na UI ("E", "Left Shift"...)
         public string InteractKeyLabel { get; private set; }
+        public string GrabKeyLabel { get; private set; }
 
         public event Action AttackPressed;
         public event Action InteractPressed;
@@ -46,6 +47,7 @@ namespace LumberJack.Core
             _guiInputs = new GUIInputs();
 
             InteractKeyLabel = GetKeyLabel(PlayerInputs.PlayerActions.Interact);
+            GrabKeyLabel = GetKeyLabel(PlayerInputs.PlayerActions.Grab);
         }
 
         private void OnEnable()

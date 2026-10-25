@@ -4,7 +4,7 @@ using UnityEngine;
 namespace LumberJack.Player
 {
     /// <summary>
-    /// Dinheiro (e futuramente vida) do jogador. Dinheiro sempre em centavos inteiros.
+    /// Dinheiro, força (e futuramente vida) do jogador. Dinheiro sempre em centavos inteiros.
     /// </summary>
     public class PlayerStats : MonoBehaviour
     {
@@ -14,9 +14,15 @@ namespace LumberJack.Player
         [Tooltip("Saldo inicial em centavos")]
         [SerializeField] private int _moneyCents = 100000;
 
+        [Header("Força")]
+        [Tooltip("Massa máxima (kg) que o jogador consegue levantar")]
+        [Min(0f)]
+        [SerializeField] private float _carryCapacityKg = 60f;
+
         public int MoneyCents => _moneyCents;
         public float Life => _life;
         public float MaxLife => _maxLife;
+        public float CarryCapacityKg => _carryCapacityKg;
 
         /// <summary>Disparado com o novo saldo (centavos) sempre que ele muda.</summary>
         public event Action<int> MoneyChanged;

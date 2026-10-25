@@ -111,6 +111,7 @@ MonoBehaviour:
   _walkSpeed: 4.5
   _sprintSpeed: 7
   _backwardMultiplier: 0.75
+  _fullLoadSpeedMultiplier: 0.6
   _groundAcceleration: 45
   _groundDeceleration: 55
   _airAcceleration: 12
@@ -141,6 +142,7 @@ MonoBehaviour:
     m_Bits: 128
   _canPush: 0
   _strength: 1.1
+  _maxPushMass: 80
 --- !u!114 &5420857361349278248
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -192,7 +194,9 @@ MonoBehaviour:
   _maxDistance: 1.5
   _followStrength: 12
   _maxCarrySpeed: 8
-  _referenceMass: 50
+  _fullLoadSpeedFraction: 0.35
+  _turnStrength: 10
+  _maxTurnSpeed: 270
 --- !u!114 &1004265937
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220,6 +224,7 @@ MonoBehaviour:
   _life: 0
   _maxLife: 0
   _moneyCents: 100000
+  _carryCapacityKg: 600
 --- !u!1001 &8871364825188179180
 PrefabInstance:
   m_ObjectHideFlags: 0

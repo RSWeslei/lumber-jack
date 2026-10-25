@@ -6,7 +6,7 @@ namespace LumberJack.Player
 {
     // Movimento em primeira pessoa com CharacterController: aceleração, coyote time,
     // jump buffer e pulo variável (soltar o botão corta o pulo).
-    [RequireComponent(typeof(CharacterController))]
+    [RequireComponent(typeof(CharacterController), typeof(PickupObjects))]
     public class PlayerMovement : MonoBehaviour
     {
         [Header("Velocidade (m/s)")]
@@ -14,6 +14,9 @@ namespace LumberJack.Player
         [SerializeField] private float _sprintSpeed = 7f;
         [Tooltip("Andar de costas é mais lento")]
         [SerializeField] private float _backwardMultiplier = 0.75f;
+        [Tooltip("Fração da velocidade carregando o peso máximo que o jogador aguenta")]
+        [Range(0.1f, 1f)]
+        [SerializeField] private float _fullLoadSpeedMultiplier = 0.6f;
 
         [Header("Aceleração (m/s2)")]
         [SerializeField] private float _groundAcceleration = 45f;
@@ -41,6 +44,7 @@ namespace LumberJack.Player
         [SerializeField] private float _groundProbeDistance = 0.2f;
 
         private CharacterController _controller;
+        private PickupObjects _carrier;
         private Vector3 _horizontalVelocity;
         private float _verticalVelocity;
         private Vector3 _groundNormal = Vector3.up;
@@ -69,6 +73,7 @@ namespace LumberJack.Player
         private void Awake()
         {
             _controller = GetComponent<CharacterController>();
+            _carrier = GetComponent<PickupObjects>();
             _ownColliders = GetComponentsInChildren<Collider>(true);
         }
 
@@ -98,6 +103,7 @@ namespace LumberJack.Player
 
             float targetSpeed = IsSprinting ? _sprintSpeed : _walkSpeed;
             if (_moveInput.y < 0f) targetSpeed *= _backwardMultiplier;
+            targetSpeed *= Mathf.Lerp(1f, _fullLoadSpeedMultiplier, _carrier.Load);
 
             Vector3 wishDirection = transform.right * _moveInput.x + transform.forward * _moveInput.y;
             Vector3 targetVelocity = wishDirection * targetSpeed;
