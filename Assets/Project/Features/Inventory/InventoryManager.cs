@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace LumberJack.Inventory
@@ -8,6 +10,8 @@ namespace LumberJack.Inventory
     public class InventoryManager : MonoBehaviour
     {
         [SerializeField] private Hotbar _hotbar;
+        [Tooltip("Itens que o jogador já tem ao começar, na ordem dos slots")]
+        [SerializeField] private List<ItemDefinition> _startingItems = new List<ItemDefinition>();
 
         public static InventoryManager Instance { get; private set; }
 
@@ -19,6 +23,15 @@ namespace LumberJack.Inventory
                 return;
             }
             Instance = this;
+        }
+
+        // Start: a hotbar já montou os slots no Awake dela
+        private void Start()
+        {
+            foreach (ItemDefinition t in _startingItems.Where(t => t != null))
+            {
+                TryAddItem(t);
+            }
         }
 
         private void OnDestroy()

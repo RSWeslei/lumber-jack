@@ -7,7 +7,7 @@ namespace LumberJack.Trees
     /// <summary>
     /// Árvore em pé cortada a machado em qualquer galho (ou no tronco), com o círculo de corte das toras.
     /// O primeiro golpe fixa o corte e os seguintes avançam nele; no fim, a parte de fora vira um
-    /// <see cref="TreePiece"/> que cai. Cortando o tronco, ela tomba presa à borda do toco até inclinar.
+    /// <see cref="TreePiece"/> que cai. Cortando o tronco, ela tomba em volta da borda do toco (<see cref="FallingTree"/>).
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(ProceduralTree))]
@@ -15,11 +15,6 @@ namespace LumberJack.Trees
     {
         private const int TrunkIndex = 0;
         private const int NoBranch = -1;
-        // A dobradiça do tronco solta quando ele já inclinou isso, ou depois desse tempo
-        private const float HingeReleaseAngle = 40f;
-        private const float MaxHingeSeconds = 5f;
-        // Um galho cortado não colide com a árvore por esse tempo, para não ser empurrado por ela ao cair
-        private const float BranchClearSeconds = 1f;
         private const float MinDirectionSqrMagnitude = 0.0001f;
         private const string PieceSuffix = " (cortada)";
 
@@ -32,6 +27,7 @@ namespace LumberJack.Trees
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
         private MeshCollider _meshCollider;
+        private Collider[] _standingColliders;
         // Malha que está em pé agora: a gerada ou a que sobrou depois de cortes
         private Mesh _standingMesh;
         private Mesh _ownedMesh;
@@ -64,6 +60,7 @@ namespace LumberJack.Trees
             _meshFilter = GetComponent<MeshFilter>();
             _meshRenderer = GetComponent<MeshRenderer>();
             _meshCollider = GetComponent<MeshCollider>();
+            _standingColliders = new Collider[] { _meshCollider };
         }
 
         private void OnEnable()
@@ -91,14 +88,22 @@ namespace LumberJack.Trees
             _aimBranch = _part.FindBranch(localPoint);
             if (_aimBranch == NoBranch) return default;
 
-            float maxTilt = _tree.Species.Felling.MaxCutTilt;
+            TreeFellingSettings felling = _tree.Species.Felling;
+            float clampedTilt = Mathf.Clamp(tilt, -felling.MaxCutTilt, felling.MaxCutTilt);
+            if (_aimBranch == TrunkIndex) localPoint.y = Mathf.Max(localPoint.y, LowestTrunkCut(felling.MinStumpHeight, clampedTilt));
+
             return TreeCutter.GetCutPlane(_tree.Skeleton, _aimBranch, localPoint, transform.InverseTransformDirection(viewForward),
-                transform.InverseTransformDirection(viewUp), Mathf.Clamp(tilt, -maxTilt, maxTilt), out _aimCenter, out _aimRadius);
+                transform.InverseTransformDirection(viewUp), clampedTilt, out _aimCenter, out _aimRadius);
         }
 
         public bool CanCut(Plane localPlane)
         {
-            return _tree.IsGenerated && (_state.IsActive || _part.HasBranch(_aimBranch));
+            if (!_tree.IsGenerated) return false;
+            // Corte já começado continua onde está
+            if (_state.IsActive) return true;
+
+            return _part.HasBranch(_aimBranch) &&
+                   AxeCutRules.LeavesMinThickness(this, localPlane, _tree.Species.Felling.MinCutThickness);
         }
 
         public void Strike(Plane localPlane, Vector3 swingDirection, float damage)
@@ -135,16 +140,29 @@ namespace LumberJack.Trees
                     out Mesh outer, out Mesh inner)) return;
 
             ReplaceStandingMesh(inner);
+            // Lasca pequena demais some em vez de virar um pedaço
+            if (!TreePiece.IsBigEnough(outer, transform, _tree.Species))
+            {
+                Destroy(outer);
+                return;
+            }
             TreePiece piece = TreePiece.Spawn(transform, name + PieceSuffix, outer, _tree.Skeleton, _tree.Species);
+            // Só graveto: some
+            if (piece == null) return;
 
             // A árvore não segura nem empurra o pedaço enquanto ele sai dela
-            Collider[] pieceColliders = piece.GetComponentsInChildren<Collider>();
-            SetStandingCollision(pieceColliders, false);
+            CollisionSeparation.IgnoreUntilApart(_standingColliders, piece.GetComponentsInChildren<Collider>(), destroyCancellationToken);
 
-            bool isTrunk = branch == TrunkIndex;
-            HingeJoint hinge = isTrunk ? TipOver(piece.Body, swingDirection) : null;
-            RestoreCollisionLater(piece.Body, hinge, isTrunk, pieceColliders);
+            if (branch == TrunkIndex) FellTrunk(piece, swingDirection);
             PieceCut?.Invoke(piece);
+        }
+
+        // Centro do corte mais baixo no tronco: o lado de baixo do círculo inclinado fica no mínimo do toco
+        private float LowestTrunkCut(float minStumpHeight, float tilt)
+        {
+            TreeSkeleton skeleton = _tree.Skeleton;
+            skeleton.Sample(TrunkIndex, minStumpHeight / skeleton.GetBranch(TrunkIndex).Length, out _, out _, out float radius);
+            return minStumpHeight + radius * Mathf.Tan(Mathf.Abs(tilt) * Mathf.Deg2Rad);
         }
 
         private void ReplaceStandingMesh(Mesh mesh)
@@ -161,9 +179,8 @@ namespace LumberJack.Trees
             _part.Load(mesh, _tree.Skeleton.BranchCount);
         }
 
-        // Prende o tronco cortado na borda do toco, do lado da queda, e dá o primeiro empurrão: ele só gira
-        // nesse eixo (não escorrega, não pula, não gira em volta de si) até a dobradiça soltar
-        private HingeJoint TipOver(Rigidbody body, Vector3 swingDirection)
+        // O tronco tomba em volta da borda do toco do lado da queda, com um primeiro empurrão
+        private void FellTrunk(TreePiece piece, Vector3 swingDirection)
         {
             Vector3 cutNormal = transform.TransformDirection(_lockedCut.normal);
             Vector3 direction = Vector3.ProjectOnPlane(swingDirection, cutNormal);
@@ -172,50 +189,7 @@ namespace LumberJack.Trees
 
             Vector3 pivot = transform.TransformPoint(_lockedCenter) + direction * _lockedRadius;
             Vector3 axis = Vector3.Cross(cutNormal, direction).normalized;
-
-            var hinge = body.gameObject.AddComponent<HingeJoint>();
-            hinge.anchor = body.transform.InverseTransformPoint(pivot);
-            hinge.axis = body.transform.InverseTransformDirection(axis);
-
-            Vector3 angularVelocity = axis * (_tree.Species.Felling.TipSpeed * Mathf.Deg2Rad);
-            body.angularVelocity = angularVelocity;
-            body.linearVelocity = Vector3.Cross(angularVelocity, body.worldCenterOfMass - pivot);
-            return hinge;
-        }
-
-        // Tronco: solta a dobradiça quando já inclinou o bastante. Galho: espera ele sair da árvore.
-        // Depois disso volta a colidir com a árvore
-        private async void RestoreCollisionLater(Rigidbody body, HingeJoint hinge, bool hasHinge, Collider[] pieceColliders)
-        {
-            Quaternion start = body.rotation;
-            float limit = hasHinge ? MaxHingeSeconds : BranchClearSeconds;
-            try
-            {
-                for (float time = 0f; time < limit; time += Time.fixedDeltaTime)
-                {
-                    await Awaitable.FixedUpdateAsync(destroyCancellationToken);
-                    // O pedaço pode ter sido cortado de novo (destruído) antes disso
-                    if (body == null) return;
-                    if (hasHinge && Quaternion.Angle(start, body.rotation) >= HingeReleaseAngle) break;
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                // A árvore foi destruída: não há colisão para restaurar
-                return;
-            }
-
-            if (hasHinge) Destroy(hinge);
-            SetStandingCollision(pieceColliders, true);
-        }
-
-        private void SetStandingCollision(Collider[] pieceColliders, bool isEnabled)
-        {
-            for (int i = 0; i < pieceColliders.Length; i++)
-            {
-                // Colisores do pedaço podem ter sido destruídos se ele foi cortado de novo
-                if (pieceColliders[i] != null) Physics.IgnoreCollision(_meshCollider, pieceColliders[i], !isEnabled);
-            }
+            FallingTree.Begin(piece, pivot, axis, _tree.Species.Felling.TipSpeed * Mathf.Deg2Rad, _standingColliders);
         }
     }
 }

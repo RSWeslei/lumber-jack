@@ -5331,6 +5331,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _hotbar: {fileID: 1575485468}
+  _startingItems:
+  - {fileID: 11400000, guid: 4d1efe52f38823748a235913e2b855f1, type: 2}
 --- !u!1001 &1027851349
 PrefabInstance:
   m_ObjectHideFlags: 0

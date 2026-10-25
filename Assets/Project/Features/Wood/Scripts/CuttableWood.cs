@@ -25,6 +25,9 @@ namespace LumberJack.Wood
         [SerializeField] private float _density = 600f;
         [Tooltip("Velocidade (m/s) com que os dois pedaços se afastam ao cortar")]
         [SerializeField] private float _separationSpeed = 0.4f;
+        [Tooltip("Pedaços com volume menor que isto (m³) somem ao serem cortados")]
+        [Min(0f)]
+        [SerializeField] private float _minPieceVolume = 0.001f;
 
         private MeshFilter _meshFilter;
         private Rigidbody _rigidbody;
@@ -79,16 +82,7 @@ namespace LumberJack.Wood
         /// </summary>
         public bool CanCut(Plane localPlane)
         {
-            float min = float.MaxValue;
-            float max = float.MinValue;
-            foreach (Vector3 vertex in Vertices)
-            {
-                float distance = localPlane.GetDistanceToPoint(vertex);
-                min = Mathf.Min(min, distance);
-                max = Mathf.Max(max, distance);
-            }
-            float scale = transform.lossyScale.x;
-            return -min * scale >= _minThickness && max * scale >= _minThickness;
+            return AxeCutRules.LeavesMinThickness(this, localPlane, _minThickness);
         }
 
         /// <summary>Tora corta inteira no primeiro golpe.</summary>
@@ -123,6 +117,14 @@ namespace LumberJack.Wood
 
         private void CreatePiece(Mesh mesh, Vector3 pushDirection)
         {
+            // Lasca pequena demais some em vez de virar um pedaço
+            Vector3 scale = transform.lossyScale;
+            if (MeshSlicer.GetVolume(mesh) * Mathf.Abs(scale.x * scale.y * scale.z) < _minPieceVolume)
+            {
+                Destroy(mesh);
+                return;
+            }
+
             GameObject piece = new GameObject(name);
             piece.layer = gameObject.layer;
             piece.tag = gameObject.tag;
@@ -153,6 +155,7 @@ namespace LumberJack.Wood
             wood._minThickness = _minThickness;
             wood._density = _density;
             wood._separationSpeed = _separationSpeed;
+            wood._minPieceVolume = _minPieceVolume;
             wood.UpdateMass();
 
             // Pedaço de madeira do jogo: herda o tipo de madeira e recalcula o preço pelo volume

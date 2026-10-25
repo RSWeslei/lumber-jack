@@ -306,7 +306,7 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "Z/X",
+                    "name": "Q/R",
                     "id": "b3d59102-956e-44b7-ab62-444d8c541db4",
                     "path": "1DAxis",
                     "interactions": "",
@@ -319,7 +319,7 @@
                 {
                     "name": "negative",
                     "id": "c427a3d7-db21-45a7-bb2f-442713b1c90b",
-                    "path": "<Keyboard>/z",
+                    "path": "<Keyboard>/q",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -330,7 +330,7 @@
                 {
                     "name": "positive",
                     "id": "1d573bc4-961f-439a-a183-b2b7bd3daf0c",
-                    "path": "<Keyboard>/x",
+                    "path": "<Keyboard>/r",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
