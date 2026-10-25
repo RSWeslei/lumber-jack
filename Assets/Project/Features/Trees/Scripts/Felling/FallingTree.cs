@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using UnityEngine;
 
@@ -20,6 +19,8 @@ namespace LumberJack.Trees
         // Redes de segurança: nada na frente (penhasco) ou a queda nunca termina
         private const float MaxFallAngle = 120f * Mathf.Deg2Rad;
         private const float MaxFallSeconds = 10f;
+        // Deitar antes disso é estranho (algo segurou a árvore quase em pé): avisa no Console com o que segurou
+        private const float EarlyLandingAngle = 30f * Mathf.Deg2Rad;
         private const int MaxHits = 16;
         private const int NoSegment = -1;
 
@@ -28,6 +29,9 @@ namespace LumberJack.Trees
 
         private readonly TreeFallMotion _motion = new();
         private readonly List<Segment> _segments = new();
+        // O que já encostava no começo (copa da vizinha) não segura a queda enquanto continuar encostando
+        private readonly List<Collider> _startContacts = new();
+        private readonly List<bool> _isStartContactTouched = new();
         private TreePiece _piece;
         private Rigidbody _body;
         private Collider[] _ignored;
@@ -38,6 +42,8 @@ namespace LumberJack.Trees
         // Por galho: trecho a quebrar (o mais perto da base que bateu) e galhos que não deu para quebrar
         private int[] _breakAt;
         private bool[] _isUnbreakable;
+        private bool _isCollectingStartContacts;
+        private Collider _lastObstacle;
 
         /// <summary>
         /// Começa a queda do tronco recém-cortado em volta do eixo <paramref name="axis"/> que passa por
@@ -74,6 +80,9 @@ namespace LumberJack.Trees
             _motion.Begin(pivot, axis, _body.position, _body.rotation, _body.worldCenterOfMass,
                 InertiaPerMass(_body, pivot, axis), startSpeed, Physics.gravity);
             BuildSegments();
+            _isCollectingStartContacts = true;
+            Touches(0f, false);
+            _isCollectingStartContacts = false;
             Fall();
         }
 
@@ -96,6 +105,7 @@ namespace LumberJack.Trees
                 await Awaitable.FixedUpdateAsync(token);
                 float previous = _motion.Angle;
                 _motion.Step(Time.fixedDeltaTime);
+                for (int i = 0; i < _isStartContactTouched.Count; i++) _isStartContactTouched[i] = false;
 
                 if (Touches(_motion.Angle, false))
                 {
@@ -106,6 +116,7 @@ namespace LumberJack.Trees
                 }
 
                 BreakTouchingBranches(_motion.Angle);
+                ForgetSeparatedStartContacts();
                 _motion.GetPose(_motion.Angle, out Vector3 position, out Quaternion rotation);
                 _body.MovePosition(position);
                 _body.MoveRotation(rotation);
@@ -117,6 +128,12 @@ namespace LumberJack.Trees
         // Deitou: põe na pose do contato e devolve para a física com só um resto do giro
         private void Land(float angle)
         {
+            if (angle < EarlyLandingAngle && _lastObstacle != null)
+            {
+                Debug.LogWarning($"[FallingTree] {name} parou com {angle * Mathf.Rad2Deg:F0}° de tombo encostando em " +
+                                 $"'{_lastObstacle.name}' (camada {LayerMask.LayerToName(_lastObstacle.gameObject.layer)})", this);
+            }
+
             if (!_piece.HasColliders)
             {
                 Destroy(gameObject);
@@ -131,7 +148,18 @@ namespace LumberJack.Trees
             Vector3 spin = _motion.Axis * (_motion.Speed * _landingSpinKeep);
             _body.angularVelocity = spin;
             _body.linearVelocity = Vector3.Cross(spin, _body.worldCenterOfMass - _motion.Pivot);
+            CollideWithStump();
             Destroy(this);
+        }
+
+        // Deitado, o pé ainda apoia na borda do toco: com a colisão desligada (desde o corte) ele afundaria no toco
+        private void CollideWithStump()
+        {
+            Collider[] ownColliders = GetComponentsInChildren<Collider>();
+            foreach (Collider own in ownColliders)
+            {
+                foreach (Collider stump in _ignored) Physics.IgnoreCollision(own, stump, false);
+            }
         }
 
         // Ângulo em que uma parte grossa encosta pela primeira vez, entre um ângulo livre e um com contato
@@ -219,7 +247,40 @@ namespace LumberJack.Trees
             // attachedRigidbody devolve null de verdade quando não há corpo: ReferenceEquals basta
             if (!ReferenceEquals(hitBody, null) && (ReferenceEquals(hitBody, _body) || !hitBody.isKinematic)) return false;
 
-            return _ignored.All(ignored => !ReferenceEquals(hit, ignored));
+            foreach (Collider ignored in _ignored)
+            {
+                if (ReferenceEquals(hit, ignored)) return false;
+            }
+
+            for (int i = 0; i < _startContacts.Count; i++)
+            {
+                if (!ReferenceEquals(hit, _startContacts[i])) continue;
+
+                _isStartContactTouched[i] = true;
+                return false;
+            }
+
+            if (!_isCollectingStartContacts)
+            {
+                _lastObstacle = hit;
+                return true;
+            }
+
+            _startContacts.Add(hit);
+            _isStartContactTouched.Add(true);
+            return false;
+        }
+
+        // Encostada inicial que soltou volta a contar: a árvore ainda pode bater na vizinha no caminho
+        private void ForgetSeparatedStartContacts()
+        {
+            for (int i = _startContacts.Count - 1; i >= 0; i--)
+            {
+                if (_isStartContactTouched[i]) continue;
+
+                _startContacts.RemoveAt(i);
+                _isStartContactTouched.RemoveAt(i);
+            }
         }
 
         // Trechos do eixo entre nós, de todos os galhos que o tronco ainda tem (até os finos, que não têm colisor)

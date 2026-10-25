@@ -146,7 +146,8 @@ namespace LumberJack.Trees
                 Destroy(outer);
                 return;
             }
-            TreePiece piece = TreePiece.Spawn(transform, name + PieceSuffix, outer, _tree.Skeleton, _tree.Species);
+            TreePiece piece = TreePiece.Spawn(transform, name + PieceSuffix, outer, _tree.Skeleton, _tree.Species,
+                _tree.Species.Wood);
             // Só graveto: some
             if (piece == null) return;
 
@@ -182,13 +183,16 @@ namespace LumberJack.Trees
         // O tronco tomba em volta da borda do toco do lado da queda, com um primeiro empurrão
         private void FellTrunk(TreePiece piece, Vector3 swingDirection)
         {
-            Vector3 cutNormal = transform.TransformDirection(_lockedCut.normal);
-            Vector3 direction = Vector3.ProjectOnPlane(swingDirection, cutNormal);
-            if (direction.sqrMagnitude < MinDirectionSqrMagnitude) direction = transform.forward;
-            direction.Normalize();
+            // Eixo sempre horizontal: com o corte inclinado, um eixo inclinado faria a gravidade puxar a árvore de volta
+            Vector3 fall = Vector3.ProjectOnPlane(swingDirection, Vector3.up);
+            if (fall.sqrMagnitude < MinDirectionSqrMagnitude) fall = Vector3.ProjectOnPlane(transform.forward, Vector3.up);
+            fall.Normalize();
 
-            Vector3 pivot = transform.TransformPoint(_lockedCenter) + direction * _lockedRadius;
-            Vector3 axis = Vector3.Cross(cutNormal, direction).normalized;
+            // Gira sobre a borda do corte do lado da queda
+            Vector3 cutNormal = transform.TransformDirection(_lockedCut.normal);
+            Vector3 edge = Vector3.ProjectOnPlane(fall, cutNormal).normalized;
+            Vector3 pivot = transform.TransformPoint(_lockedCenter) + edge * _lockedRadius;
+            Vector3 axis = Vector3.Cross(Vector3.up, fall).normalized;
             FallingTree.Begin(piece, pivot, axis, _tree.Species.Felling.TipSpeed * Mathf.Deg2Rad, _standingColliders);
         }
     }

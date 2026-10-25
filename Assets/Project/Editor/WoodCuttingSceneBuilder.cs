@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using System.IO;
+using LumberJack.Trees;
 using LumberJack.Wood;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -27,7 +27,8 @@ namespace LumberJack.Editor
 
         private const float LogRadius = 0.3f;
         private const float LogLength = 3f;
-        private const int LogSides = 32;
+        private const string WoodLayerName = "Wood";
+        private const string WoodTag = "Wood";
 
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
         private static readonly int BaseMapId = Shader.PropertyToID("_BaseMap");
@@ -43,17 +44,18 @@ namespace LumberJack.Editor
             EnsureFolder(PrefabFolder);
             EnsureFolder(SceneFolder);
 
-            Texture2D barkTexture = SaveTexture(GenerateBarkTexture(512), ArtFolder, "BarkTexture");
             Texture2D ringsTexture = SaveTexture(GenerateRingsTexture(512), ArtFolder, "RingsTexture");
+            // Clamp: face de corte inclinada passa um pouco do raio e a textura não pode repetir
+            var ringsImporter = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(ringsTexture));
+            ringsImporter.wrapMode = TextureWrapMode.Clamp;
+            ringsImporter.SaveAndReimport();
 
-            Material bark = SaveAsset(CreateLitMaterial(Color.white, barkTexture, 0.05f), ArtFolder, "Bark.mat");
-            Material rings = SaveAsset(CreateLitMaterial(Color.white, ringsTexture, 0.15f), ArtFolder, "WoodRings.mat");
             Material preview = SaveAsset(new Material(Shader.Find("Sprites/Default")), ArtFolder, "CutPreview.mat");
             Material axeHandle = SaveAsset(CreateLitMaterial(new Color(0.55f, 0.36f, 0.2f), null, 0.3f), SandboxArtFolder, "AxeHandle.mat");
             Material axeHead = SaveAsset(CreateLitMaterial(new Color(0.6f, 0.62f, 0.65f), null, 0.75f, 0.9f), SandboxArtFolder, "AxeHead.mat");
 
-            Mesh logMesh = SaveAsset(BuildLogMesh(), ArtFolder, "LogMesh.asset");
-            BuildLogPrefab(logMesh, bark, rings);
+            SaveAsset(CreateLitMaterial(Color.white, ringsTexture, 0.15f), ArtFolder, "WoodRings.mat");
+            BuildLogPrefab();
 
             BuildSceneObjects(preview, axeHandle, axeHead);
         }
@@ -64,7 +66,7 @@ namespace LumberJack.Editor
 
             // Carrega o prefab só depois da cena nova: o NewScene descarrega assets que não estão
             // sendo usados e a referência antiga viraria null
-            CuttableWood logPrefab = AssetDatabase.LoadAssetAtPath<CuttableWood>(LogPrefabPath);
+            var logPrefab = AssetDatabase.LoadAssetAtPath<ProceduralLog>(LogPrefabPath);
 
             GameObject light = GameObject.Find("Directional Light");
             light.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
@@ -155,133 +157,25 @@ namespace LumberJack.Editor
             if (material != null) block.GetComponent<MeshRenderer>().sharedMaterial = material;
         }
 
-        private static void BuildLogPrefab(Mesh mesh, Material bark, Material rings)
+        // A tora é um pedaço de árvore gerado no Play (ProceduralLog): o prefab só guarda espécie, madeira e tamanho
+        private static void BuildLogPrefab()
         {
-            GameObject log = new("Log");
-            // A malha tem o comprimento no eixo Y; deita o tronco
+            TreeSpeciesPresets.EnsureDefaults();
+            var species = AssetDatabase.LoadAssetAtPath<TreeSpeciesDefinition>(TreeSpeciesPresets.OakPath);
+
+            GameObject log = new("Log") { layer = LayerMask.NameToLayer(WoodLayerName), tag = WoodTag };
+            // A tora tem o comprimento no eixo Y; deita
             log.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
-            log.AddComponent<MeshFilter>().sharedMesh = mesh;
-            log.AddComponent<MeshRenderer>().sharedMaterials = new[] { bark, rings };
+            log.AddComponent<MeshRenderer>().sharedMaterials = new[] { species.BarkMaterial, species.CutFaceMaterial };
 
-            MeshCollider meshCollider = log.AddComponent<MeshCollider>();
-            meshCollider.convex = true;
-            meshCollider.sharedMesh = mesh;
-
-            Rigidbody body = log.AddComponent<Rigidbody>();
-            body.interpolation = RigidbodyInterpolation.Interpolate;
-            body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-
-            CuttableWood wood = log.AddComponent<CuttableWood>();
-            SetField(wood, "_ringRadius", LogRadius);
-
-            // Madeira do jogo: tag usada pela refinaria e tipo de madeira para o preço
-            log.tag = "Wood";
-            SetField(log.AddComponent<WoodPiece>(), "_definition", AssetDatabase.LoadAssetAtPath<WoodDefinition>(WoodTypePath));
+            ProceduralLog proceduralLog = log.AddComponent<ProceduralLog>();
+            SetField(proceduralLog, "_species", species);
+            SetField(proceduralLog, "_wood", AssetDatabase.LoadAssetAtPath<WoodDefinition>(WoodTypePath));
+            SetField(proceduralLog, "_length", LogLength);
+            SetField(proceduralLog, "_radius", LogRadius);
 
             PrefabUtility.SaveAsPrefabAsset(log, LogPrefabPath);
             Object.DestroyImmediate(log);
-        }
-
-        // Cilindro com o comprimento no eixo Y. Submesh 0 = casca, submesh 1 = pontas (anéis)
-        private static Mesh BuildLogMesh()
-        {
-            List<Vector3> vertices = new();
-            List<Vector3> normals = new();
-            List<Vector2> uvs = new();
-            List<int> barkTriangles = new();
-            List<int> endTriangles = new();
-
-            float half = LogLength / 2f;
-            float circumference = 2f * Mathf.PI * LogRadius;
-
-            for (int i = 0; i <= LogSides; i++)
-            {
-                float angle = i / (float)LogSides * Mathf.PI * 2f;
-                Vector3 point = RingPoint(angle);
-                Vector3 normal = new(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
-                float u = i / (float)LogSides;
-
-                vertices.Add(new Vector3(point.x, -half, point.z));
-                normals.Add(normal);
-                uvs.Add(new Vector2(u, 0f));
-
-                vertices.Add(new Vector3(point.x, half, point.z));
-                normals.Add(normal);
-                uvs.Add(new Vector2(u, LogLength / circumference));
-            }
-
-            for (int i = 0; i < LogSides; i++)
-            {
-                int bottom0 = i * 2, top0 = i * 2 + 1, bottom1 = i * 2 + 2, top1 = i * 2 + 3;
-                barkTriangles.AddRange(new[] { bottom0, top0, bottom1, bottom1, top0, top1 });
-            }
-
-            AddEndCap(vertices, normals, uvs, endTriangles, half, Vector3.up);
-            AddEndCap(vertices, normals, uvs, endTriangles, -half, Vector3.down);
-
-            Mesh mesh = new() { name = "Log" };
-            mesh.SetVertices(vertices);
-            mesh.SetNormals(normals);
-            mesh.SetUVs(0, uvs);
-            mesh.subMeshCount = 2;
-            mesh.SetTriangles(barkTriangles, 0);
-            mesh.SetTriangles(endTriangles, 1);
-            mesh.RecalculateBounds();
-            return mesh;
-        }
-
-        private static void AddEndCap(List<Vector3> vertices, List<Vector3> normals, List<Vector2> uvs, List<int> triangles,
-            float y, Vector3 normal)
-        {
-            int center = vertices.Count;
-            vertices.Add(new Vector3(0f, y, 0f));
-            normals.Add(normal);
-            uvs.Add(new Vector2(0.5f, 0.5f));
-
-            for (int i = 0; i < LogSides; i++)
-            {
-                Vector3 point = RingPoint(i / (float)LogSides * Mathf.PI * 2f);
-                vertices.Add(new Vector3(point.x, y, point.z));
-                normals.Add(normal);
-                uvs.Add(new Vector2(point.x / (2f * LogRadius) + 0.5f, point.z / (2f * LogRadius) + 0.5f));
-            }
-
-            for (int i = 0; i < LogSides; i++)
-            {
-                int current = center + 1 + i;
-                int next = center + 1 + (i + 1) % LogSides;
-                Vector3 face = Vector3.Cross(vertices[current] - vertices[center], vertices[next] - vertices[center]);
-                if (Vector3.Dot(face, normal) >= 0f) triangles.AddRange(new[] { center, current, next });
-                else triangles.AddRange(new[] { center, next, current });
-            }
-        }
-
-        // Ponto da borda do tronco, com um pouco de irregularidade para não ficar um cilindro perfeito
-        private static Vector3 RingPoint(float angle)
-        {
-            float radius = LogRadius * (1f + 0.03f * Mathf.Sin(angle * 3f + 1f) + 0.02f * Mathf.Sin(angle * 7f + 2f));
-            return new Vector3(Mathf.Cos(angle) * radius, 0f, Mathf.Sin(angle) * radius);
-        }
-
-        private static Texture2D GenerateBarkTexture(int size)
-        {
-            Texture2D texture = new(size, size, TextureFormat.RGB24, true);
-            Color dark = new(0.22f, 0.14f, 0.08f);
-            Color light = new(0.42f, 0.3f, 0.19f);
-            for (int y = 0; y < size; y++)
-            {
-                for (int x = 0; x < size; x++)
-                {
-                    // Mistura duas amostras de ruído para a textura repetir sem emenda na horizontal
-                    float t = x / (float)size;
-                    float streaks = Mathf.Lerp(Mathf.PerlinNoise(x * 0.06f, y * 0.006f), Mathf.PerlinNoise((x - size) * 0.06f, y * 0.006f), t);
-                    float detail = Mathf.Lerp(Mathf.PerlinNoise(x * 0.3f + 50f, y * 0.08f), Mathf.PerlinNoise((x - size) * 0.3f + 50f, y * 0.08f), t);
-                    float value = Mathf.Clamp01(streaks * 0.75f + detail * 0.35f - 0.1f);
-                    texture.SetPixel(x, y, Color.Lerp(dark, light, value * value));
-                }
-            }
-            texture.Apply();
-            return texture;
         }
 
         private static Texture2D GenerateRingsTexture(int size)

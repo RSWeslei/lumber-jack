@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using LumberJack.Core;
 using LumberJack.Shared;
 using LumberJack.Wood;
@@ -6,8 +7,8 @@ using UnityEngine;
 namespace LumberJack.Trees
 {
     /// <summary>
-    /// Pedaço de árvore solto (tronco derrubado, galho cortado): tem física e corta de novo com o machado,
-    /// num golpe, como as toras. Continua no espaço local da árvore, então o esqueleto vale para ele.
+    /// Pedaço de árvore solto (tronco derrubado, galho cortado, tora): tem física e corta de novo com o machado.
+    /// Continua no espaço local da árvore, então o esqueleto vale para ele.
     /// </summary>
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(RuntimeMesh))]
     public class TreePiece : MonoBehaviour, IAxeTarget
@@ -21,30 +22,47 @@ namespace LumberJack.Trees
         // Pedaço abaixo disso (m) caiu para fora do mundo: some
         private const float OutOfWorldHeight = -50f;
         private const float OutOfWorldCheckSeconds = 1f;
+        // Tag que a refinaria procura
+        private const string WoodTag = "Wood";
 
         // Cortes acontecem um por vez na thread principal: um cortador para todos os pedaços
         private static readonly TreeCutter SharedCutter = new();
 
         private readonly TreePartMesh _part = new();
+        private readonly TreeFellingState _state = new();
+        // Cascos dos colisores (criados em runtime): destruídos junto com o pedaço ou ao refazer os colisores
+        private readonly List<Mesh> _colliderMeshes = new();
         private Mesh _mesh;
         private int _aimBranch = -1;
         private Vector3 _aimCenter;
         private float _aimRadius;
+        private Plane _lockedCut;
+        private int _lockedBranch = -1;
+        private Vector3 _lockedCenter;
+        private float _lockedRadius;
 
         public Transform Transform => transform;
         public Vector3[] Vertices => _part.Vertices;
 
-        /// <summary>Triângulos do galho mirado (o preview desenha o círculo só nele).</summary>
-        public int[] Triangles => _part.TrianglesOf(_aimBranch);
+        /// <summary>Triângulos do galho do corte (o preview desenha o círculo só nele).</summary>
+        public int[] Triangles => _part.TrianglesOf(_state.IsActive ? _lockedBranch : _aimBranch);
 
-        public float CutProgress => 0f;
+        public float CutProgress => _state.Progress;
         public Rigidbody Body { get; private set; }
         public TreeSkeleton Skeleton { get; private set; }
         public TreeSpeciesDefinition Species { get; private set; }
+
+        /// <summary>Tipo de madeira (preço); null = sem valor. Passa para as metades quando corta.</summary>
+        public WoodDefinition Wood { get; private set; }
         public TreePartMesh Part => _part;
 
         /// <summary>False quando, depois de quebrar galhos, sobrou só graveto (nada que colida).</summary>
         public bool HasColliders { get; private set; } = true;
+
+        private void OnDestroy()
+        {
+            DestroyColliderMeshes();
+        }
 
         /// <summary>Volume do pedaço passa do mínimo da espécie? (lascas menores somem)</summary>
         public static bool IsBigEnough(Mesh mesh, Transform space, TreeSpeciesDefinition species)
@@ -57,9 +75,9 @@ namespace LumberJack.Trees
         /// é só galho fino (gravetos que nem colidem): esses somem, como as lascas.
         /// </summary>
         public static TreePiece Spawn(Transform source, string pieceName, Mesh mesh, TreeSkeleton skeleton,
-            TreeSpeciesDefinition species)
+            TreeSpeciesDefinition species, WoodDefinition wood)
         {
-            var pieceObject = new GameObject(pieceName) { layer = source.gameObject.layer };
+            var pieceObject = new GameObject(pieceName) { layer = source.gameObject.layer, tag = WoodTag };
             Transform pieceTransform = pieceObject.transform;
             pieceTransform.SetParent(source.parent, false);
             pieceTransform.SetPositionAndRotation(source.position, source.rotation);
@@ -67,7 +85,7 @@ namespace LumberJack.Trees
 
             pieceObject.AddComponent<MeshRenderer>().sharedMaterials = new[] { species.BarkMaterial, species.CutFaceMaterial };
             TreePiece piece = pieceObject.AddComponent<TreePiece>();
-            if (piece.Initialize(mesh, skeleton, species)) return piece;
+            if (piece.Initialize(mesh, skeleton, species, wood)) return piece;
 
             Destroy(pieceObject);
             return null;
@@ -75,6 +93,8 @@ namespace LumberJack.Trees
 
         public Plane GetCutPlane(Vector3 worldPoint, Vector3 viewForward, Vector3 viewUp, float tilt)
         {
+            if (_state.IsActive) return _lockedCut;
+
             Vector3 localPoint = transform.InverseTransformPoint(worldPoint);
             _aimBranch = _part.FindBranch(localPoint);
             if (_aimBranch < 0) return default;
@@ -85,17 +105,33 @@ namespace LumberJack.Trees
 
         public bool CanCut(Plane localPlane)
         {
+            // Corte já começado continua onde está
+            if (_state.IsActive) return true;
+
             return _part.HasBranch(_aimBranch) &&
                    AxeCutRules.LeavesMinThickness(this, localPlane, Species.Felling.MinCutThickness);
         }
 
+        /// <summary>Como na árvore em pé: o primeiro golpe fixa o corte e os golpes somam dano conforme a grossura.</summary>
         public void Strike(Plane localPlane, Vector3 swingDirection, float damage)
         {
             if (!CanCut(localPlane)) return;
-            if (!SharedCutter.TryCut(_mesh, _part, Skeleton, _aimBranch, localPlane, _aimCenter, _aimRadius,
+
+            if (!_state.IsActive)
+            {
+                _lockedCut = localPlane;
+                _lockedBranch = _aimBranch;
+                _lockedCenter = _aimCenter;
+                _lockedRadius = _aimRadius;
+                _state.Begin(Species.Felling.HealthFor(_aimRadius));
+            }
+            if (!_state.ApplyHit(damage)) return;
+
+            _state.Clear();
+            if (!SharedCutter.TryCut(_mesh, _part, Skeleton, _lockedBranch, _lockedCut, _lockedCenter, _lockedRadius,
                     out Mesh outer, out Mesh inner)) return;
 
-            Vector3 separation = transform.TransformDirection(localPlane.normal) * SeparationSpeed;
+            Vector3 separation = transform.TransformDirection(_lockedCut.normal) * SeparationSpeed;
             TreePiece outerHalf = SpawnHalf(outer, separation);
             TreePiece innerHalf = SpawnHalf(inner, -separation);
 
@@ -131,10 +167,11 @@ namespace LumberJack.Trees
         }
 
         // False quando o pedaço é só graveto (nenhum galho grosso o bastante para colidir)
-        private bool Initialize(Mesh mesh, TreeSkeleton skeleton, TreeSpeciesDefinition species)
+        private bool Initialize(Mesh mesh, TreeSkeleton skeleton, TreeSpeciesDefinition species, WoodDefinition wood)
         {
             Skeleton = skeleton;
             Species = species;
+            Wood = wood;
             SetMesh(mesh);
             // Graveto não colide: ficaria afundado no chão ou cairia através dele
             if (BuildColliders() == 0) return false;
@@ -150,7 +187,7 @@ namespace LumberJack.Trees
             Body = body;
             UpdateMass();
 
-            if (species.Wood != null) gameObject.AddComponent<WoodPiece>().Initialize(species.Wood, false);
+            if (wood != null) gameObject.AddComponent<WoodPiece>().Initialize(wood, false);
 
             // Pedaço pode nascer atravessando o toco ou outro pedaço (ex.: tronco que tombou por cima do toco)
             CollisionSeparation.IgnoreSpawnOverlaps(body, GetComponentsInChildren<Collider>(), 1 << gameObject.layer,
@@ -195,9 +232,17 @@ namespace LumberJack.Trees
                 Destroy(child);
             }
 
+            DestroyColliderMeshes();
+
             TreeFellingSettings felling = Species.Felling;
             return TreePieceColliders.Build(_part, Skeleton, transform, felling.MinColliderRadius, MaxColliders,
-                felling.PieceMaterial);
+                felling.PieceMaterial, _colliderMeshes);
+        }
+
+        private void DestroyColliderMeshes()
+        {
+            foreach (Mesh mesh in _colliderMeshes) Destroy(mesh);
+            _colliderMeshes.Clear();
         }
 
         private void UpdateMass()
@@ -222,7 +267,7 @@ namespace LumberJack.Trees
                 return null;
             }
 
-            TreePiece half = Spawn(transform, name, mesh, Skeleton, Species);
+            TreePiece half = Spawn(transform, name, mesh, Skeleton, Species, Wood);
             if (half == null) return null;
 
             half.Body.linearVelocity = Body.linearVelocity + separation;

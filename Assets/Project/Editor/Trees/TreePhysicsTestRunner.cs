@@ -127,7 +127,8 @@ namespace LumberJack.Editor
                     var tree = new GameObject(species.name + " " + (i + 1)) { layer = LayerMask.NameToLayer(WoodLayerName) };
                     tree.transform.SetParent(trees, false);
                     tree.transform.localPosition = new Vector3(i * TreeSpacing, 0f, row * TreeSpacing);
-                    tree.AddComponent<ProceduralTree>().Configure(species, i + 1);
+                    // Mesmas sementes do Main (Pine 11+, Oak 21+, Birch 31+): as mesmas copas que lá
+                    tree.AddComponent<ProceduralTree>().Configure(species, (row + 1) * 10 + i + 1);
                     tree.AddComponent<ChoppableTree>();
                 }
             }

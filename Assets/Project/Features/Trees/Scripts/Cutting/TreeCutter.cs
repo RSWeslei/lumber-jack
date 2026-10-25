@@ -60,10 +60,12 @@ namespace LumberJack.Trees
                 _branchSides.Add(SideOf(skeleton, b, branch, plane));
             }
 
+            // Anéis em volta do eixo do galho, não do plano: no corte inclinado viram elipses e não saem da textura
+            skeleton.ClosestPoint(branch, center, out _, out Vector3 branchDirection, out _, out _);
             _cutCenter = center;
-            _cutAxisU = TreeSkeletonGenerator.Perpendicular(plane.normal);
-            _cutAxisV = Vector3.Cross(plane.normal, _cutAxisU);
-            _cutRadius = radius;
+            _cutAxisU = TreeSkeletonGenerator.Perpendicular(branchDirection);
+            _cutAxisV = Vector3.Cross(branchDirection, _cutAxisU);
+            _cutRadius = Mathf.Max(radius, FarthestCutBark(part, branch, plane));
 
             bool isCut = MeshSlicer.Slice(mesh, plane, CutFaceSubmesh, _cutFaceUV, _forcedSide, new Vector2(branch, 0f),
                 out outer, out inner);
@@ -95,7 +97,34 @@ namespace LumberJack.Trees
             return _branchSides[_part.BranchOf(vertex)];
         }
 
-        // Anéis da madeira centrados no eixo do galho, ocupando a face do corte
+        // Casca mais longe do eixo onde o plano passa: no corte bem inclinado a face pega trecho mais grosso que o centro
+        private float FarthestCutBark(TreePartMesh part, int branch, Plane plane)
+        {
+            Vector3[] vertices = part.Vertices;
+            int[] triangles = part.TrianglesOf(branch);
+            float farthest = 0f;
+            for (int i = 0; i < triangles.Length; i += 3)
+            {
+                Vector3 a = vertices[triangles[i]];
+                Vector3 b = vertices[triangles[i + 1]];
+                Vector3 c = vertices[triangles[i + 2]];
+                bool side = plane.GetDistanceToPoint(a) > 0f;
+                if (side == plane.GetDistanceToPoint(b) > 0f && side == plane.GetDistanceToPoint(c) > 0f) continue;
+
+                farthest = Mathf.Max(farthest, DistanceToAxis(a), DistanceToAxis(b), DistanceToAxis(c));
+            }
+            return farthest;
+        }
+
+        private float DistanceToAxis(Vector3 point)
+        {
+            Vector3 offset = point - _cutCenter;
+            float u = Vector3.Dot(offset, _cutAxisU);
+            float v = Vector3.Dot(offset, _cutAxisV);
+            return Mathf.Sqrt(u * u + v * v);
+        }
+
+        // Anéis da madeira pela distância ao eixo do galho: a casca fica na borda da textura em qualquer inclinação
         private Vector2 CutFaceUV(Vector3 localPoint)
         {
             Vector3 offset = localPoint - _cutCenter;

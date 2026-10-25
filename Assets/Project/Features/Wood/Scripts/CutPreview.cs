@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using LumberJack.Core;
 using UnityEngine;
 
@@ -64,7 +63,8 @@ namespace LumberJack.Wood
             }
 
             // Empurra a linha um pouquinho para fora da madeira para não sumir dentro da casca
-            Vector3 center = _outline.Aggregate(Vector3.zero, (current, point) => current + point);
+            Vector3 center = Vector3.zero;
+            foreach (Vector3 point in _outline) center += point;
             center /= _outline.Count;
 
             Transform woodTransform = target.Transform;

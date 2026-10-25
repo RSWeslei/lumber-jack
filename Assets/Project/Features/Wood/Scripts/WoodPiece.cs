@@ -49,14 +49,6 @@ namespace LumberJack.Wood
             RecalculateValue();
         }
 
-        /// <summary>
-        /// Usado quando um pedaço é cortado: o pedaço novo herda o tipo de madeira.
-        /// </summary>
-        public void CopyFrom(WoodPiece other)
-        {
-            Initialize(other._definition, other._isRefined);
-        }
-
         private void RecalculateValue()
         {
             if (_definition == null || _meshFilter.sharedMesh == null)

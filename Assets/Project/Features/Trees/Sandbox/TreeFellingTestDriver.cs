@@ -32,7 +32,10 @@ namespace LumberJack.Trees
         [SerializeField] private float _secondCutDelay = 3f;
         [Tooltip("Inclinação (graus) dos cortes nos pedaços caídos")]
         [SerializeField] private float _fallenTilt = 40f;
-        [Tooltip("Duração total do teste (s)")]
+        [Tooltip("Rodadas extras de corte nos pedaços, picando até ficarem pequenos")]
+        [SerializeField] private int _extraCutRounds = 4;
+        [SerializeField] private float _extraCutInterval = 1.5f;
+        [Tooltip("Duração mínima do teste (s); estende até o último pedaço ter tempo de assentar")]
         [SerializeField] private float _duration = 22f;
         [SerializeField] private bool _exitPlayModeWhenDone = true;
 
@@ -47,10 +50,18 @@ namespace LumberJack.Trees
         [SerializeField] private float _restSpeed = 0.15f;
         [Tooltip("Quanto (m) o pé do pedaço pode subir acima de onde nasceu (o chute do tronco ao cair)")]
         [SerializeField] private float _maxRise = 0.5f;
+        [Tooltip("Velocidade para cima máxima logo depois de nascer (m/s): mais que isso é o pedaço pulando no corte")]
+        [SerializeField] private float _maxSpawnUpSpeed = 1.5f;
+        [Tooltip("O tronco derrubado precisa deitar pelo menos isso (graus da vertical)")]
+        [SerializeField] private float _minFellLean = 45f;
 
         private static readonly Collider[] ContactBuffer = new Collider[32];
 
+        // Mais fundo que isso (m) dentro do toco é o tronco atravessando o toco
+        private const float StumpPenetration = 0.1f;
+
         private readonly Dictionary<TreePiece, PieceStats> _stats = new();
+        private readonly List<string> _insideStumps = new();
         private float _startTime;
         private int _strikes;
         private int _blockedStrikes;
@@ -86,10 +97,18 @@ namespace LumberJack.Trees
             await SampleUntil(fellTime, token);
             FellAllTrees();
             await SampleUntil(fellTime + _fallenCutDelay, token);
+            CheckStumps();
             CutFallenPieces(_fallenTilt);
-            await SampleUntil(fellTime + _fallenCutDelay + _secondCutDelay, token);
+            float cutTime = fellTime + _fallenCutDelay + _secondCutDelay;
+            await SampleUntil(cutTime, token);
             CutFallenPieces(-_fallenTilt);
-            await SampleUntil(_duration, token);
+            for (int round = 0; round < _extraCutRounds; round++)
+            {
+                cutTime += _extraCutInterval;
+                await SampleUntil(cutTime, token);
+                CutFallenPieces(round % 2 == 0 ? _fallenTilt : -_fallenTilt);
+            }
+            await SampleUntil(Mathf.Max(_duration, cutTime + _settleTime + 1f), token);
 
             WriteReport();
             if (_exitPlayModeWhenDone) ExitPlayMode();
@@ -140,11 +159,11 @@ namespace LumberJack.Trees
             TreePiece[] pieces = FindObjectsByType<TreePiece>();
             foreach (TreePiece piece in pieces)
             {
-                // O centro de massa pode ficar fora do galho (no ar entre galhos): mira então no meio de uma caixa
+                // O centro de massa pode ficar fora do galho (no ar entre galhos): mira então no meio de um colisor
                 if (Strike(piece, piece.Body.worldCenterOfMass, Vector3.forward, tilt)) continue;
 
-                BoxCollider[] boxes = piece.GetComponentsInChildren<BoxCollider>();
-                Strike(piece, boxes[boxes.Length / 2].bounds.center, Vector3.forward, tilt);
+                Collider[] colliders = piece.GetComponentsInChildren<Collider>();
+                Strike(piece, colliders[colliders.Length / 2].bounds.center, Vector3.forward, tilt);
             }
         }
 
@@ -171,7 +190,7 @@ namespace LumberJack.Trees
                 if (!_stats.TryGetValue(piece, out PieceStats stats))
                 {
                     stats = new PieceStats(piece.name, now - _startTime, piece.Body.mass, piece.transform,
-                        piece.GetComponentsInChildren<BoxCollider>());
+                        piece.GetComponentsInChildren<Collider>());
                     _stats.Add(piece, stats);
                 }
 
@@ -191,25 +210,33 @@ namespace LumberJack.Trees
             foreach (KeyValuePair<TreePiece, PieceStats> entry in _stats)
             {
                 PieceStats stats = entry.Value;
-                // Pedaço cortado de novo (destruído) só conta o chute do pé na queda; as metades contam o resto
+                // Pedaço cortado de novo (destruído) só conta o chute do pé e se deitou; as metades contam o resto
                 bool isGone = entry.Key == null;
-                if (isGone && stats.MaxRise <= _maxRise) continue;
+                bool isFelledTrunk = Mathf.Abs(stats.SpawnTime - (_startDelay + _fellDelay)) < 0.1f;
+                bool isStanding = isFelledTrunk && stats.MaxLean < _minFellLean;
+                bool hasJumped = stats.SpawnJump > _maxSpawnUpSpeed;
+                if (isGone && stats.MaxRise <= _maxRise && !isStanding && !hasJumped) continue;
                 if (!isGone && !stats.HasSettleSamples) continue;
 
                 bool isOk = stats.MaxSpin <= _maxSettledSpin && stats.MaxUpSpeed <= _maxSettledUpSpeed &&
-                            stats.FinalSpeed <= _restSpeed && stats.FinalSpin <= _restSpeed && stats.MaxRise <= _maxRise;
+                            stats.FinalSpeed <= _restSpeed && stats.FinalSpin <= _restSpeed && stats.MaxRise <= _maxRise &&
+                            !isStanding && !hasJumped;
                 if (isGone) isOk = false;
                 total++;
                 if (isOk) passed++;
                 report.AppendLine($"{(isOk ? "OK  " : "RUIM")} {stats.Name,-28} massa {stats.Mass,7:F0} kg  colisores {stats.Colliders,2}  " +
                                   $"giro_max {stats.MaxSpin,5:F2} rad/s (nasceu {stats.SpawnTime,4:F1}s, pico {stats.MaxSpinTime,4:F1}s)  subida_max {stats.MaxUpSpeed,5:F2} m/s  " +
                                   $"final {stats.FinalSpeed,5:F2} m/s {stats.FinalSpin,5:F2} rad/s  {(stats.IsSleeping ? "dormindo" : "acordado")}  " +
+                                  $"pulo ao nascer {stats.SpawnJump,4:F2} m/s  deitou {stats.MaxLean,3:F0}°{(isStanding ? " (FICOU EM PÉ)" : string.Empty)}  " +
                                   $"pé subiu {stats.MaxRise,4:F2} m em {stats.MaxRiseTime,4:F1}s{(isGone ? " (cortado depois)" : string.Empty)}" +
                                   (stats.HingeReleaseTime > 0f ? $"  dobradiça soltou {stats.HingeReleaseTime:F1}s" : string.Empty) +
                                   $"  na subida: giro {stats.RiseSpin:F2} rad/s a {stats.RiseSpinAngle:F0}° do tronco, tronco a {stats.RiseTrunkTilt:F0}° do chão");
                 if (!isOk && !isGone) report.AppendLine("     encostado em: " + DescribeContacts(entry.Key));
+                if (hasJumped) report.AppendLine($"     pulou: menor colisor {stats.SmallestCollider * 100f:F1} cm, {stats.Colliders} colisores");
             }
 
+            foreach (string inside in _insideStumps) report.AppendLine("RUIM " + inside);
+            total += _insideStumps.Count;
             string header = $"Teste de queda de árvores: {passed}/{total} OK ({DateTime.Now:HH:mm:ss}), " +
                             $"cortes bloqueados {_blockedStrikes}/{_strikes}\n" +
                             $"Critérios depois de {_settleTime:F0}s de vida: giro <= {_maxSettledSpin} rad/s, subida <= {_maxSettledUpSpeed} m/s, " +
@@ -225,11 +252,9 @@ namespace LumberJack.Trees
             Collider[] own = piece.GetComponentsInChildren<Collider>();
             foreach (Collider ownCollider in own)
             {
-                if (!(ownCollider is BoxCollider box)) continue;
-
-                Transform t = box.transform;
-                Vector3 halfExtents = Vector3.Scale(box.size, t.lossyScale) * 0.5f + Vector3.one * 0.03f;
-                int count = Physics.OverlapBoxNonAlloc(t.TransformPoint(box.center), halfExtents, ContactBuffer, t.rotation,
+                Bounds bounds = ownCollider.bounds;
+                Vector3 halfExtents = bounds.extents + Vector3.one * 0.03f;
+                int count = Physics.OverlapBoxNonAlloc(bounds.center, halfExtents, ContactBuffer, Quaternion.identity,
                     Physics.AllLayers, QueryTriggerInteraction.Ignore);
                 for (int h = 0; h < count; h++)
                 {
@@ -241,6 +266,38 @@ namespace LumberJack.Trees
                 }
             }
             return $"y={piece.transform.position.y:F2} " + string.Join(", ", names);
+        }
+
+        // Algum pedaço deitado ficou enfiado dentro de um toco?
+        private void CheckStumps()
+        {
+            ChoppableTree[] trees = FindObjectsByType<ChoppableTree>();
+            TreePiece[] pieces = FindObjectsByType<TreePiece>();
+            foreach (ChoppableTree tree in trees)
+            {
+                var stump = tree.GetComponent<MeshCollider>();
+                foreach (TreePiece piece in pieces)
+                {
+                    float depth = DeepestPenetration(piece, stump);
+                    if (depth > StumpPenetration) _insideStumps.Add($"{piece.name} dentro do toco de {tree.name} ({depth:F2} m)");
+                }
+            }
+        }
+
+        private static float DeepestPenetration(TreePiece piece, Collider stump)
+        {
+            float deepest = 0f;
+            Transform stumpTransform = stump.transform;
+            foreach (Collider own in piece.GetComponentsInChildren<Collider>())
+            {
+                Transform ownTransform = own.transform;
+                if (Physics.ComputePenetration(own, ownTransform.position, ownTransform.rotation, stump, stumpTransform.position,
+                        stumpTransform.rotation, out _, out float depth))
+                {
+                    deepest = Mathf.Max(deepest, depth);
+                }
+            }
+            return deepest;
         }
 
         private static void ExitPlayMode()
@@ -255,17 +312,26 @@ namespace LumberJack.Trees
             private readonly float _spawnTime;
             // Primeira caixa = começo do galho mais baixo (o pé do tronco derrubado); guarda o ponto, não a caixa
             // (as caixas são recriadas quando galhos quebram na queda)
+            // Janela (s) depois de nascer em que a subida conta como pulo do corte
+            private const float SpawnWindow = 1f;
+
             private readonly Transform _piece;
             private readonly Vector3 _localFoot;
             private readonly float _footStartHeight;
 
-            public PieceStats(string name, float spawnTime, float mass, Transform piece, BoxCollider[] boxes)
+            public PieceStats(string name, float spawnTime, float mass, Transform piece, Collider[] boxes)
             {
                 Name = name;
                 _spawnTime = spawnTime;
                 Mass = mass;
                 Colliders = boxes.Length;
                 _piece = piece;
+                SmallestCollider = float.MaxValue;
+                foreach (Collider box in boxes)
+                {
+                    Vector3 size = box.bounds.size;
+                    SmallestCollider = Mathf.Min(SmallestCollider, Mathf.Min(size.x, Mathf.Min(size.y, size.z)));
+                }
                 _localFoot = piece.InverseTransformPoint(boxes[0].bounds.center);
                 _footStartHeight = boxes[0].bounds.center.y;
             }
@@ -282,6 +348,9 @@ namespace LumberJack.Trees
             public float FinalSpin { get; private set; }
             public bool IsSleeping { get; private set; }
             public float MaxRise { get; private set; }
+            public float MaxLean { get; private set; }
+            public float SpawnJump { get; private set; }
+            public float SmallestCollider { get; }
             public float MaxRiseTime { get; private set; }
             public float HingeReleaseTime { get; private set; }
             public float RiseSpin { get; private set; }
@@ -303,10 +372,12 @@ namespace LumberJack.Trees
 
             public void Record(float now, float spin, float upSpeed, float speed, bool isSleeping, float settleTime)
             {
+                if (now - _spawnTime < SpawnWindow) SpawnJump = Mathf.Max(SpawnJump, upSpeed);
                 FinalSpeed = speed;
                 FinalSpin = spin;
                 IsSleeping = isSleeping;
                 // Desde o nascimento: o chute do pé acontece durante a queda
+                MaxLean = Mathf.Max(MaxLean, Vector3.Angle(_piece.up, Vector3.up));
                 float rise = _piece.TransformPoint(_localFoot).y - _footStartHeight;
                 if (rise > MaxRise)
                 {

@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using UnityEngine;
 
 namespace LumberJack.Trees
 {
     /// <summary>
-    /// Ignora a colisão entre dois grupos de colisores e só religa quando eles não se encostam mais.
+    /// Ignora a colisão entre dois grupos de colisores e religa cada par assim que ele não se atravessa mais.
     /// Religar com eles sobrepostos faz o PhysX separar de uma vez: o pedaço pula e sai girando.
     /// </summary>
     public static class CollisionSeparation
@@ -16,6 +15,8 @@ namespace LumberJack.Trees
         private const float MaxSeconds = 10f;
         // Penetração (m) a partir da qual nascer encostado vira "sobreposto"; contato normal com o chão é menor
         private const float MinOverlapDepth = 0.05f;
+        // Par que se atravessa menos que isso (m) já pode colidir: encostar na face do corte não conta
+        private const float SeparatedDepth = 0.01f;
         private const int MaxOverlaps = 32;
 
         private static readonly Collider[] OverlapBuffer = new Collider[MaxOverlaps];
@@ -24,15 +25,16 @@ namespace LumberJack.Trees
         public static async void IgnoreUntilApart(Collider[] first, Collider[] second, CancellationToken token)
         {
             SetIgnored(first, second, true);
+            // Par a par: duas metades deitadas lado a lado nunca saem de dentro das caixas uma da outra
+            var isPairIgnored = new bool[first.Length * second.Length];
+            for (int i = 0; i < isPairIgnored.Length; i++) isPairIgnored[i] = true;
+            int ignoredPairs = isPairIgnored.Length;
             try
             {
-                for (float time = 0f; time < MaxSeconds; time += Time.fixedDeltaTime)
+                for (float time = 0f; time < MaxSeconds && ignoredPairs > 0; time += Time.fixedDeltaTime)
                 {
                     await Awaitable.FixedUpdateAsync(token);
-                    if (AnyOverlap(first, second)) continue;
-
-                    SetIgnored(first, second, false);
-                    return;
+                    ignoredPairs -= ReleaseSeparatedPairs(first, second, isPairIgnored);
                 }
             }
             catch (OperationCanceledException)
@@ -50,19 +52,18 @@ namespace LumberJack.Trees
             Overlapping.Clear();
             foreach (Collider collider in colliders)
             {
-                if (collider is BoxCollider box) CollectDeepOverlaps(body, box, layerMask);
+                CollectDeepOverlaps(body, collider, layerMask);
             }
             if (Overlapping.Count == 0) return;
 
             IgnoreUntilApart(colliders, Overlapping.ToArray(), token);
         }
 
-        private static void CollectDeepOverlaps(Rigidbody body, BoxCollider box, int layerMask)
+        private static void CollectDeepOverlaps(Rigidbody body, Collider collider, int layerMask)
         {
-            Transform boxTransform = box.transform;
-            Vector3 center = boxTransform.TransformPoint(box.center);
-            Vector3 halfExtents = Vector3.Scale(box.size, boxTransform.lossyScale) * 0.5f;
-            int count = Physics.OverlapBoxNonAlloc(center, halfExtents, OverlapBuffer, boxTransform.rotation,
+            Transform colliderTransform = collider.transform;
+            Bounds bounds = collider.bounds;
+            int count = Physics.OverlapBoxNonAlloc(bounds.center, bounds.extents, OverlapBuffer, Quaternion.identity,
                 layerMask, QueryTriggerInteraction.Ignore);
 
             for (int i = 0; i < count; i++)
@@ -71,7 +72,7 @@ namespace LumberJack.Trees
                 if (ReferenceEquals(other.attachedRigidbody, body) || Overlapping.Contains(other) || !IsTreePart(other)) continue;
 
                 Transform otherTransform = other.transform;
-                bool isOverlapping = Physics.ComputePenetration(box, boxTransform.position, boxTransform.rotation,
+                bool isOverlapping = Physics.ComputePenetration(collider, colliderTransform.position, colliderTransform.rotation,
                     other, otherTransform.position, otherTransform.rotation, out _, out float depth);
                 if (isOverlapping && depth > MinOverlapDepth) Overlapping.Add(other);
             }
@@ -87,20 +88,39 @@ namespace LumberJack.Trees
             return !ReferenceEquals(otherBody, null) && otherBody.TryGetComponent(out TreePiece _);
         }
 
-        private static bool AnyOverlap(Collider[] first, Collider[] second)
+        // Religa os pares que não se atravessam mais e devolve quantos religou
+        private static int ReleaseSeparatedPairs(Collider[] first, Collider[] second, bool[] isPairIgnored)
         {
-            foreach (Collider firstCollider in first)
+            int released = 0;
+            for (int i = 0; i < first.Length; i++)
             {
-                // Pedaços podem ter sido cortados (destruídos) enquanto esperavam
-                if (firstCollider == null) continue;
-
-                Bounds bounds = firstCollider.bounds;
-                if (second.Any(secondCollider => secondCollider != null && bounds.Intersects(secondCollider.bounds)))
+                for (int j = 0; j < second.Length; j++)
                 {
-                    return true;
+                    int pair = i * second.Length + j;
+                    if (!isPairIgnored[pair]) continue;
+
+                    Collider a = first[i];
+                    Collider b = second[j];
+                    // Pedaços podem ter sido cortados (destruídos) enquanto esperavam
+                    bool isGone = a == null || b == null;
+                    if (!isGone && IsPenetrating(a, b)) continue;
+
+                    if (!isGone) Physics.IgnoreCollision(a, b, false);
+                    isPairIgnored[pair] = false;
+                    released++;
                 }
             }
-            return false;
+            return released;
+        }
+
+        private static bool IsPenetrating(Collider a, Collider b)
+        {
+            if (!a.bounds.Intersects(b.bounds)) return false;
+
+            Transform aTransform = a.transform;
+            Transform bTransform = b.transform;
+            return Physics.ComputePenetration(a, aTransform.position, aTransform.rotation, b, bTransform.position,
+                bTransform.rotation, out _, out float depth) && depth > SeparatedDepth;
         }
 
         private static void SetIgnored(Collider[] first, Collider[] second, bool isIgnored)

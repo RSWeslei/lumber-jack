@@ -8,8 +8,12 @@ namespace LumberJack.Trees
     /// </summary>
     public sealed class TreeFallMotion
     {
+        // A árvore nunca volta para trás: o empurrão inicial vale como o mínimo (a abertura do corte segura o resto)
+        private const float MinSpeedFraction = 0.5f;
+
         private Vector3 _startPosition;
         private Quaternion _startRotation;
+        private float _minSpeed;
         private Vector3 _centerOffset;
         private Vector3 _gravity;
         private float _inertiaPerMass;
@@ -36,12 +40,13 @@ namespace LumberJack.Trees
             _gravity = gravity;
             Angle = 0f;
             Speed = startSpeed;
+            _minSpeed = startSpeed * MinSpeedFraction;
         }
 
         public void Step(float deltaTime)
         {
             // Euler semi-implícito: estável com o passo fixo da física
-            Speed += AccelerationAt(Angle) * deltaTime;
+            Speed = Mathf.Max(Speed + AccelerationAt(Angle) * deltaTime, _minSpeed);
             Angle += Speed * deltaTime;
         }
 

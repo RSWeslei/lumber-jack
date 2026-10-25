@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using LumberJack.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -29,6 +30,8 @@ namespace LumberJack.Wood
         [SerializeField] private float _maxTilt = 60f;
         [Tooltip("Graus por segundo segurando Q/E")]
         [SerializeField] private float _tiltSpeed = 60f;
+        [Tooltip("Dano por golpe (como o machado do jogador)")]
+        [SerializeField] private float _damage = 1f;
 
         [Header("Preview")]
         [SerializeField] private LineRenderer _cutPreview;
@@ -51,10 +54,10 @@ namespace LumberJack.Wood
 
         // Cache do último collider mirado: evita GetComponent a cada frame no mesmo tronco
         private Collider _lastCollider;
-        private CuttableWood _lastColliderWood;
+        private IAxeTarget _lastColliderTarget;
         private bool _lastColliderIsWood;
 
-        private CuttableWood _target;
+        private IAxeTarget _target;
         private bool _hasTarget;
         private Plane _targetPlane;
         private bool _isTargetValid;
@@ -156,11 +159,13 @@ namespace LumberJack.Wood
             if (!ReferenceEquals(hitCollider, _lastCollider))
             {
                 _lastCollider = hitCollider;
-                _lastColliderIsWood = hitCollider.TryGetComponent(out _lastColliderWood);
+                // Os pedaços têm os colisores em filhos: o alvo fica no corpo
+                Rigidbody body = hitCollider.attachedRigidbody;
+                _lastColliderIsWood = !ReferenceEquals(body, null) && body.TryGetComponent(out _lastColliderTarget);
             }
             if (!_lastColliderIsWood) return;
 
-            _target = _lastColliderWood;
+            _target = _lastColliderTarget;
             _hasTarget = true;
             _targetPlane = _target.GetCutPlane(hit.point, transform.forward, transform.up, _tilt);
             _isTargetValid = _target.CanCut(_targetPlane);
@@ -171,7 +176,7 @@ namespace LumberJack.Wood
             if (!_hasPreview) return;
 
             if (!_hasTarget || _isSwinging) _preview.Hide();
-            else _preview.Show(_target, _targetPlane, _isTargetValid);
+            else _preview.Show(_target, _targetPlane, _isTargetValid, _target.CutProgress);
         }
 
         private async void HandleCutPerformed(InputAction.CallbackContext context)
@@ -189,7 +194,7 @@ namespace LumberJack.Wood
             }
         }
 
-        private async Awaitable SwingAsync(CuttableWood wood, Plane localPlane, CancellationToken token)
+        private async Awaitable SwingAsync(IAxeTarget target, Plane localPlane, CancellationToken token)
         {
             _isSwinging = true;
 
@@ -197,7 +202,7 @@ namespace LumberJack.Wood
             await RotateAxeAsync(_strikeAngle, StrikeDuration, token);
 
             // O pedaço pode ter sido destruído enquanto o machado descia
-            if (wood != null) wood.TryCut(localPlane);
+            if (target is UnityEngine.Object targetObject && targetObject != null) target.Strike(localPlane, transform.forward, _damage);
 
             await RotateAxeAsync(0f, RecoverDuration, token);
             _isSwinging = false;

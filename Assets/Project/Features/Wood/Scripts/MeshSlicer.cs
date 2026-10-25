@@ -82,18 +82,9 @@ namespace LumberJack.Wood
         }
 
         /// <summary>
-        /// Corta a malha. "positive" fica do lado para onde a normal do plano aponta.
-        /// capSubmesh é o submesh (material) usado na tampa do corte e capUV gera o uv dela.
-        /// Retorna false se o plano não atravessa a malha.
-        /// </summary>
-        public static bool Slice(Mesh mesh, Plane plane, int capSubmesh, Func<Vector3, Vector2> capUV,
-            out Mesh positive, out Mesh negative)
-        {
-            return Slice(mesh, plane, capSubmesh, capUV, null, Vector2.zero, out positive, out negative);
-        }
-
-        /// <summary>
-        /// Igual ao outro, mas <paramref name="forcedSide"/> (índice do 1º vértice do triângulo) pode mandar o
+        /// Corta a malha. "positive" fica do lado para onde a normal do plano aponta; capSubmesh é o material da
+        /// tampa e capUV gera o uv dela. False se o plano não atravessa a malha. <paramref name="forcedSide"/>
+        /// (índice do 1º vértice do triângulo) pode mandar o
         /// triângulo inteiro para um lado: &gt; 0 positivo, &lt; 0 negativo, 0 = o plano decide. O segundo canal
         /// de UV é preservado; a tampa recebe <paramref name="capUV2"/>.
         /// </summary>

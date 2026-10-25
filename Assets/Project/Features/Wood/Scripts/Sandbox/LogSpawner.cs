@@ -1,3 +1,4 @@
+using LumberJack.Trees;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,7 +11,7 @@ namespace LumberJack.Wood
     {
         private const string ResetBinding = "<Keyboard>/r";
 
-        [SerializeField] private CuttableWood _logPrefab;
+        [SerializeField] private ProceduralLog _logPrefab;
 
         private bool _hasPrefab;
         // A cena de teste não tem InputManager: ação própria só para a tecla de recomeçar
