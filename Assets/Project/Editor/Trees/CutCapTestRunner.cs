@@ -37,6 +37,9 @@ namespace LumberJack.Editor
         private const float VisibleAreaError = 0.0001f;
         // Anel mais longe que isso do centro da textura (1 = borda) aparece cortado ou repetido
         private const float MaxRingReach = 1.15f;
+        // As duas metades somam o volume do pedaço cortado (massa e preço saem dele)
+        private const float MaxVolumeError = 0.1f;
+
 
         private static double _nextPoll;
 
@@ -81,6 +84,7 @@ namespace LumberJack.Editor
             var random = new SeededRandom(RandomSeed);
             int cuts = 0;
             int failures = 0;
+            float worstVolumeError = 0f;
 
             foreach (string path in speciesPaths)
             {
@@ -93,7 +97,10 @@ namespace LumberJack.Editor
                         var tree = treeObject.AddComponent<ProceduralTree>();
                         tree.Configure(species, seed);
                         tree.Generate();
-                        CutRepeatedly(tree, cutter, part, ref random, species.name + " " + seed, report, ref cuts, ref failures);
+                        report.AppendLine($"{species.name} {seed}: volume pela malha {MeshVolume.Of(tree.Mesh):F3} m³, " +
+                                          $"pelo esqueleto {SkeletonVolume(tree.Skeleton):F3} m³");
+                        CutRepeatedly(tree, cutter, part, ref random, species.name + " " + seed, report, ref cuts, ref failures,
+                            ref worstVolumeError);
                     }
                     finally
                     {
@@ -102,7 +109,8 @@ namespace LumberJack.Editor
                 }
             }
 
-            string header = $"Corte das árvores: {cuts - failures}/{cuts} cortes OK\n{CheckLog()}\n";
+            string header = $"Corte das árvores: {cuts - failures}/{cuts} cortes OK\n{CheckLog()}\n" +
+                            $"Volume das metades: pior diferença {worstVolumeError * 100f:F1}%\n";
             File.WriteAllText(ReportPath, header + report);
             Debug.Log("[CutCapTest] " + header);
         }
@@ -121,7 +129,7 @@ namespace LumberJack.Editor
             Mesh log = new TreeLogBuilder().Build(species, Length, Radius, 1, skeleton);
             if (log == null) return "RUIM tora: não foi gerada";
 
-            float ratio = MeshSlicer.GetVolume(log) / (Mathf.PI * Radius * Radius * Length);
+            float ratio = MeshVolume.Of(log) / (Mathf.PI * Radius * Radius * Length);
             bool hasBottom = false;
             bool hasTop = false;
             if (log.subMeshCount > CapSubmesh)
@@ -142,7 +150,7 @@ namespace LumberJack.Editor
 
         // Corta várias vezes seguidas, sempre continuando na metade maior (os cortes antigos ficam no caminho)
         private static void CutRepeatedly(ProceduralTree tree, TreeCutter cutter, TreePartMesh part, ref SeededRandom random,
-            string treeName, StringBuilder report, ref int cuts, ref int failures)
+            string treeName, StringBuilder report, ref int cuts, ref int failures, ref float worstVolumeError)
         {
             TreeSkeleton skeleton = tree.Skeleton;
             Mesh current = tree.Mesh;
@@ -176,12 +184,42 @@ namespace LumberJack.Editor
                                       $"tampa erra {areaError * 10000f:F2} cm², anéis vão até {ringReach:F2} da borda da textura");
                 }
 
-                bool keepOuter = MeshSlicer.GetVolume(outer) >= MeshSlicer.GetVolume(inner);
+                float wholeVolume = MeshVolume.Of(current);
+                float outerVolume = MeshVolume.Of(outer);
+                float innerVolume = MeshVolume.Of(inner);
+                float volumeError = Mathf.Abs(outerVolume + innerVolume - wholeVolume) / wholeVolume;
+                worstVolumeError = Mathf.Max(worstVolumeError, volumeError);
+                if (volumeError > MaxVolumeError)
+                {
+                    failures++;
+                    report.AppendLine($"RUIM {treeName} corte {i + 1}: metades somam {outerVolume + innerVolume:F3} m³, " +
+                                      $"o pedaço tinha {wholeVolume:F3} m³");
+                }
+
+                bool keepOuter = outerVolume >= innerVolume;
                 if (!ReferenceEquals(current, tree.Mesh)) Object.DestroyImmediate(current);
                 Object.DestroyImmediate(keepOuter ? inner : outer);
                 current = keepOuter ? outer : inner;
             }
             if (!ReferenceEquals(current, tree.Mesh)) Object.DestroyImmediate(current);
+        }
+
+        // Referência grosseira: πr² ao longo de cada galho (conta duas vezes a base dos galhos dentro do tronco)
+        private static float SkeletonVolume(TreeSkeleton skeleton)
+        {
+            float volume = 0f;
+            for (int branch = 0; branch < skeleton.BranchCount; branch++)
+            {
+                TreeBranch info = skeleton.GetBranch(branch);
+                for (int node = info.FirstNode; node < info.LastNode; node++)
+                {
+                    TreeNode from = skeleton.GetNode(node);
+                    TreeNode to = skeleton.GetNode(node + 1);
+                    float radius = (from.Radius + to.Radius) * 0.5f;
+                    volume += Mathf.PI * radius * radius * Vector3.Distance(from.Position, to.Position);
+                }
+            }
+            return volume;
         }
 
         // Diferença entre a área da tampa e a do buraco que a casca deixou no plano (sobra = triângulo para fora,

@@ -61,11 +61,13 @@ namespace LumberJack.Machines
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!other.CompareTag(WoodTag)) return;
-            if (!other.TryGetComponent(out WoodPiece wood) || wood.IsRefined) return;
+            // Pedaços de árvore colidem com cascos filhos: a madeira fica no objeto do Rigidbody
+            Rigidbody body = other.attachedRigidbody;
+            if (ReferenceEquals(body, null) || !body.CompareTag(WoodTag)) return;
+            if (!body.TryGetComponent(out WoodPiece wood) || wood.IsRefined || !wood.TryConsume()) return;
 
             Refine(wood.Definition, wood.Volume);
-            Destroy(other.gameObject);
+            Destroy(body.gameObject);
         }
 
         /// <summary>

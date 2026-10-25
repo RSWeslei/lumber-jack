@@ -12,7 +12,8 @@ namespace LumberJack.Player
         private GameObject _equippedObject;
 
         public ItemDefinition EquippedItem { get; private set; }
-        private bool IsItemEquipped => _equippedObject != null;
+        /// <summary>Tem um item equipado na mão.</summary>
+        public bool HasItem { get; private set; }
 
         public void LoadItem(ItemDefinition item)
         {
@@ -43,17 +44,20 @@ namespace LumberJack.Player
             }
 
             _equippedObject = itemObject;
+            HasItem = true;
         }
 
         public void UnloadItemAndDestroy()
         {
             EquippedItem = null;
+            HasItem = false;
             if (_equippedObject != null) Destroy(_equippedObject);
         }
 
         private void UnloadItem()
         {
             EquippedItem = null;
+            HasItem = false;
             if (_equippedObject != null) _equippedObject.SetActive(false);
         }
 

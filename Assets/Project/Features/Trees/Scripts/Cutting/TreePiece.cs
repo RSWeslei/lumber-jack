@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using LumberJack.Core;
 using LumberJack.Shared;
 using LumberJack.Wood;
@@ -11,7 +12,7 @@ namespace LumberJack.Trees
     /// Continua no espaço local da árvore, então o esqueleto vale para ele.
     /// </summary>
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(RuntimeMesh))]
-    public class TreePiece : MonoBehaviour, IAxeTarget
+    public class TreePiece : MonoBehaviour, IAxeTarget, IDebugInfo
     {
         private const int MaxColliders = 48;
         private const float MinMass = 1f;
@@ -33,6 +34,8 @@ namespace LumberJack.Trees
         // Cascos dos colisores (criados em runtime): destruídos junto com o pedaço ou ao refazer os colisores
         private readonly List<Mesh> _colliderMeshes = new();
         private Mesh _mesh;
+        private WoodPiece _woodPiece;
+        private bool _hasWoodPiece;
         private int _aimBranch = -1;
         private Vector3 _aimCenter;
         private float _aimRadius;
@@ -151,6 +154,12 @@ namespace LumberJack.Trees
         /// Quebra o galho no ponto <paramref name="localPoint"/> do eixo dele: a ponta some (galho fino que bateu
         /// no chão). False se não deu para cortar ali.
         /// </summary>
+        public void AppendDebugInfo(StringBuilder text)
+        {
+            text.Append("Pedaço de árvore: ").AppendLine(Species.name);
+            text.Append("Corte: ").Append((CutProgress * 100f).ToString("0")).AppendLine("%");
+        }
+
         public bool BreakBranch(int branch, Vector3 localPoint, Vector3 localDirection, float radius)
         {
             var plane = new Plane(localDirection, localPoint);
@@ -163,6 +172,7 @@ namespace LumberJack.Trees
             SetMesh(inner);
             HasColliders = BuildColliders() > 0;
             UpdateMass();
+            if (_hasWoodPiece) _woodPiece.RecalculateValue();
             return true;
         }
 
@@ -187,7 +197,12 @@ namespace LumberJack.Trees
             Body = body;
             UpdateMass();
 
-            if (wood != null) gameObject.AddComponent<WoodPiece>().Initialize(wood, false);
+            if (wood != null)
+            {
+                _woodPiece = gameObject.AddComponent<WoodPiece>();
+                _woodPiece.Initialize(wood, false);
+                _hasWoodPiece = true;
+            }
 
             // Pedaço pode nascer atravessando o toco ou outro pedaço (ex.: tronco que tombou por cima do toco)
             CollisionSeparation.IgnoreSpawnOverlaps(body, GetComponentsInChildren<Collider>(), 1 << gameObject.layer,
@@ -255,7 +270,7 @@ namespace LumberJack.Trees
         private static float VolumeOf(Mesh mesh, Transform space)
         {
             Vector3 scale = space.lossyScale;
-            return MeshSlicer.GetVolume(mesh) * Mathf.Abs(scale.x * scale.y * scale.z);
+            return MeshVolume.Of(mesh) * Mathf.Abs(scale.x * scale.y * scale.z);
         }
 
         // Null quando a metade é uma lasca pequena demais e some

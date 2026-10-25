@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84993b861f825aa4ca5b77d34858bfeb, type: 3}
   m_Name: Birch
   m_EditorClassIdentifier: LumberJack::LumberJack.Trees.TreeSpeciesDefinition
-  _displayName: Bétula
-  _wood: {fileID: 0}
+  _displayName: "B\xE9tula"
+  _wood: {fileID: 11400000, guid: f431beb1759f5c44f9f9a309554691ae, type: 2}
   _barkMaterial: {fileID: 2100000, guid: 84ca16681417c33499caaa033abc17a9, type: 2}
   _cutFaceMaterial: {fileID: 2100000, guid: 3120af1b1cae48740bd349fcbf4dd344, type: 2}
   _trunk:
@@ -186,6 +186,21 @@ MonoBehaviour:
     _irregularity: 0.06
     _minBranchRadius: 0.015
     _barkTiling: 0.5
+  _felling:
+    _healthPerSquareMeter: 15
+    _minHealth: 2
+    _maxCutTilt: 25
+    _minStumpHeight: 0.3
+    _minCutThickness: 0.08
+    _density: 650
+    _tipSpeed: 30
+    _branchBreakRadius: 0.1
+    _landingSpinKeep: 0.15
+    _minColliderRadius: 0.05
+    _minPieceVolume: 0.002
+    _friction: 0.9
+    _maxSpinSpeed: 230
+    _maxSeparationSpeed: 1
   references:
     version: 2
     RefIds:

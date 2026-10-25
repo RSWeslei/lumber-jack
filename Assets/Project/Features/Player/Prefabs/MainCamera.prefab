@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2693394105677020979}
   - component: {fileID: 440932109}
   - component: {fileID: 440932110}
+  - component: {fileID: 8723459633299278748}
   m_Layer: 0
   m_Name: MainCamera
   m_TagString: MainCamera
@@ -198,3 +199,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: LumberJack::LumberJack.Player.PlayerAim
   _reach: 2.5
   _assistRadius: 0.15
+--- !u!114 &8723459633299278748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9005220659476430823}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 901924692c2ac2b47a2acaa1c2fee8b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: LumberJack::LumberJack.Player.CameraShake
+  _maxAngle: 2.5
+  _frequency: 18
+  _decay: 4

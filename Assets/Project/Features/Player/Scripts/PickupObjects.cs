@@ -9,16 +9,20 @@ namespace LumberJack.Player
     /// Carrega rigidbodies enquanto a tecla de pegar está apertada: o ponto agarrado vai para a frente da mira pela
     /// física e o objeto gira junto com o jogador. Só levanta até a força do jogador (PlayerStats): mais pesado que
     /// isso, o objeto fica só "agarrado" sem sair do lugar. Quanto mais perto do limite, mais devagar o objeto acompanha.
+    /// Madeira só com a mão livre (sem item equipado).
     /// </summary>
     [RequireComponent(typeof(PlayerStats))]
     public class PickupObjects : MonoBehaviour
     {
         private const float MinHoldDistance = 1f;
+        private const string WoodTag = "Wood";
 
         [Tooltip("Camada(s) que podem ser agarradas")]
         [SerializeField] private LayerMask _layerMask;
         [Tooltip("Câmera do jogador (com o PlayerAim)")]
         [SerializeField] private Transform _cameraTransform;
+        [Tooltip("Mão com o item equipado: segurando item, não pega madeira")]
+        [SerializeField] private Hand _hand;
 
         [Header("Carregar")]
         [Tooltip("Solta o objeto se o ponto agarrado ficar mais longe que isso (m) de onde deveria estar")]
@@ -103,6 +107,12 @@ namespace LumberJack.Player
             Release();
         }
 
+        /// <summary>O jogador está segurando este corpo agora.</summary>
+        public bool IsHeld(Rigidbody body)
+        {
+            return IsHolding && ReferenceEquals(body, _heldBody);
+        }
+
         /// <summary>Ponto agarrado no mundo; false sem nada agarrado.</summary>
         public bool TryGetGrabPoint(out Vector3 point)
         {
@@ -149,6 +159,7 @@ namespace LumberJack.Player
 
             Rigidbody body = hit.rigidbody;
             if (body == null || body.isKinematic) return;
+            if (_hand.HasItem && body.CompareTag(WoodTag)) return;
 
             _heldBody = body;
             _localGrabPoint = body.transform.InverseTransformPoint(hit.point);

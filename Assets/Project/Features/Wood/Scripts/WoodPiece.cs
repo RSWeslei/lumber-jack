@@ -1,3 +1,5 @@
+using System.Text;
+using LumberJack.Core;
 using UnityEngine;
 
 namespace LumberJack.Wood
@@ -9,7 +11,7 @@ namespace LumberJack.Wood
     // ExecuteAlways: mostra o valor certo também fora do Play (prefabs e cena)
     [ExecuteAlways]
     [RequireComponent(typeof(MeshFilter))]
-    public class WoodPiece : MonoBehaviour
+    public class WoodPiece : MonoBehaviour, IDebugInfo
     {
         [SerializeField] private WoodDefinition _definition;
         [Tooltip("Já passou pela refinaria (tábua)")]
@@ -21,6 +23,8 @@ namespace LumberJack.Wood
         public bool IsRefined => _isRefined;
         /// <summary>Valor de venda em centavos.</summary>
         public int ValueCents { get; private set; }
+        /// <summary>Já foi vendido ou refinado (o objeto some no fim do quadro).</summary>
+        public bool IsConsumed { get; private set; }
 
         /// <summary>Volume real da malha em m3 (vale para cubos escalados e pedaços cortados).</summary>
         public float Volume
@@ -28,7 +32,7 @@ namespace LumberJack.Wood
             get
             {
                 Vector3 scale = transform.lossyScale;
-                return MeshSlicer.GetVolume(_meshFilter.sharedMesh) * Mathf.Abs(scale.x * scale.y * scale.z);
+                return MeshVolume.Of(_meshFilter.sharedMesh) * Mathf.Abs(scale.x * scale.y * scale.z);
             }
         }
 
@@ -49,7 +53,28 @@ namespace LumberJack.Wood
             RecalculateValue();
         }
 
-        private void RecalculateValue()
+        /// <summary>
+        /// Marca o pedaço como usado (vendido, refinado). False se já foi: cada collider do pedaço dispara o
+        /// trigger, e o Destroy só acontece no fim do quadro.
+        /// </summary>
+        public bool TryConsume()
+        {
+            if (IsConsumed) return false;
+
+            IsConsumed = true;
+            return true;
+        }
+
+        public void AppendDebugInfo(StringBuilder text)
+        {
+            string wood = _definition != null ? _definition.DisplayName : "sem tipo";
+            text.Append("Madeira: ").Append(wood).AppendLine(_isRefined ? " (tábua)" : " (bruta)");
+            text.Append("Volume: ").Append(Volume.ToString("0.000")).AppendLine(" m³");
+            text.Append("Valor: ").AppendLine(Money.Format(ValueCents));
+        }
+
+        /// <summary>Recalcula o valor depois que a malha mudou (galho quebrado).</summary>
+        public void RecalculateValue()
         {
             if (_definition == null || _meshFilter.sharedMesh == null)
             {

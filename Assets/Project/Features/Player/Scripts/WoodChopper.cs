@@ -8,7 +8,7 @@ namespace LumberJack.Player
 {
     /// <summary>
     /// Machado equipado na hotbar: mira o que dá para cortar (com a linha do corte), toca o golpe nos braços e
-    /// aplica o dano no instante em que o machado chega na madeira.
+    /// aplica o dano no instante em que o machado chega na madeira, com lascas e uma tremida da câmera.
     /// </summary>
     public class WoodChopper : MonoBehaviour
     {
@@ -18,6 +18,16 @@ namespace LumberJack.Player
         [SerializeField] private FirstPersonArms _arms;
         [SerializeField] private Material _previewMaterial;
 
+        [Header("Efeitos da batida")]
+        [Tooltip("Partículas de lascas, criadas uma vez e reaproveitadas em cada batida")]
+        [SerializeField] private ParticleSystem _chipsPrefab;
+        [Tooltip("Lascas por batida")]
+        [Min(0)]
+        [SerializeField] private int _chipCount = 10;
+        [Tooltip("Força da tremida da câmera (0 a 1)")]
+        [Range(0f, 1f)]
+        [SerializeField] private float _hitShake = 0.35f;
+
         [Header("Inclinação do corte")]
         [SerializeField] private float _maxTilt = 60f;
         [Tooltip("Graus por segundo segurando a tecla de inclinar")]
@@ -25,6 +35,8 @@ namespace LumberJack.Player
 
         private Transform _camera;
         private PlayerAim _aim;
+        private CameraShake _shake;
+        private ParticleSystem _chips;
         private int _woodMask;
         private CutPreview _preview;
         private InputAction _tiltAction;
@@ -40,6 +52,8 @@ namespace LumberJack.Player
         private bool _hasTarget;
         private Plane _targetPlane;
         private bool _isTargetValid;
+        private Vector3 _targetPoint;
+        private Vector3 _targetNormal;
 
         // Alvo travado no clique: o dano entra na batida, mesmo que a mira tenha saído
         private IAxeTarget _swingTarget;
@@ -47,20 +61,25 @@ namespace LumberJack.Player
         private Plane _swingPlane;
         private Vector3 _swingDirection;
         private float _swingDamage;
+        private Vector3 _swingPoint;
+        private Vector3 _swingNormal;
 
         private bool HasAxe => _hand.EquippedItem is ToolDefinition tool && tool.CanCutWood;
 
         private void Awake()
         {
-            if (_hand == null || _arms == null)
+            if (_hand == null || _arms == null || _chipsPrefab == null)
             {
-                Debug.LogError($"{nameof(WoodChopper)} sem referência para a mão ou para os braços.", this);
+                Debug.LogError($"{nameof(WoodChopper)} sem referência para a mão, os braços ou as lascas.", this);
                 enabled = false;
                 return;
             }
 
             _aim = GetComponentInParent<PlayerAim>();
             _camera = _aim.transform;
+            _shake = GetComponentInParent<CameraShake>();
+            // Na raiz: as lascas ficam no mundo enquanto o jogador anda
+            _chips = Instantiate(_chipsPrefab);
             _woodMask = LayerMask.GetMask(WoodLayerName);
             _preview = CutPreview.Create(transform, _previewMaterial);
 
@@ -97,6 +116,11 @@ namespace LumberJack.Player
             else _preview.Hide();
         }
 
+        private void OnDestroy()
+        {
+            if (_chips) Destroy(_chips.gameObject);
+        }
+
         private void UpdateTilt()
         {
             if (_straightenAction.WasPressedThisFrame()) _tilt = 0f;
@@ -119,6 +143,8 @@ namespace LumberJack.Player
 
             _target = _lastColliderTarget;
             _hasTarget = true;
+            _targetPoint = hit.point;
+            _targetNormal = hit.normal;
             _targetPlane = _target.GetCutPlane(hit.point, _camera.forward, _camera.up, _tilt);
             _isTargetValid = _target.CanCut(_targetPlane);
         }
@@ -145,6 +171,8 @@ namespace LumberJack.Player
             _swingPlane = _targetPlane;
             _swingDirection = _camera.forward;
             _swingDamage = tool.ChopDamage;
+            _swingPoint = _targetPoint;
+            _swingNormal = _targetNormal;
             _arms.Swing(tool.SwingSpeed);
         }
 
@@ -158,6 +186,10 @@ namespace LumberJack.Player
 
             _swingTarget.Strike(_swingPlane, _swingDirection, _swingDamage);
             _arms.HitStop();
+            _shake.Shake(_hitShake);
+            // As lascas saem da madeira para fora, na direção de quem bateu
+            _chips.transform.SetPositionAndRotation(_swingPoint, Quaternion.LookRotation(_swingNormal));
+            _chips.Emit(_chipCount);
         }
     }
 }

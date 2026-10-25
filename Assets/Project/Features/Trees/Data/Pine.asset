@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Pine
   m_EditorClassIdentifier: LumberJack::LumberJack.Trees.TreeSpeciesDefinition
   _displayName: Pinheiro
-  _wood: {fileID: 0}
+  _wood: {fileID: 11400000, guid: b1c65c2af973d5c4783a0b96480ec15b, type: 2}
   _barkMaterial: {fileID: 2100000, guid: 4713618042120e14893266f3255f23d0, type: 2}
   _cutFaceMaterial: {fileID: 2100000, guid: 3120af1b1cae48740bd349fcbf4dd344, type: 2}
   _trunk:
@@ -123,6 +123,21 @@ MonoBehaviour:
     _irregularity: 0.08
     _minBranchRadius: 0.02
     _barkTiling: 0.5
+  _felling:
+    _healthPerSquareMeter: 15
+    _minHealth: 2
+    _maxCutTilt: 25
+    _minStumpHeight: 0.3
+    _minCutThickness: 0.08
+    _density: 650
+    _tipSpeed: 30
+    _branchBreakRadius: 0.1
+    _landingSpinKeep: 0.15
+    _minColliderRadius: 0.05
+    _minPieceVolume: 0.002
+    _friction: 0.9
+    _maxSpinSpeed: 230
+    _maxSeparationSpeed: 1
   references:
     version: 2
     RefIds:

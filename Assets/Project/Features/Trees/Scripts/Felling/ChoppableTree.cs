@@ -1,5 +1,7 @@
 using System;
+using System.Text;
 using LumberJack.Core;
+using LumberJack.Wood;
 using UnityEngine;
 
 namespace LumberJack.Trees
@@ -11,7 +13,7 @@ namespace LumberJack.Trees
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(ProceduralTree))]
-    public class ChoppableTree : MonoBehaviour, IAxeTarget
+    public class ChoppableTree : MonoBehaviour, IAxeTarget, IDebugInfo
     {
         private const int TrunkIndex = 0;
         private const int NoBranch = -1;
@@ -78,6 +80,22 @@ namespace LumberJack.Trees
         private void OnDestroy()
         {
             if (_hasOwnedMesh) Destroy(_ownedMesh);
+        }
+
+        public void AppendDebugInfo(StringBuilder text)
+        {
+            TreeSpeciesDefinition species = _tree.Species;
+            Vector3 scale = transform.lossyScale;
+            float volume = MeshVolume.Of(_standingMesh) * Mathf.Abs(scale.x * scale.y * scale.z);
+            text.Append("Árvore em pé: ").AppendLine(species.name);
+            text.Append("Corte: ").Append((CutProgress * 100f).ToString("0")).AppendLine("%");
+            text.Append("Volume: ").Append(volume.ToString("0.000")).Append(" m³ (~")
+                .Append((volume * species.Felling.Density).ToString("0")).AppendLine(" kg)");
+            if (species.Wood != null)
+            {
+                int valueCents = Mathf.FloorToInt(volume * species.Wood.RawPriceCentsPerCubicMeter);
+                text.Append("Valor bruto: ~").AppendLine(Money.Format(valueCents));
+            }
         }
 
         public Plane GetCutPlane(Vector3 worldPoint, Vector3 viewForward, Vector3 viewUp, float tilt)

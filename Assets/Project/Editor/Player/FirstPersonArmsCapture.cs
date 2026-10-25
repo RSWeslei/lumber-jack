@@ -124,6 +124,8 @@ namespace LumberJack.Editor
                     break;
                 case 4 when time >= SwingAt + ExitAfterSwing:
                     SessionState.EraseBool(CapturingKey);
+                    // No editor isso é a configuração do projeto: o jogo não roda em segundo plano
+                    PlayerSettings.runInBackground = false;
                     File.WriteAllText(DonePath, "OK\n");
                     EditorApplication.ExitPlaymode();
                     break;

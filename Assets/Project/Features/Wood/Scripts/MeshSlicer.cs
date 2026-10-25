@@ -208,24 +208,6 @@ namespace LumberJack.Wood
             SortAroundCenter(outline, plane.normal);
         }
 
-        /// <summary>
-        /// Volume da malha fechada (usado para calcular a massa dos pedaços).
-        /// </summary>
-        public static float GetVolume(Mesh mesh)
-        {
-            Vector3[] vertices = mesh.vertices;
-            int[] triangles = mesh.triangles;
-            float volume = 0f;
-            for (int i = 0; i < triangles.Length; i += 3)
-            {
-                Vector3 a = vertices[triangles[i]];
-                Vector3 b = vertices[triangles[i + 1]];
-                Vector3 c = vertices[triangles[i + 2]];
-                volume += Vector3.Dot(a, Vector3.Cross(b, c)) / 6f;
-            }
-            return Mathf.Abs(volume);
-        }
-
         private static void AddTriangle(MeshBuilder builder, int submesh, Vertex a, Vertex b, Vertex c)
         {
             builder.AddTriangle(submesh,
