@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using LumberJack.Core;
@@ -11,7 +12,8 @@ namespace LumberJack.Editor
     /// <summary>
     /// Teste automático do corte das árvores: corta árvores de verdade várias vezes seguidas em diagonal, no tronco
     /// e nos galhos, e confere se a face do corte fecha certo (área da tampa = área do buraco) e se os anéis cabem
-    /// na textura (senão ela repete e aparecem vários círculos). Menu "Lumber Jack > Testes > Corte das árvores",
+    /// na textura (senão ela repete e aparecem vários círculos). Confere também se cada tufo de folhas vai com o
+    /// pedaço que tem o galho dele e se a árvore cabe no limite de triângulos. Menu "Lumber Jack > Testes > Corte das árvores",
     /// ou criando o arquivo de comando em Temp. Roda no editor, sem Play.
     /// </summary>
     [InitializeOnLoad]
@@ -39,6 +41,8 @@ namespace LumberJack.Editor
         private const float MaxRingReach = 1.15f;
         // As duas metades somam o volume do pedaço cortado (massa e preço saem dele)
         private const float MaxVolumeError = 0.1f;
+        // Limite de triângulos de uma árvore (casca + folhas)
+        private const int MaxTreeTriangles = 3000;
 
 
         private static double _nextPoll;
@@ -99,6 +103,13 @@ namespace LumberJack.Editor
                         tree.Generate();
                         report.AppendLine($"{species.name} {seed}: volume pela malha {MeshVolume.Of(tree.Mesh):F3} m³, " +
                                           $"pelo esqueleto {SkeletonVolume(tree.Skeleton):F3} m³");
+                        TreeLeaves leaves = tree.Leaves;
+                        int leafTriangles = leaves != null ? leaves.TriangleCount : 0;
+                        int totalTriangles = tree.TriangleCount + leafTriangles;
+                        if (totalTriangles > MaxTreeTriangles) failures++;
+                        report.AppendLine($"{(totalTriangles > MaxTreeTriangles ? "RUIM" : "OK")} {species.name} {seed}: " +
+                                          $"{tree.Foliage.ClusterCount} tufos, triângulos casca {tree.TriangleCount} + folhas " +
+                                          $"{leafTriangles} = {totalTriangles} (limite {MaxTreeTriangles})");
                         CutRepeatedly(tree, cutter, part, ref random, species.name + " " + seed, report, ref cuts, ref failures,
                             ref worstVolumeError);
                     }
@@ -153,6 +164,11 @@ namespace LumberJack.Editor
             string treeName, StringBuilder report, ref int cuts, ref int failures, ref float worstVolumeError)
         {
             TreeSkeleton skeleton = tree.Skeleton;
+            TreeFoliage foliage = tree.Foliage;
+            var clusters = new List<int>();
+            var outerClusters = new List<int>();
+            var halfPart = new TreePartMesh();
+            for (int c = 0; c < foliage.ClusterCount; c++) clusters.Add(c);
             Mesh current = tree.Mesh;
             for (int i = 0; i < CutsPerTree; i++)
             {
@@ -196,12 +212,38 @@ namespace LumberJack.Editor
                                       $"o pedaço tinha {wholeVolume:F3} m³");
                 }
 
+                foliage.Split(clusters, skeleton, branch, plane, outerClusters);
+                int loose = LooseClusters(foliage, outerClusters, outer, halfPart, skeleton) +
+                            LooseClusters(foliage, clusters, inner, halfPart, skeleton);
+                if (loose > 0)
+                {
+                    failures++;
+                    report.AppendLine($"RUIM {treeName} corte {i + 1}: {loose} tufos foram para o pedaço sem o galho deles");
+                }
+
                 bool keepOuter = outerVolume >= innerVolume;
+                if (keepOuter)
+                {
+                    clusters.Clear();
+                    clusters.AddRange(outerClusters);
+                }
                 if (!ReferenceEquals(current, tree.Mesh)) Object.DestroyImmediate(current);
                 Object.DestroyImmediate(keepOuter ? inner : outer);
                 current = keepOuter ? outer : inner;
             }
             if (!ReferenceEquals(current, tree.Mesh)) Object.DestroyImmediate(current);
+        }
+
+        // Tufos cujo galho não está na malha do pedaço (ficariam soltos no ar)
+        private static int LooseClusters(TreeFoliage foliage, List<int> clusters, Mesh mesh, TreePartMesh part, TreeSkeleton skeleton)
+        {
+            part.Load(mesh, skeleton.BranchCount);
+            int loose = 0;
+            foreach (int index in clusters)
+            {
+                if (!part.HasBranch(foliage.GetCluster(index).Branch)) loose++;
+            }
+            return loose;
         }
 
         // Referência grosseira: πr² ao longo de cada galho (conta duas vezes a base dos galhos dentro do tronco)

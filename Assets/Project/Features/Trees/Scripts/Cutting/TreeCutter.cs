@@ -73,6 +73,13 @@ namespace LumberJack.Trees
             return isCut;
         }
 
+        /// <summary>O ponto <paramref name="point"/>, preso no galho <paramref name="branch"/>, vai com a ponta do corte?</summary>
+        public static bool IsOnOuterSide(TreeSkeleton skeleton, int branch, Vector3 point, int cutBranch, Plane plane)
+        {
+            int side = SideOf(skeleton, branch, cutBranch, plane);
+            return side == PlaneDecides ? plane.GetDistanceToPoint(point) > 0f : side == OuterSide;
+        }
+
         // Galho cortado: o plano decide. Descendente dele: o lado onde nasce o ramo que sai dele. Resto: fica
         private static int SideOf(TreeSkeleton skeleton, int branch, int cutBranch, Plane plane)
         {

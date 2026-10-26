@@ -6,7 +6,7 @@ using UnityEngine;
 namespace LumberJack.Trees
 {
     /// <summary>
-    /// Espécie de árvore (pinheiro, carvalho...): forma do tronco, níveis de galhos e resolução da malha.
+    /// Espécie de árvore (pinheiro, carvalho...): forma do tronco, níveis de galhos, folhas e resolução da malha.
     /// Cada árvore da cena usa uma espécie + uma seed.
     /// </summary>
     [CreateAssetMenu(fileName = "NewTreeSpecies", menuName = "Lumber Jack/Trees/Tree Species")]
@@ -23,6 +23,7 @@ namespace LumberJack.Trees
         [Tooltip("Cada nível nasce nos galhos do anterior; vazia = só o tronco")]
         [SerializeField] private List<BranchLevelSettings> _branchLevels = new();
         [SerializeField] private TreeMeshSettings _mesh = new();
+        [SerializeField] private TreeLeafSettings _leaves = new();
         [SerializeField] private TreeFellingSettings _felling = new();
         [SerializeField] private TreeLifecycleSettings _lifecycle = new();
         [Tooltip("Sons da queda e dos pedaços; vazio = sem som")]
@@ -35,6 +36,7 @@ namespace LumberJack.Trees
         public TrunkSettings Trunk => _trunk;
         public IReadOnlyList<BranchLevelSettings> BranchLevels => _branchLevels;
         public TreeMeshSettings Mesh => _mesh;
+        public TreeLeafSettings Leaves => _leaves;
         public TreeFellingSettings Felling => _felling;
         public TreeLifecycleSettings Lifecycle => _lifecycle;
         public TreeSoundsDefinition Sounds => _sounds;
@@ -46,6 +48,7 @@ namespace LumberJack.Trees
         private void OnValidate()
         {
             _trunk.Validate();
+            _leaves.Validate();
             _felling.Validate();
             _lifecycle.Validate();
             foreach (BranchLevelSettings level in _branchLevels)

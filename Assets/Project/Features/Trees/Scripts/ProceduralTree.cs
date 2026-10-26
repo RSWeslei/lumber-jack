@@ -7,11 +7,12 @@ using UnityEditor;
 namespace LumberJack.Trees
 {
     /// <summary>
-    /// Árvore gerada a partir de uma espécie + seed. Gera a malha e o colisor ao ativar, também no editor
-    /// (preview), e se regenera quando a espécie ou a seed mudam no inspector.
+    /// Árvore gerada a partir de uma espécie + seed. Gera a malha, o colisor e as folhas (filho
+    /// <see cref="TreeLeaves"/>) ao ativar, também no editor (preview), e se regenera quando a espécie ou a seed mudam.
     /// </summary>
     [ExecuteAlways]
     [DisallowMultipleComponent]
+    [SelectionBase]
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
     public class ProceduralTree : MonoBehaviour
     {
@@ -25,8 +26,12 @@ namespace LumberJack.Trees
         // reaproveitar os buffers evita lixo para o GC a cada árvore criada
         private static readonly TreeSkeletonGenerator SharedSkeletonGenerator = new();
         private static readonly TreeMeshBuilder SharedMeshBuilder = new();
+        private static readonly TreeFoliageGenerator SharedFoliageGenerator = new();
 
         private readonly TreeSkeleton _skeleton = new();
+        private readonly TreeFoliage _foliage = new();
+        private TreeLeaves _leaves;
+        private bool _hasLeaves;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
         private MeshCollider _meshCollider;
@@ -44,6 +49,10 @@ namespace LumberJack.Trees
         public TreeSpeciesDefinition Species => _species;
         public int Seed => _seed;
         public TreeSkeleton Skeleton => _skeleton;
+        public TreeFoliage Foliage => _foliage;
+
+        /// <summary>Folhas da árvore em pé; null quando a espécie não tem folhas.</summary>
+        public TreeLeaves Leaves => _hasLeaves ? _leaves : null;
 
         /// <summary>Malha gerada (a árvore inteira, antes de qualquer corte).</summary>
         public Mesh Mesh { get; private set; }
@@ -111,6 +120,8 @@ namespace LumberJack.Trees
             SharedMeshBuilder.Build(_skeleton, _species.Mesh, _seed, Mesh);
             VertexCount = SharedMeshBuilder.VertexCount;
             TriangleCount = SharedMeshBuilder.TriangleCount;
+            SharedFoliageGenerator.Generate(_skeleton, _species.Leaves, _seed, _foliage);
+            ShowLeaves();
 
             _meshRenderer.sharedMaterial = _species.BarkMaterial;
             // Malha gerada não tem colisão pré-calculada: calcula aqui (e reatribui para o PhysX usar a nova)
@@ -120,6 +131,23 @@ namespace LumberJack.Trees
 
             IsGenerated = true;
             Generated?.Invoke();
+        }
+
+        private void ShowLeaves()
+        {
+            // O filho pode ter sido apagado à mão no editor (ou sumido numa recompilação): procura de novo
+            if (_hasLeaves && _leaves == null) _hasLeaves = false;
+            if (!_hasLeaves)
+            {
+                _leaves = GetComponentInChildren<TreeLeaves>(true);
+                _hasLeaves = _leaves != null;
+            }
+            if (!_hasLeaves && _foliage.ClusterCount > 0)
+            {
+                _leaves = TreeLeaves.Create(transform);
+                _hasLeaves = true;
+            }
+            if (_hasLeaves) _leaves.ShowAll(_foliage, _species.Leaves);
         }
 
         private void CacheComponents()
@@ -145,6 +173,8 @@ namespace LumberJack.Trees
         private void Clear()
         {
             _skeleton.Clear();
+            _foliage.Clear();
+            if (_hasLeaves && _leaves != null) _leaves.Hide();
             VertexCount = 0;
             TriangleCount = 0;
             IsGenerated = false;

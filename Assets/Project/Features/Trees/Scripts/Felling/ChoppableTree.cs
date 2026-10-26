@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 using LumberJack.Core;
 using LumberJack.Wood;
@@ -22,6 +23,8 @@ namespace LumberJack.Trees
 
         // Cortes acontecem um por vez na thread principal: um cortador para todas as árvores
         private static readonly TreeCutter SharedCutter = new();
+        // Tufos de folhas que saem com o pedaço cortado
+        private static readonly List<int> CutClusters = new();
 
         private readonly TreeFellingState _state = new();
         private readonly TreePartMesh _part = new();
@@ -164,6 +167,9 @@ namespace LumberJack.Trees
                     out Mesh outer, out Mesh inner)) return;
 
             ReplaceStandingMesh(inner);
+            TreeLeaves leaves = _tree.Leaves;
+            if (leaves != null) leaves.Cut(_tree.Skeleton, branch, _lockedCut, CutClusters);
+            else CutClusters.Clear();
             // Lasca pequena demais some em vez de virar um pedaço
             if (!TreePiece.IsBigEnough(outer, transform, _tree.Species))
             {
@@ -171,7 +177,7 @@ namespace LumberJack.Trees
                 return;
             }
             TreePiece piece = TreePiece.Spawn(transform, name + PieceSuffix, outer, _tree.Skeleton, _tree.Species,
-                _tree.Species.Wood);
+                _tree.Species.Wood, _tree.Foliage, CutClusters);
             // Só graveto: some
             if (piece == null) return;
 

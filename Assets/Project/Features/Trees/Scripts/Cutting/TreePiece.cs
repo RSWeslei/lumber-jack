@@ -10,7 +10,7 @@ namespace LumberJack.Trees
 {
     /// <summary>
     /// Pedaço de árvore solto (tronco derrubado, galho cortado, tora): tem física e corta de novo com o machado.
-    /// Continua no espaço local da árvore, então o esqueleto vale para ele.
+    /// Continua no espaço local da árvore, então o esqueleto e as folhas dela valem para ele.
     /// </summary>
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(RuntimeMesh))]
     public class TreePiece : MonoBehaviour, IAxeTarget, IDebugInfo
@@ -29,6 +29,9 @@ namespace LumberJack.Trees
 
         // Cortes acontecem um por vez na thread principal: um cortador para todos os pedaços
         private static readonly TreeCutter SharedCutter = new();
+        // Tufos de folhas que saem com a outra metade (ou com a ponta quebrada)
+        private static readonly List<int> CutClusters = new();
+        private static readonly List<int> NoClusters = new();
 
         private readonly TreePartMesh _part = new();
         private readonly TreeFellingState _state = new();
@@ -37,6 +40,9 @@ namespace LumberJack.Trees
         private Mesh _mesh;
         private WoodPiece _woodPiece;
         private bool _hasWoodPiece;
+        private TreeLeaves _leaves;
+        private Transform _leavesTransform;
+        private bool _hasLeaves;
         private AudioSource _audio;
         private TreeSoundsDefinition _sounds;
         private bool _hasSounds;
@@ -59,6 +65,7 @@ namespace LumberJack.Trees
         public Rigidbody Body { get; private set; }
         public TreeSkeleton Skeleton { get; private set; }
         public TreeSpeciesDefinition Species { get; private set; }
+        public TreeFoliage Foliage { get; private set; }
 
         /// <summary>Tipo de madeira (preço); null = sem valor. Passa para as metades quando corta.</summary>
         public WoodDefinition Wood { get; private set; }
@@ -89,12 +96,20 @@ namespace LumberJack.Trees
             return VolumeOf(mesh, space) >= species.Felling.MinPieceVolume;
         }
 
-        /// <summary>
-        /// Cria um pedaço com física no mesmo lugar e espaço local de <paramref name="source"/>. Null se o pedaço
-        /// é só galho fino (gravetos que nem colidem): esses somem, como as lascas.
-        /// </summary>
+        /// <summary>Pedaço sem folhas (tora).</summary>
         public static TreePiece Spawn(Transform source, string pieceName, Mesh mesh, TreeSkeleton skeleton,
             TreeSpeciesDefinition species, WoodDefinition wood)
+        {
+            return Spawn(source, pieceName, mesh, skeleton, species, wood, null, NoClusters);
+        }
+
+        /// <summary>
+        /// Cria um pedaço com física no mesmo lugar e espaço local de <paramref name="source"/>, com os tufos
+        /// <paramref name="leafClusters"/> da folhagem. Null se o pedaço é só galho fino (gravetos que nem
+        /// colidem): esses somem, como as lascas, com as folhas deles.
+        /// </summary>
+        public static TreePiece Spawn(Transform source, string pieceName, Mesh mesh, TreeSkeleton skeleton,
+            TreeSpeciesDefinition species, WoodDefinition wood, TreeFoliage foliage, IReadOnlyList<int> leafClusters)
         {
             var pieceObject = new GameObject(pieceName) { layer = source.gameObject.layer, tag = WoodTag };
             Transform pieceTransform = pieceObject.transform;
@@ -104,10 +119,15 @@ namespace LumberJack.Trees
 
             pieceObject.AddComponent<MeshRenderer>().sharedMaterials = new[] { species.BarkMaterial, species.CutFaceMaterial };
             TreePiece piece = pieceObject.AddComponent<TreePiece>();
-            if (piece.Initialize(mesh, skeleton, species, wood)) return piece;
+            if (!piece.Initialize(mesh, skeleton, species, wood))
+            {
+                Destroy(pieceObject);
+                return null;
+            }
 
-            Destroy(pieceObject);
-            return null;
+            piece.Foliage = foliage;
+            if (foliage != null && leafClusters.Count > 0) piece.AddLeaves(leafClusters);
+            return piece;
         }
 
         public Plane GetCutPlane(Vector3 worldPoint, Vector3 viewForward, Vector3 viewUp, float tilt)
@@ -151,9 +171,11 @@ namespace LumberJack.Trees
             if (!SharedCutter.TryCut(_mesh, _part, Skeleton, _lockedBranch, _lockedCut, _lockedCenter, _lockedRadius,
                     out Mesh outer, out Mesh inner)) return;
 
+            if (_hasLeaves) _leaves.Cut(Skeleton, _lockedBranch, _lockedCut, CutClusters);
+            else CutClusters.Clear();
             Vector3 separation = transform.TransformDirection(_lockedCut.normal) * SeparationSpeed;
-            TreePiece outerHalf = SpawnHalf(outer, separation);
-            TreePiece innerHalf = SpawnHalf(inner, -separation);
+            TreePiece outerHalf = SpawnHalf(outer, separation, CutClusters);
+            TreePiece innerHalf = SpawnHalf(inner, -separation, _hasLeaves ? _leaves.Clusters : NoClusters);
 
             // As metades nascem encostadas no corte: não se empurram até se afastarem
             if (outerHalf != null && innerHalf != null)
@@ -199,6 +221,8 @@ namespace LumberJack.Trees
 
             Destroy(outer);
             SetMesh(inner);
+            // As folhas da ponta quebrada somem com ela
+            if (_hasLeaves) _leaves.Cut(Skeleton, branch, plane, CutClusters);
             HasColliders = BuildColliders() > 0;
             UpdateMass();
             if (_hasWoodPiece) _woodPiece.RecalculateValue();
@@ -262,6 +286,14 @@ namespace LumberJack.Trees
             Destroy(gameObject);
         }
 
+        private void AddLeaves(IReadOnlyList<int> clusters)
+        {
+            _leaves = TreeLeaves.Create(transform);
+            _leaves.Show(Foliage, Species.Leaves, clusters);
+            _leavesTransform = _leaves.transform;
+            _hasLeaves = true;
+        }
+
         private void SetMesh(Mesh mesh)
         {
             _mesh = mesh;
@@ -275,7 +307,10 @@ namespace LumberJack.Trees
             for (int i = transform.childCount - 1; i >= 0; i--)
             {
                 // Desativa antes: Destroy só acontece no fim do frame e a física rodaria com as caixas velhas
-                GameObject child = transform.GetChild(i).gameObject;
+                Transform childTransform = transform.GetChild(i);
+                if (_hasLeaves && ReferenceEquals(childTransform, _leavesTransform)) continue;
+
+                GameObject child = childTransform.gameObject;
                 child.SetActive(false);
                 Destroy(child);
             }
@@ -307,7 +342,7 @@ namespace LumberJack.Trees
         }
 
         // Null quando a metade é uma lasca pequena demais e some
-        private TreePiece SpawnHalf(Mesh mesh, Vector3 separation)
+        private TreePiece SpawnHalf(Mesh mesh, Vector3 separation, IReadOnlyList<int> leafClusters)
         {
             if (!IsBigEnough(mesh, transform, Species))
             {
@@ -315,7 +350,7 @@ namespace LumberJack.Trees
                 return null;
             }
 
-            TreePiece half = Spawn(transform, name, mesh, Skeleton, Species, Wood);
+            TreePiece half = Spawn(transform, name, mesh, Skeleton, Species, Wood, Foliage, leafClusters);
             if (half == null) return null;
 
             half.Body.linearVelocity = Body.linearVelocity + separation;

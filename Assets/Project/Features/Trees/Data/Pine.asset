@@ -123,6 +123,78 @@ MonoBehaviour:
     _irregularity: 0.08
     _minBranchRadius: 0.02
     _barkTiling: 0.5
+  _leaves:
+    _materials:
+    - {fileID: 2100000, guid: b56f912249414ee88b2023613806240f, type: 2}
+    - {fileID: 2100000, guid: 3b510648c5f0427ebc5bb4605e9770ea, type: 2}
+    _minLevel: 1
+    _hasTopCluster: 1
+    _size:
+      _min: 0.8
+      _max: 1.0
+    _sizeOverHeight:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1.3
+        inSlope: 0
+        outSlope: -0.9
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0.45
+        inSlope: -0.9
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _stretch: {x: 1.3, y: 0.6, z: 1.5}
+    _topStretch: {x: 0.75, y: 2.0, z: 0.75}
+    _followBranch: 0.5
+    _sides: 6
+    _rings: 2
+    _profile:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 4
+        outSlope: 4
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.35
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: -1.5
+        outSlope: -1.5
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _roughness: 0.12
   _felling:
     _healthPerSquareMeter: 15
     _minHealth: 2
