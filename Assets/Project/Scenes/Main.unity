@@ -933,7 +933,7 @@ GameObject:
   - component: {fileID: 155436711}
   - component: {fileID: 155436710}
   - component: {fileID: 155436709}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Plane (1)_05
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4545,7 +4545,7 @@ GameObject:
   - component: {fileID: 911401631}
   - component: {fileID: 911401630}
   - component: {fileID: 911401629}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Plane (3)_08
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7221,7 +7221,7 @@ GameObject:
   - component: {fileID: 1370834255}
   - component: {fileID: 1370834254}
   - component: {fileID: 1370834253}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Plane (1)_08
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8052,6 +8052,7 @@ Transform:
   m_Children:
   - {fileID: 1734620030}
   - {fileID: 1655332072}
+  - {fileID: 2140000005}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1480088310
@@ -8986,7 +8987,7 @@ GameObject:
   - component: {fileID: 1621217107}
   - component: {fileID: 1621217106}
   - component: {fileID: 1621217105}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Plane (1)_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11374,7 +11375,7 @@ GameObject:
   - component: {fileID: 2014449522}
   - component: {fileID: 2014449521}
   - component: {fileID: 2014449520}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Plane (3)_05
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11713,7 +11714,7 @@ GameObject:
   - component: {fileID: 2072599435}
   - component: {fileID: 2072599434}
   - component: {fileID: 2072599433}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Plane (3)_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13012,3 +13013,98 @@ SceneRoots:
   - {fileID: 1832664637}
   - {fileID: 1492301882}
   - {fileID: 1364644284}
+--- !u!1 &2140000004
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2140000005}
+  - component: {fileID: 2140000006}
+  m_Layer: 0
+  m_Name: Forest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2140000005
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2140000004}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 18, y: 0, z: 17.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2140000008}
+  m_Father: {fileID: 1467726979}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2140000007
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2140000008}
+  - component: {fileID: 2140000009}
+  m_Layer: 0
+  m_Name: SellPointNoPlantZone
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2140000008
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2140000007}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -12, y: 0, z: -11.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2140000005}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2140000009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2140000007}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b313a3957aea0c0449cbd80ac38c6ab5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  _size: {x: 6, y: 6, z: 6}
+--- !u!114 &2140000006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2140000004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be280b9cb21cd3f4a8acf8dc7a6149e5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  _clock: {fileID: 2140000003}
+  _definition: {fileID: 11400000, guid: 1f80eadb8a45449bbe9a2565ef3ead4d, type: 2}
+  _treesParent: {fileID: 1655332072}
+  _size: {x: 24, y: 12, z: 40}
+  _seed: 1

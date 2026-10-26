@@ -56,6 +56,11 @@ namespace LumberJack.Trees
         /// <summary>Quando um corte termina, com o pedaço que caiu.</summary>
         public event Action<TreePiece> PieceCut;
 
+        /// <summary>O tronco foi cortado e caiu: o que sobrou em pé é o toco.</summary>
+        public event Action<ChoppableTree> Felled;
+
+        public bool IsFelled { get; private set; }
+
         private void Awake()
         {
             _tree = GetComponent<ProceduralTree>();
@@ -135,7 +140,8 @@ namespace LumberJack.Trees
                 _lockedBranch = _aimBranch;
                 _lockedCenter = _aimCenter;
                 _lockedRadius = _aimRadius;
-                _state.Begin(_tree.Species.Felling.HealthFor(_aimRadius));
+                // Raio no mundo: árvore jovem (menor) pede menos golpes
+                _state.Begin(_tree.Species.Felling.HealthFor(_aimRadius * transform.lossyScale.x));
             }
 
             bool isDone = _state.ApplyHit(damage);
@@ -174,6 +180,10 @@ namespace LumberJack.Trees
 
             if (branch == TrunkIndex) FellTrunk(piece, swingDirection);
             PieceCut?.Invoke(piece);
+            if (branch != TrunkIndex || IsFelled) return;
+
+            IsFelled = true;
+            Felled?.Invoke(this);
         }
 
         // Centro do corte mais baixo no tronco: o lado de baixo do círculo inclinado fica no mínimo do toco
@@ -209,7 +219,7 @@ namespace LumberJack.Trees
             // Gira sobre a borda do corte do lado da queda
             Vector3 cutNormal = transform.TransformDirection(_lockedCut.normal);
             Vector3 edge = Vector3.ProjectOnPlane(fall, cutNormal).normalized;
-            Vector3 pivot = transform.TransformPoint(_lockedCenter) + edge * _lockedRadius;
+            Vector3 pivot = transform.TransformPoint(_lockedCenter) + edge * (_lockedRadius * transform.lossyScale.x);
             Vector3 axis = Vector3.Cross(Vector3.up, fall).normalized;
             FallingTree.Begin(piece, pivot, axis, _tree.Species.Felling.TipSpeed * Mathf.Deg2Rad, _standingColliders);
         }

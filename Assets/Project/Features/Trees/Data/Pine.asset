@@ -138,6 +138,15 @@ MonoBehaviour:
     _friction: 0.9
     _maxSpinSpeed: 230
     _maxSeparationSpeed: 1
+  _lifecycle:
+    _growingDays: 7
+    _saplingScale: 0.05
+    _springRate: 1
+    _summerRate: 1
+    _autumnRate: 0.3
+    _winterRate: 0
+    _stumpDecayDays: 7
+    _resproutChance: 0.0
   _sounds: {fileID: 11400000, guid: be2a07d7d7c7886469d4356909d27e59, type: 2}
   references:
     version: 2

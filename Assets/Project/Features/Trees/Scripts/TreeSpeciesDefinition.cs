@@ -24,6 +24,7 @@ namespace LumberJack.Trees
         [SerializeField] private List<BranchLevelSettings> _branchLevels = new();
         [SerializeField] private TreeMeshSettings _mesh = new();
         [SerializeField] private TreeFellingSettings _felling = new();
+        [SerializeField] private TreeLifecycleSettings _lifecycle = new();
         [Tooltip("Sons da queda e dos pedaços; vazio = sem som")]
         [SerializeField] private TreeSoundsDefinition _sounds;
 
@@ -35,6 +36,7 @@ namespace LumberJack.Trees
         public IReadOnlyList<BranchLevelSettings> BranchLevels => _branchLevels;
         public TreeMeshSettings Mesh => _mesh;
         public TreeFellingSettings Felling => _felling;
+        public TreeLifecycleSettings Lifecycle => _lifecycle;
         public TreeSoundsDefinition Sounds => _sounds;
 
 #if UNITY_EDITOR
@@ -45,6 +47,7 @@ namespace LumberJack.Trees
         {
             _trunk.Validate();
             _felling.Validate();
+            _lifecycle.Validate();
             foreach (BranchLevelSettings level in _branchLevels)
             {
                 level?.Validate();

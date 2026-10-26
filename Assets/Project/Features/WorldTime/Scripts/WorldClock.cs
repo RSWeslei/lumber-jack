@@ -20,6 +20,7 @@ namespace LumberJack.WorldTime
         private GameCalendar _calendar;
         private WorldTimeState _state;
         private long _minuteIndex = -1;
+        private long _hourIndex = -1;
         private long _dayIndex = -1;
         private bool _hasSeason;
         private bool _hasPhase;
@@ -36,11 +37,17 @@ namespace LumberJack.WorldTime
         /// <summary>Direção do sol na bússola (graus a partir do norte), atualizada a cada minuto do jogo.</summary>
         public double SunAzimuth { get; private set; }
         public double Latitude => _definition.Latitude;
+        /// <summary>Horas desde o começo do mundo (marca quando algo aconteceu: árvore nasceu, foi derrubada).</summary>
+        public double TotalHours => _state.TotalHours;
+        /// <summary>Número do dia desde o começo do mundo.</summary>
+        public long DayIndex => _dayIndex;
+        public GameCalendar Calendar => _calendar;
         /// <summary>Hora exata do dia (0 a 24), sem arredondar para o minuto: para mover o sol suave.</summary>
         public double ExactHour => _state.TotalHours % GameCalendar.HoursPerDay;
         public bool IsPaused => _isPaused;
 
         public event Action MinuteChanged;
+        public event Action HourChanged;
         public event Action DayChanged;
         public event Action<Season> SeasonChanged;
         public event Action<DayPhase> PhaseChanged;
@@ -80,6 +87,9 @@ namespace LumberJack.WorldTime
 
             _minuteIndex = minuteIndex;
             Date = _calendar.DateAt(totalHours);
+            long hourIndex = (long)totalHours;
+            bool isNewHour = hourIndex != _hourIndex;
+            _hourIndex = hourIndex;
             long dayIndex = (long)(totalHours / GameCalendar.HoursPerDay);
             bool isNewDay = dayIndex != _dayIndex;
             if (isNewDay)
@@ -103,6 +113,7 @@ namespace LumberJack.WorldTime
             _hasPhase = true;
 
             if (isNewDay) DayChanged?.Invoke();
+            if (isNewHour) HourChanged?.Invoke();
             if (isNewSeason) SeasonChanged?.Invoke(season);
             if (isNewPhase) PhaseChanged?.Invoke(phase);
             MinuteChanged?.Invoke();

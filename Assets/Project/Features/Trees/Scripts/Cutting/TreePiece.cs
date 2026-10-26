@@ -142,7 +142,8 @@ namespace LumberJack.Trees
                 _lockedBranch = _aimBranch;
                 _lockedCenter = _aimCenter;
                 _lockedRadius = _aimRadius;
-                _state.Begin(Species.Felling.HealthFor(_aimRadius));
+                // Raio no mundo: pedaço de árvore jovem (menor) pede menos golpes
+                _state.Begin(Species.Felling.HealthFor(_aimRadius * transform.lossyScale.x));
             }
             if (!_state.ApplyHit(damage)) return;
 

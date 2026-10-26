@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebbe42e9182f5c2458f900a64ba66444, type: 3}
+  m_Name: Forest
+  m_EditorClassIdentifier:
+  _maxTrees: 30
+  _spreadDistance:
+    _min: 3
+    _max: 9
+  _minSpacing: 3
+  _clearance: 0.6
+  _clearanceHeight: 3
+  _maxSlope: 25
+  _springChance: 0.15
+  _summerChance: 0.08
+  _autumnChance: 0.02
+  _winterChance: 0
+  _species:
+  - _species: {fileID: 11400000, guid: 77b6060cc71f4184ca2da6b31c226687, type: 2}
+    _weight: 40
+  - _species: {fileID: 11400000, guid: f54277a6f7d33f34e88490d0301d4dd6, type: 2}
+    _weight: 30
+  - _species: {fileID: 11400000, guid: 8ec1178feb3c9794fb102da7d714af15, type: 2}
+    _weight: 30
+  _springOutsideChance: 0.5
+  _summerOutsideChance: 0.25
+  _autumnOutsideChance: 0.1
+  _winterOutsideChance: 0
+  _resproutDelayDays: 2
